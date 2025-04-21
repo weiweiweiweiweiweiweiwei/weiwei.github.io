@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+
+            font-family: sans-serif;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="space"></canvas>
+
+    <script>
+        window.requestAnimFrame = (function () {
+            return window.requestAnimationFrame;
+        })();
+
+        const canvas = document.getElementById('space');
+        const c = canvas.getContext('2d');
+
+        let numStars = 1900;
+        let radius = '0.' + Math.floor(Math.random() * 9) + 1;
+        let focalLength = canvas.width * 2;
+        let centerX, centerY;
+        let stars = [];
+
+        function initializeStars() {
+            centerX = canvas.width / 2;
+            centerY = canvas.height / 2;
+            stars = [];
+
+            for (let i = 0; i < numStars; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    z: Math.random() * canvas.width,
+                    o: '0.' + Math.floor(Math.random() * 99) + 1
+                });
+            }
+        }
+
+        function moveStars() {
+            for (let i = 0; i < numStars; i++) {
+                let star = stars[i];
+                star.z--;
+                if (star.z <= 0) {
+                    star.z = canvas.width;
+                }
+            }
+        }
+
+        function drawStars() {
+            if (canvas.width !== window.innerWidth || canvas.height !== window.innerHeight) {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                initializeStars();
+            }
+
+            c.fillStyle = '#000a14';
+            c.fillRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < numStars; i++) {
+                let star = stars[i];
+
+                let pixelX = (star.x - centerX) * (focalLength / star.z) + centerX;
+                let pixelY = (star.y - centerY) * (focalLength / star.z) + centerY;
+                let pixelRadius = 1 * (focalLength / star.z);
+
+                c.fillStyle = 'rgba(209, 255, 255, ' + star.o + ')';
+                c.fillRect(pixelX, pixelY, pixelRadius, pixelRadius);
+            }
+        }
+
+        function animateStars() {
+            moveStars();
+            drawStars();
+            requestAnimFrame(animateStars);
+        }
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        initializeStars();
+        animateStars();
+    </script>
+</body>
+
+</html>

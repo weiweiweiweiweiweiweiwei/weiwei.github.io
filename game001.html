@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>反詐騙知識大考驗</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #444444;
+            margin: 0;
+            padding: 0;
+        }
+
+        .quiz-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .score {
+            text-align: center;
+            font-size: 1.2em;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            width: 0;
+            height: 20px;
+            background-color: #3379e2;
+            transition: width 0.5s;
+        }
+
+        .question-box {
+            font-size: 1.2em;
+            margin: 20px 0;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .option {
+            background-color: transparent;
+            border: 2px solid #ccc;
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            font-size: 1.1em;
+            border-radius: 10px;
+            text-align: left;
+            color: black;
+        }
+
+        .option:hover {
+            background-color: #e0e0e0;
+            transform: translateX(5px);
+        }
+
+        .option.correct {
+            background-color: #40a635;
+            color: white;
+            border-color: #40a635;
+        }
+
+        .option.wrong {
+            background-color: #e84a4a;
+            color: white;
+            border-color: #e84a4a;
+        }
+
+        .next-button {
+            background-color: #3379e2;
+            color: white;
+            padding: 10px 20px;
+            margin: 20px 0;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1em;
+            border-radius: 5px;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+
+        .next-button:hover {
+            background-color: #2a5dab;
+        }
+
+        .explanation {
+            margin-top: 20px;
+            font-size: 1em;
+            color: #333;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="quiz-container">
+        <h1>反詐騙知識大考驗</h1>
+        <p class="score">得分: <span id="score">0</span></p>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progress"></div>
+        </div>
+        <div class="question-box" id="question">接到自稱是銀行客服的電話，說你的帳戶有異常交易，要如何處理？</div>
+        <div class="options" id="options"></div>
+        <div id="explanation"></div>
+    </div>
+    <script src="libraries/p5.min.js"></script>
+    <script src="libraries/p5.sound.min.js"></script>
+
+
+    <script>
+        let score = 0;
+        let currentQuestionIndex = 0;
+        const scoreDisplay = document.getElementById("score");
+        const progressBar = document.getElementById("progress");
+        const explanation = document.getElementById("explanation");
+        const questionText = document.getElementById("question");
+        const optionsContainer = document.getElementById("options");
+
+        const questions = [
+            {
+                question: "接到自稱是銀行客服的電話，說你的帳戶有異常交易，要如何處理？",
+                options: [
+                    { text: "立即依照對方指示操作", correct: false },
+                    { text: "提供帳戶密碼給對方查證", correct: false },
+                    { text: "掛斷電話，親自撥打銀行官方電話確認", correct: true },
+                    { text: "在電話中告知個人資料", correct: false }
+                ],
+                explanation: "不要輕信來電，應主動撥打銀行官方電話確認。"
+            },
+            {
+                question: "如果接到不明連結，標示帳戶異常需要登入確認，應該怎麼做？",
+                options: [
+                    { text: "點擊連結並輸入帳戶密碼", correct: false },
+                    { text: "確認網址安全性後再輸入資訊", correct: false },
+                    { text: "直接忽略，或聯繫銀行官方客服", correct: true },
+                    { text: "將連結轉發給朋友詢問", correct: false }
+                ],
+                explanation: "不應點擊不明連結，應直接聯繫銀行官方客服確認。"
+            }
+        ];
+
+        function loadQuestion() {
+            const currentQuestion = questions[currentQuestionIndex];
+            questionText.textContent = currentQuestion.question;
+            optionsContainer.innerHTML = "";
+            explanation.textContent = "";
+
+            currentQuestion.options.forEach(option => {
+                const button = document.createElement("button");
+                button.textContent = option.text;
+                button.classList.add("option");
+                button.onclick = () => checkAnswer(button, option.correct);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function checkAnswer(button, isCorrect) {
+            const options = document.querySelectorAll(".option");
+            options.forEach(opt => opt.disabled = true);
+
+            if (isCorrect) {
+                button.classList.add("correct");
+                score++;
+            } else {
+                button.classList.add("wrong");
+                // Highlight the correct answer
+                const correctButton = Array.from(options).find(opt => questions[currentQuestionIndex].options.find(option => option.text === opt.textContent && option.correct));
+                if (correctButton) {
+                    correctButton.classList.add("correct");
+                }
+            }
+
+            explanation.textContent = questions[currentQuestionIndex].explanation;
+            scoreDisplay.textContent = score;
+            updateProgressBar();
+
+            // Show next button
+            const nextButton = document.createElement("button");
+            nextButton.textContent = "下一頁";
+            nextButton.classList.add("next-button");
+            nextButton.onclick = () => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    loadQuestion();
+                } else {
+                    showFinalScore();
+                }
+            };
+            optionsContainer.appendChild(nextButton);
+        }
+
+        function updateProgressBar() {
+            const totalQuestions = questions.length;
+            const progress = (currentQuestionIndex / totalQuestions) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function showFinalScore() {
+            questionText.textContent = "測驗結束！";
+            optionsContainer.innerHTML = `你的最終得分是 ${score} 分。`;
+            explanation.textContent = "";
+        }
+
+        window.onload = loadQuestion;
+
+    </script>
+</body>
+
+</html>

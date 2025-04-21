@@ -1,0 +1,62 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>互動地圖作品展示</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #map {
+      height: 100vh;
+      width: 100%;
+    }
+
+    body {
+      margin: 0;
+      font-family: sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // 初始化地圖，設定中心點（台北）與縮放層級
+    const map = L.map('map').setView([25.0330, 121.5654], 13);
+
+    // 加入 OpenStreetMap 圖層
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '地圖資料 &copy; <a href="https://openstreetmap.org">OpenStreetMap</a> 貢獻者',
+      maxZoom: 18
+    }).addTo(map);
+
+    // 加入標記（例如作品展示地點）
+    const marker = L.marker([25.0340, 121.5645]).addTo(map);
+    marker.bindPopup('<b>作品展覽地點</b><br>台北市信義區某地點').openPopup();
+
+    // 使用者位置功能
+    map.locate({setView: true, maxZoom: 16});
+
+    // 若成功取得位置
+    map.on('locationfound', function(e) {
+      const userMarker = L.circleMarker(e.latlng, {
+        radius: 8,
+        fillColor: "#3388ff",
+        color: "#fff",
+        weight: 2,
+        opacity: 1,
+        fillOpacity: 0.8
+      }).addTo(map).bindPopup("你現在的位置").openPopup();
+    });
+
+    // 若無法取得位置
+    map.on('locationerror', function(e) {
+      alert("無法取得你的位置：請檢查權限或裝置支援");
+    });
+  </script>
+</body>
+</html>

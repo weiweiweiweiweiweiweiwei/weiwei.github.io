@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>歷史博物館 文意選填</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #606c38;
+            text-align: left;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: #FAFAFA;
+            padding: 20px;
+            margin: 30px auto;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        .answer-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .draggable {
+            background-color: #dda15e;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: grab;
+            font-weight: bold;
+            user-select: none;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .draggable:hover {
+            transform: scale(1.1);
+        }
+
+        .dropzone {
+            display: inline-block;
+            min-width: 80px;
+            min-height: 30px;
+            border-bottom: 2px dashed #555;
+            margin: 0 5px;
+            padding: 5px;
+        }
+
+        .filled {
+            border-bottom: none;
+            font-weight: bold;
+            color: #3379e2;
+        }
+
+        .wrong {
+            background-color: red !important;
+            color: white !important;
+            animation: shake 0.3s ease-in-out;
+        }
+
+        .locked {
+            background-color: #606c38 !important;
+            cursor: default !important;
+
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            50% {
+                transform: translateX(5px);
+            }
+
+            75% {
+                transform: translateX(-5px);
+            }
+        }
+
+        button {
+            display: block;
+            margin: 30px auto;
+            padding: 10px 20px;
+            background: #bc6c25;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #99582a;
+        }
+
+        #result {
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="container">
+        <h1>歷史博物館 文意選填</h1>
+        <p>請將下方的答案拖曳至正確的空格內，完成所有填空後按下「執行偵測」</p>
+
+        <div class="answer-container" id="answer-container">
+            <div class="draggable" draggable="true" id="勇氣">勇氣</div>
+            <div class="draggable" draggable="true" id="信仰">信仰</div>
+            <div class="draggable" draggable="true" id="植物種子">植物種子</div>
+            <div class="draggable" draggable="true" id="健康">健康</div>
+            <div class="draggable" draggable="true" id="貓科">貓科</div>
+            <div class="draggable" draggable="true" id="和諧">和諧</div>
+            <div class="draggable" draggable="true" id="勇氣2">勇氣</div>
+            <div class="draggable" draggable="true" id="生態平衡">生態平衡</div>
+        </div>
+
+        <div class="quiz">
+            <p>1. 泰雅族馘首守護標幟：象徵 <span class="dropzone" data-answer="勇氣"></span> 與保護部落的力量。</p>
+            <p>2. 排灣族木盾：圖騰反映 <span class="dropzone" data-answer="信仰"></span> 與戰士身分。</p>
+            <p>3. 臺灣水鹿：維護森林生態，幫助 <span class="dropzone" data-answer="植物種子"></span> 散播。</p>
+            <p>4. 微凹石葉藻：水域 <span class="dropzone" data-answer="健康"></span> 指標，淨化水質。</p>
+            <p>5. 石虎：臺灣唯一原生 <span class="dropzone" data-answer="貓科"></span> 動物，生物多樣性保育關鍵。</p>
+            <p>6. 五色鳥：象徵 <span class="dropzone" data-answer="和諧"></span> 、多元文化，重要種子傳播者。</p>
+            <p>7. 熊鷹：泰雅族 <span class="dropzone" data-answer="勇氣"></span> 象徵，頂級掠食者。</p>
+            <p>8. 穿山甲：控制害蟲、維護 <span class="dropzone" data-answer="生態平衡"></span> ，保育重要物種。</p>
+        </div>
+
+        <button id="checkAnswers">執行偵測</button>
+        <p id="result"></p>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const draggables = document.querySelectorAll(".draggable");
+            const dropzones = document.querySelectorAll(".dropzone");
+            const checkButton = document.getElementById("checkAnswers");
+            const resultText = document.getElementById("result");
+            const answerContainer = document.getElementById("answer-container");
+
+            draggables.forEach(draggable => {
+                draggable.addEventListener("dragstart", function (event) {
+                    if (draggable.classList.contains("locked")) {
+                        event.preventDefault();
+                    } else {
+                        event.dataTransfer.setData("text", event.target.id);
+                    }
+                });
+            });
+
+            dropzones.forEach(dropzone => {
+                dropzone.addEventListener("dragover", function (event) {
+                    event.preventDefault();
+                });
+
+                dropzone.addEventListener("drop", function (event) {
+                    event.preventDefault();
+                    const draggedId = event.dataTransfer.getData("text");
+                    const draggedElement = document.getElementById(draggedId);
+
+                    if (dropzone.firstChild && !dropzone.firstChild.classList.contains("locked")) {
+                        answerContainer.appendChild(dropzone.firstChild);
+                    }
+
+                    dropzone.appendChild(draggedElement);
+                });
+            });
+
+            checkButton.addEventListener("click", function () {
+                let correctCount = 0;
+                let totalAnswered = 0;
+
+                dropzones.forEach(dropzone => {
+                    const correctAnswer = dropzone.getAttribute("data-answer");
+                    const placedAnswer = dropzone.textContent.trim();
+                    const draggedElement = dropzone.firstChild;
+
+                    if (draggedElement) {
+                        totalAnswered++;
+                        if (placedAnswer === correctAnswer) {
+                            draggedElement.classList.add("locked");
+                            draggedElement.draggable = false;
+                            draggedElement.style.backgroundColor = "#a8e6a2";
+                            correctCount++;
+                        } else {
+                            draggedElement.classList.add("wrong");
+                            setTimeout(() => {
+                                draggedElement.classList.remove("wrong");
+                                answerContainer.appendChild(draggedElement);
+                            }, 600);
+                        }
+                    }
+                });
+
+                if (correctCount === 8) {
+                    resultText.textContent = "真厲害！恭喜全對 🎉";
+                    checkButton.style.display = "none"; // 隱藏按鈕
+
+                } else if (totalAnswered === correctCount) {
+                    resultText.textContent = "不錯！答對了。";
+
+                    setTimeout(() => {
+                        resultText.textContent = "";
+                    }, 3000);
+
+                } else {
+                    resultText.textContent = "部分錯誤，請再試一次！";
+
+                    setTimeout(() => {
+                        resultText.textContent = "";
+                    }, 3000);
+
+                }
+            });
+        });
+
+
+    </script>
+</body>
+
+</html>

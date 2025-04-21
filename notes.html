@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>HackMD 筆記切換</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
+      height: 100%;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    iframe {
+      width: 100vw;
+      height: 1300px;
+      border: none;
+    }
+
+    .btn-row {
+      display: flex;
+      width: 100%;
+      height: calc(100vh - 900px); 
+    }
+
+    button {
+      flex: 1;
+      --color:  #4a4a4a; 
+      font-size: 1.2rem;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s;
+      background-color: transparent;
+      color: var(--color);
+      border-top: 2px solid var(--color);
+      background-color: rgb(228, 228, 228);
+    }
+
+    button.active {
+      background-color: var(--color);
+      color: rgb(255, 255, 255);
+    }
+
+    #htmlBtn {
+      --color: #4a4a4a; 
+    }
+
+    #cssBtn {
+      ----color: ##4a4a4a; 
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <iframe id="noteFrame" name="iframe" src="https://hackmd.io/@7T1ugE9ZTySdHH6CPLU6Eg/r1wD8_lsyx"></iframe>
+    <div class="btn-row">
+      <button id="htmlBtn" class="active">HTML 筆記</button>
+      <button id="cssBtn">CSS 筆記</button>
+    </div>
+  </div>
+
+  <script>
+    const htmlBtn = document.getElementById("htmlBtn");
+    const cssBtn = document.getElementById("cssBtn");
+    const iframe = document.getElementById("noteFrame");
+
+    htmlBtn.addEventListener("click", () => {
+      iframe.src = "https://hackmd.io/@7T1ugE9ZTySdHH6CPLU6Eg/r1wD8_lsyx";
+      htmlBtn.classList.add("active");
+      cssBtn.classList.remove("active");
+    });
+
+    cssBtn.addEventListener("click", () => {
+      iframe.src = "https://hackmd.io/@7T1ugE9ZTySdHH6CPLU6Eg/ry77u41j1g";
+      cssBtn.classList.add("active");
+      htmlBtn.classList.remove("active");
+    });
+  </script>
+</body>
+</html>
