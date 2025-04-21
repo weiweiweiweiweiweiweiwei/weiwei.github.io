@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>作業一 - 文字動畫</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      font-family: sans-serif;
+    }
+
+    #controls {
+      padding: 1rem;
+      background: #f0f0f0;
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    #display {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: black;
+      color: white;
+      font-size: 10vw;
+      text-align: center;
+      animation: bounceRotate 3s infinite ease-in-out;
+    }
+
+    @keyframes bounceRotate {
+      0%   { transform: scale(1) rotate(0deg); }
+      25%  { transform: scale(1.1) rotate(10deg); }
+      50%  { transform: scale(0.95) rotate(-10deg); }
+      75%  { transform: scale(1.05) rotate(5deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="controls">
+    <label>輸入文字：<input type="text" id="textInput" value="Hello 老頭！"></label>
+    <label>動畫速度：
+      <input type="range" id="speedSlider" min="1" max="10" value="3">
+    </label>
+  </div>
+
+  <div id="display">Hello </div>
+
+  <script>
+    const textInput = document.getElementById('textInput');
+    const speedSlider = document.getElementById('speedSlider');
+    const display = document.getElementById('display');
+
+    textInput.addEventListener('input', () => {
+      display.textContent = textInput.value;
+    });
+
+    speedSlider.addEventListener('input', () => {
+      const speed = speedSlider.value;
+      display.style.animationDuration = `${speed}s`;
+    });
+  </script>
+
+</body>
+</html>
