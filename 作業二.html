@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>滑鼠彈力互動</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      height: 100vh;
+      background: #111;
+    }
+
+    .ball {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background: #00f0ff;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+
+  <script>
+    const NUM_BALLS = 30;
+    const balls = [];
+    const velocities = [];
+
+    for (let i = 0; i < NUM_BALLS; i++) {
+      const ball = document.createElement('div');
+      ball.classList.add('ball');
+      ball.style.left = `${Math.random() * window.innerWidth}px`;
+      ball.style.top = `${Math.random() * window.innerHeight}px`;
+      document.body.appendChild(ball);
+      balls.push(ball);
+      velocities.push({ x: 0, y: 0 });
+    }
+
+    let mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+
+    document.addEventListener('mousemove', (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+
+    function animate() {
+      for (let i = 0; i < balls.length; i++) {
+        const ball = balls[i];
+        const vel = velocities[i];
+
+        const rect = ball.getBoundingClientRect();
+        const bx = rect.left + rect.width / 2;
+        const by = rect.top + rect.height / 2;
+
+        const dx = bx - mouse.x;
+        const dy = by - mouse.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        const force = Math.max(150 - dist, 0); // 距離越近力越強
+        const angle = Math.atan2(dy, dx);
+
+        vel.x += Math.cos(angle) * (force / 20);
+        vel.y += Math.sin(angle) * (force / 20);
+
+        // 阻力
+        vel.x *= 0.92;
+        vel.y *= 0.92;
+
+        // 位置更新
+        let newX = parseFloat(ball.style.left) + vel.x;
+        let newY = parseFloat(ball.style.top) + vel.y;
+
+        // 邊界反彈
+        if (newX <= 0 || newX >= window.innerWidth - 40) {
+          vel.x *= -1;
+          newX = Math.max(0, Math.min(newX, window.innerWidth - 40));
+        }
+        if (newY <= 0 || newY >= window.innerHeight - 40) {
+          vel.y *= -1;
+          newY = Math.max(0, Math.min(newY, window.innerHeight - 40));
+        }
+
+        ball.style.left = `${newX}px`;
+        ball.style.top = `${newY}px`;
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+</body>
+</html>
