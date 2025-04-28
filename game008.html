@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>總測驗</title>
+    <title>COPY</title>
     <style>
         html,
         body {
@@ -30,21 +30,37 @@
             max-width: 177.77vh;
             /* 不一定需要，可刪 看要不要全螢幕*/
             /* 16 / 9 */
-            background-color: #f6bd60;
+            background-color: rgb(194, 129, 101);
             overflow: hidden;
 
 
 
         }
 
-        /* 放所有文物圖片的容器，設為相對定位 */
-        #artifacts-container {
-            position: relative;
+
+        /* 測試中 灰色的前景*/
+        /* #bg {
+            position: absolute  ;
             width: 100%;
             height: 100%;
-            /* background-image: url('image/背景.png'); */
+            background-image: url('image/1.png');
             background-size: cover;
             background-position: center;
+            background-repeat: no-repeat;
+
+            pointer-events: none;
+            z-index: 09999;
+        } */
+
+
+        /* 放所有文物圖片的容器，設為相對定位 */
+        #artifacts-container {
+
+            position: fixed;
+            width: 100%;
+            height: 100%;
+
+
         }
 
         .answer-image {
@@ -80,7 +96,7 @@
             line-height: 1.4em;
 
             color: #ffffff;
-            background-color: rgb(90, 172, 63);
+            background-color: #c2c5a0;
             padding-left: 3%;
             padding-top: 1%;
             border-radius: 2vh;
@@ -217,7 +233,7 @@
             transform: translateX(-50%);
         }
 
-        .button-group img {           
+        .button-group img {
             margin: 10px 18px;
         }
 
@@ -240,6 +256,7 @@
 <body>
 
     <div id="game-container">
+        <!-- <div id="bg"></div>灰色的前景 -->
         <div id="artifacts-container"></div>
 
 
@@ -251,7 +268,7 @@
             <img src="image/wrong.svg" class="modal-bg-wrong">
 
             <div id="selected-image-container"></div>
-            <div class="button-group" >
+            <div class="button-group">
                 <img id="confirmtButton" src="image/confirmtbutton.svg" class="svg-button">
                 <img id="cancelButton" src="image/cancelbutton.svg" class="svg-button">
 
@@ -274,11 +291,11 @@
 
     </div><!--game-container尾標 -->
     <script>
-        let currentQuestion = 0;
 
-        const questions = [
+        let currentQuestion = 0;
+        let currentQuestionList = [
             {
-                hints: ['1. 頭上有長角', '2. 身體是棕色的', '3. 有四條腿'],
+                hints: ['1. 台灣水鹿', '2. 台灣水鹿', '3. 台灣水鹿'],
                 artifacts: [
                     { id: 1, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '15%', left: '62%' },
                     { id: 2, src: 'image/香魚.svg', isAnswer: false, top: '40%', left: '60%' },
@@ -293,7 +310,7 @@
                 ]
             },
             {
-                hints: ['1. 名字很難念', '2. 是硬殼的', '3. 螺旋狀'],
+                hints: ['1. 龍宮翁戎螺', '2. 龍宮翁戎螺', '3. 龍宮翁戎螺'],
                 artifacts: [
                     { id: 1, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '15%', left: '62%' },
                     { id: 2, src: 'image/香魚.svg', isAnswer: false, top: '40%', left: '60%' },
@@ -308,53 +325,24 @@
                 ]
             },
             {
-                hints: ['1. 222', '2. 位於中間偏左', '3. 有顯眼裝飾'],
+                hints: ['1. 寬尾鳳蝶', '2. 寬尾鳳蝶', '3. 寬尾鳳蝶'],
                 artifacts: [
                     { id: 1, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '15%', left: '62%' },
                     { id: 2, src: 'image/香魚.svg', isAnswer: false, top: '40%', left: '60%' },
-                    { id: 3, src: 'image/泰雅族貝珠裙.svg', isAnswer: true, top: '48%', left: '30%' },
+                    { id: 3, src: 'image/泰雅族貝珠裙.svg', isAnswer: false, top: '48%', left: '30%' },
                     { id: 4, src: 'image/硫磺.svg', isAnswer: false, top: '50%', left: '80%' },
                     { id: 5, src: 'image/雲豹.svg', isAnswer: false, top: '30%', left: '75%' },
                     { id: 6, src: 'image/黑長尾雉.svg', isAnswer: false, top: '62%', left: '65%' },
-                    { id: 7, src: 'image/寬尾鳳蝶.svg', isAnswer: false, top: '28%', left: '16%' },
+                    { id: 7, src: 'image/寬尾鳳蝶.svg', isAnswer: true, top: '28%', left: '16%' },
                     { id: 8, src: 'image/龍宮翁戎螺.svg', isAnswer: false, top: '20%', left: '35%' },
                     { id: 9, src: 'image/賽夏族貝珠踝飾.svg', isAnswer: false, top: '60%', left: '19%' },
                     { id: 10, src: 'image/台灣水鹿.svg', isAnswer: false, top: '45%', left: '45%' }
                 ]
             },
-            {
-                hints: ['1. 333', '2. 位於中間偏左', '3. 有顯眼裝飾'],
-                artifacts: [
-                    { id: 1, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '15%', left: '62%' },
-                    { id: 2, src: 'image/香魚.svg', isAnswer: false, top: '40%', left: '60%' },
-                    { id: 3, src: 'image/泰雅族貝珠裙.svg', isAnswer: true, top: '48%', left: '30%' },
-                    { id: 4, src: 'image/硫磺.svg', isAnswer: false, top: '50%', left: '80%' },
-                    { id: 5, src: 'image/雲豹.svg', isAnswer: false, top: '30%', left: '75%' },
-                    { id: 6, src: 'image/黑長尾雉.svg', isAnswer: false, top: '62%', left: '65%' },
-                    { id: 7, src: 'image/寬尾鳳蝶.svg', isAnswer: false, top: '28%', left: '16%' },
-                    { id: 8, src: 'image/龍宮翁戎螺.svg', isAnswer: false, top: '20%', left: '35%' },
-                    { id: 9, src: 'image/賽夏族貝珠踝飾.svg', isAnswer: false, top: '60%', left: '19%' },
-                    { id: 10, src: 'image/台灣水鹿.svg', isAnswer: false, top: '45%', left: '45%' }
-                ]
-            },
-            {
-                hints: ['1. 444', '2. 位於中間偏左', '3. 有顯眼裝飾'],
-                artifacts: [
-                    { id: 1, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '15%', left: '62%' },
-                    { id: 2, src: 'image/香魚.svg', isAnswer: false, top: '40%', left: '60%' },
-                    { id: 3, src: 'image/泰雅族貝珠裙.svg', isAnswer: true, top: '48%', left: '30%' },
-                    { id: 4, src: 'image/硫磺.svg', isAnswer: false, top: '50%', left: '80%' },
-                    { id: 5, src: 'image/雲豹.svg', isAnswer: false, top: '30%', left: '75%' },
-                    { id: 6, src: 'image/黑長尾雉.svg', isAnswer: false, top: '62%', left: '65%' },
-                    { id: 7, src: 'image/寬尾鳳蝶.svg', isAnswer: false, top: '28%', left: '16%' },
-                    { id: 8, src: 'image/龍宮翁戎螺.svg', isAnswer: false, top: '20%', left: '35%' },
-                    { id: 9, src: 'image/賽夏族貝珠踝飾.svg', isAnswer: false, top: '60%', left: '19%' },
-                    { id: 10, src: 'image/台灣水鹿.svg', isAnswer: false, top: '45%', left: '45%' }
-                ]
-            }
 
+        ]; // 目前這輪要做的題目列表（初始是全部題目）
 
-        ];
+        let wrongQuestions = []; // 記錄答錯的題目
 
         const container = document.getElementById('artifacts-container');
         const overlay = document.getElementById('overlay');
@@ -365,100 +353,128 @@
         const correctNextButton = document.getElementById('correctNextButton');
         const wrongNextButton = document.getElementById('wrongNextButton');
 
-
-
         let selectedArtifact = null;
 
         function loadQuestion(index) {
-            const question = questions[index];
+            const question = currentQuestionList[index];
             container.innerHTML = '';
 
-            question.artifacts.forEach((artifact) => {
+            question.artifacts.forEach(artifact => {
                 const img = document.createElement('img');
                 img.src = artifact.src;
                 img.classList.add('answer-image');
                 img.style.top = artifact.top;
                 img.style.left = artifact.left;
-                img.addEventListener('click', () => openConfirmModal(artifact));
+                img.dataset.isAnswer = artifact.isAnswer;
+                img.addEventListener('click', () => selectArtifact(img));
                 container.appendChild(img);
             });
 
-            question.hints.forEach((hint, i) => {
-                document.getElementById(`hint${i + 1}`).innerText = hint;
-            });
+            document.getElementById('hint1').textContent = question.hints[0] || '';
+            document.getElementById('hint2').textContent = question.hints[1] || '';
+            document.getElementById('hint3').textContent = question.hints[2] || '';
         }
 
-        function openConfirmModal(artifact) {
-            selectedArtifact = artifact;
+        function selectArtifact(img) {
+            selectedArtifact = img;
             selectedImageContainer.innerHTML = '';
-            const img = document.createElement('img');
-            img.src = artifact.src;
-            selectedImageContainer.appendChild(img);
-            confirmtButton.style.display = 'inline-block';
-            cancelButton.style.display = 'inline-block';
-            correctNextButton.style.display = 'none';//////////////////////////////////////////
-            wrongNextButton.style.display = 'none';////////////////////////////////////////////
+
+            const clone = img.cloneNode(true);
+
+            clone.style.position = 'absolute';
+            clone.style.height = '20vh';
+            clone.style.width = '55%';
+            clone.style.top = '45%';
+            clone.style.left = '50%';
+            clone.style.transform = 'translate(-50%, -50%)';
+
+            clone.style.userSelect = 'none';
+            clone.style.webkitUserSelect = 'none';
+            clone.style.mozUserSelect = 'none';
+            clone.style.msUserSelect = 'none';
+            clone.style.webkitUserDrag = 'none';
+            clone.style.pointerEvents = 'auto';
+
+
+
+
+
+            selectedImageContainer.appendChild(clone);
 
             overlay.style.display = 'block';
             modal.style.display = 'block';
-        }
 
-        function closeConfirmModal() {
-            modal.style.display = 'none';
-            overlay.style.display = 'none';
-
-            // 還原背景狀態
             document.querySelector('.modal-bg').style.display = 'block';
             document.querySelector('.modal-bg-correct').style.display = 'none';
             document.querySelector('.modal-bg-wrong').style.display = 'none';
+
+            confirmtButton.style.display = 'inline';
+            cancelButton.style.display = 'inline';
+            correctNextButton.style.display = 'none';
+            wrongNextButton.style.display = 'none';
         }
 
         confirmtButton.addEventListener('click', () => {
-            selectedImageContainer.innerHTML = '';
-            const isCorrect = selectedArtifact?.isAnswer;
+            const isCorrect = selectedArtifact.dataset.isAnswer === 'true';
 
-            // 隱藏原始背景
+            selectedImageContainer.innerHTML = '';
             document.querySelector('.modal-bg').style.display = 'none';
-            // 顯示對應的背景
-            document.querySelector('.modal-bg-correct').style.display = isCorrect ? 'block': 'none';
-            document.querySelector('.modal-bg-wrong').style.display = !isCorrect ? 'block' : 'none';
+            
+            if (isCorrect) {
+                document.querySelector('.modal-bg-correct').style.display = 'block';
+            } else {
+                document.querySelector('.modal-bg-wrong').style.display = 'block';
+                wrongQuestions.push(currentQuestionList[currentQuestion]);
+            }
 
             confirmtButton.style.display = 'none';
             cancelButton.style.display = 'none';
-            // nextButton.style.display = 'inline-block';
 
-            // 顯示正確或錯誤的繼續按鈕
-            correctNextButton.style.display = isCorrect ? 'block' : 'none';
-            wrongNextButton.style.display = isCorrect ? 'none' : 'block';
+            if (isCorrect) {
+                correctNextButton.style.display = 'inline';
+                wrongNextButton.style.display = 'none';
+            } else {
+                correctNextButton.style.display = 'none';
+                wrongNextButton.style.display = 'inline';
+            }
         });
 
         cancelButton.addEventListener('click', () => {
-            closeConfirmModal();
+            overlay.style.display = 'none';
+            modal.style.display = 'none';
+            selectedArtifact = null;
         });
 
-        correctNextButton.addEventListener('click', () => {
-            closeConfirmModal();
+        correctNextButton.addEventListener('click', goToNextQuestion);
+        wrongNextButton.addEventListener('click', goToNextQuestion);
+
+        function goToNextQuestion() {
+            overlay.style.display = 'none';
+            modal.style.display = 'none';
+            selectedArtifact = null;
+
             currentQuestion++;
-            if (currentQuestion < questions.length) {
+
+            if (currentQuestion < currentQuestionList.length) {
                 loadQuestion(currentQuestion);
             } else {
-                alert('遊戲完成！');
+                if (wrongQuestions.length > 0) {
+                    // 還有錯題，重練這些題目
+                    currentQuestionList = [...wrongQuestions];
+                    wrongQuestions = [];
+                    currentQuestion = 0;
+                    loadQuestion(currentQuestion);
+                } else {
+                    // 全部答對，遊戲結束
+                    alert('恭喜！全部完成了！');
+                    // 你也可以在這裡加上自訂動畫或跳轉頁面
+                }
             }
-        });
+        }
 
-        wrongNextButton.addEventListener('click', () => {
-            closeConfirmModal();
-            currentQuestion++;
-            if (currentQuestion < questions.length) {
-                loadQuestion(currentQuestion);
-            } else {
-                alert('遊戲完成！');
-            }
-        });
-
+        // 一開始載入第一題
         loadQuestion(currentQuestion);
     </script>
-
 </body>
 
 </html>
