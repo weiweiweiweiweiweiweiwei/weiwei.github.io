@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COPY</title>
+    <title>總ek7qu4</title>
     <style>
         html,
         body {
@@ -13,10 +13,19 @@
             height: 100%;
             width: 100%;
             overflow: hidden;
-            background-color: #0f304f;
+            background-color: #000000;
+        }
 
-
-
+        .game-screen {
+            position: relative;
+            left: 50%;
+            transform: translate(-50%);
+            aspect-ratio: 16 / 9;
+            width: 100vw;
+            /* max-height: 100vh;
+            max-width: 177.77vh; */
+            /* height: 100vh; */
+            overflow: hidden;
         }
 
         #game-container {
@@ -26,73 +35,55 @@
             transform: translate(-50%, -50%);
             aspect-ratio: 16 / 9;
             width: 100vw;
-            max-height: 100vh;
-            max-width: 177.77vh;
-            /* 不一定需要，可刪 看要不要全螢幕*/
-
-            /* background-color: #0f304f; */
+            /* max-height: 100vh;
+            max-width: 177.77vh; */
             overflow: hidden;
-
             z-index: 950;
-
-
-
         }
-
 
         /* 太空艙*/
         #bg {
             position: absolute;
-            top: 53%;
-            left: 51%;
+            top: 50%;
+            left: 50%;
             transform: translate(-50%, -50%);
-            width: 125%;
-            height: 125%;
-            background-image: url('image/太空艙.svg');
+            width: 100%;
+            height: 100%;
+            background-image: url('image/太空艙.png');
             background-size: contain;
-
             background-repeat: no-repeat;
-
+            overflow: hidden;
             pointer-events: none;
             z-index: 1000;
         }
 
-        /* 背景星星*/
         #starbg {
             position: absolute;
-            top: 57%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 125%;
-            height: 125%;
+            width: 100vw;
+            height: 100vh;
             background-image: url('image/星空.jpg');
             background-size: cover;
-
             background-repeat: no-repeat;
-            opacity: 0.4;
-
             pointer-events: none;
             z-index: 900;
+            overflow: hidden;
         }
 
-
-        /* 放所有文物圖片的容器，設為相對定位 */
         #artifacts-container {
-
             position: fixed;
             width: 100%;
             height: 100%;
             z-index: 1000;
-            /*可能要刪掉的代碼*/
-            /*可能要刪掉的代碼*/
-            /*可能要刪掉的代碼*/
-            /*可能要刪掉的代碼*/
-            /*可能要刪掉的代碼*/
-            /*可能要刪掉的代碼*/
-            /*可能要刪掉的代碼*/
-            /*可能要刪掉的代碼*/
+        }
 
-
+        #overlayblue {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: 900;
+            background-color: #0f304f;
+            opacity: 0.4;
+            overflow: hidden;
         }
 
         .answer-image {
@@ -100,7 +91,6 @@
             height: auto;
             position: absolute;
             cursor: pointer;
-
             user-select: none;
             -webkit-user-select: none;
             -moz-user-select: none;
@@ -109,32 +99,27 @@
             pointer-events: auto;
         }
 
+        .hints-wrapper {
+            position: fixed;
+            bottom: 12%;
+            left: 50%;
+            transform: translateX(-50%) scale(var(--scale));
+            transform-origin: bottom center;
+            z-index: 1000;
+        }
+
         .hints {
             aspect-ratio: 35 / 18;
-            width: 35%;
+            width: 35vw;
             max-height: 18vh;
-            /* height: 18%; */
             max-width: 194.44vh;
-
-            /* position: absolute; */
-            position: fixed;
-            bottom: 1%;
-            left: 50%;
-            transform: translateX(-50%);
-
-
             font-size: 2.5vh;
-            /* 或 2.5% 依照視窗高度縮放字體 */
-            line-height: 1.4em;
-
-            color: #ffffff;
+            padding-left: 6%;
+            padding-top: 2%;
+            border-radius: 20px;
             background-color: #98bbc8f0;
-            padding-left: 3%;
-            padding-top: 1%;
-            border-radius: 2vh;
+            color: white;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
-            /*/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
         }
 
         .hints p {
@@ -143,34 +128,42 @@
             line-height: inherit;
         }
 
+        #again {
+            display: none;
+            position: absolute;
+            top: -16%;
+            left: 2%;
+            width: 18%;
+            height: 18%;
+            z-index: 1010;
+        }
+
         #confirm-modal {
             display: none;
             position: fixed;
-            top: 45%;
+            top: 40%;
             left: 50%;
             transform: translate(-50%, -50%);
-
             width: 50vw;
             aspect-ratio: 16 / 9;
-
             z-index: 1000;
             background: none;
             padding: 0;
             border: none;
             z-index: 970;
+
         }
 
-        /* 原始背景 */
         .modal-bg {
             position: absolute;
-            width: 100%;
-            height: 100%;
+            width: 170%;
+            height: 170%;
+            transform: translate(-50%, -50%);
+            top: 55%;
+            left: 50%;
             object-fit: contain;
-            /* ✅ 核心設定：保持比例縮放 */
             pointer-events: none;
-            /* ✅ 背景不阻擋點擊 */
             z-index: -1;
-
             user-select: none;
             -webkit-user-select: none;
             -moz-user-select: none;
@@ -179,18 +172,17 @@
             pointer-events: auto;
         }
 
-        /* 答對背景 */
         .modal-bg-correct {
             display: none;
             position: absolute;
-            width: 100%;
-            height: 100%;
+            transform: translate(-50%, -50%);
+            top: 55%;
+            left: 50%;
+            width: 170%;
+            height: 170%;
             object-fit: contain;
-            /* ✅ 核心設定：保持比例縮放 */
             pointer-events: none;
-            /* ✅ 背景不阻擋點擊 */
             z-index: -1;
-
             user-select: none;
             -webkit-user-select: none;
             -moz-user-select: none;
@@ -199,18 +191,17 @@
             pointer-events: auto;
         }
 
-        /* 答錯背景 */
         .modal-bg-wrong {
             display: none;
             position: absolute;
-            width: 100%;
-            height: 100%;
+            transform: translate(-50%, -50%);
+            top: 55%;
+            left: 50%;
+            width: 170%;
+            height: 170%;
             object-fit: contain;
-            /* ✅ 核心設定：保持比例縮放 */
             pointer-events: none;
-            /* ✅ 背景不阻擋點擊 */
             z-index: -1;
-
             user-select: none;
             -webkit-user-select: none;
             -moz-user-select: none;
@@ -219,7 +210,24 @@
             pointer-events: auto;
         }
 
-
+        .modal-bg-finish {
+            display: none;
+            position: absolute;
+            transform: translate(-50%, -50%);
+            top: 55%;
+            left: 50%;
+            width: 170%;
+            height: 170%;
+            object-fit: contain;
+            pointer-events: none;
+            z-index: -1;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -webkit-user-drag: none;
+            pointer-events: auto;
+        }
 
         #selected-image-container img {
             position: absolute;
@@ -234,7 +242,6 @@
             -ms-user-select: none;
             -webkit-user-drag: none;
             pointer-events: auto;
-
         }
 
         #overlay {
@@ -244,7 +251,7 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background-color: rgba(0, 0, 0, 0.6);
+            background-color: rgba(0, 0, 0, 0.7);
             z-index: 960;
         }
 
@@ -283,173 +290,55 @@
         .svg-button:hover {
             transform: scale(1.05);
         }
-
-        .review-reminder {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 6rem;
-            font-weight: bold;
-            background-color: #fff;
-            padding: 1rem 2rem;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-            opacity: 0;
-            z-index: 1000;
-            pointer-events: none;
-            Letter-spacing: 0.5em;
-            text-align: center;
-        }
-
-        .review-reminder.show {
-            animation: fadeUp 1.5s ease forwards;
-        }
-
-        @keyframes fadeUp {
-            0% {
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(0.9);
-            }
-
-            30% {
-                opacity: 1;
-                transform: translate(-50%, -60%) scale(1);
-            }
-
-            70% {
-                opacity: 1;
-                transform: translate(-50%, -60%) scale(1);
-            }
-
-            100% {
-                opacity: 0;
-                transform: translate(-50%, -70%) scale(0.95);
-            }
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        #credits-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: black;
-            color: white;
-            display: none;
-            z-index: 9999;
-            overflow: hidden;
-            text-align: center;
-            font-family: "Helvetica Neue", sans-serif;
-            padding-top: 100%;
-        }
-
-        .scrolling-text {
-            animation: scroll-up 30s linear forwards;
-            font-size: 1.5em;
-            line-height: 2em;
-            position: absolute;
-            top: 30%;
-            /* ← 從底部剛好進入畫面 */
-            width: 100%;
-            transform: translateY(0%);
-        }
-
-        @keyframes scroll-up {
-            from {
-                transform: translateY(0%);
-            }
-
-            to {
-                transform: translateY(-250%);
-            }
-        }
-
-        
     </style>
 </head>
 
 
 
-
 <body>
-    <div id="reviewReminder" class="review-reminder hidden">錯題重練</div>
-    <div id="starbg"></div>
-    <div id="bg"></div>
+    <div class="game-screen">
 
-    <div id="game-container">
-
-        <!-- <div id="bg"></div>灰色的前景 -->
-        <div id="artifacts-container"></div>
-
-    </div><!--game-container尾標 -->
-
-    <!-- 確認彈窗 -->
-    <div id="confirm-modal">
-        <img src="image/select.svg" class="modal-bg">
-        <img src="image/correct.svg" class="modal-bg-correct">
-        <img src="image/wrong.svg" class="modal-bg-wrong">
-
-        <div id="selected-image-container"></div>
-        <div class="button-group">
-            <img id="confirmtButton" src="image/confirmtbutton.svg" class="svg-button">
-            <img id="cancelButton" src="image/cancelbutton.svg" class="svg-button">
-
-            <img id="correctNextButton" src="image/correctnextbutton.svg" class="svg-button next-button"
-                style="display: none;" alt="正確繼續">
-            <img id="wrongNextButton" src="image/wrongnextbutton.svg" class="svg-button next-button"
-                style="display: none;" alt="錯誤繼續">
+        <div id="starbg"></div>
+        <div id="bg"></div>
+        <div id="game-container">
+            <div id="artifacts-container"></div>
         </div>
 
-    </div>
+        <div id="confirm-modal">
+            <img src="image/select.png" class="modal-bg">
+            <img src="image/correct.png" class="modal-bg-correct">
+            <img src="image/wrong.png" class="modal-bg-wrong">
+            <img src="image/finish.png" class="modal-bg-finish">
 
-    <!-- 遮罩 -->
-    <div id="overlay"></div>
-    <!-- 題目 -->
-    <div class="hints">
-        <p id="hint1">1. 這是必要留著的</p>
-        <p id="hint2">2. 只是宣告空間</p>
-        <p id="hint3">3. 本體在下面</p>
-    </div>
+            <div id="selected-image-container"></div>
+            <div class="button-group">
+                <img id="confirmtButton" src="image/confirmtbutton.svg" class="svg-button">
+                <img id="cancelButton" src="image/cancelbutton.svg" class="svg-button">
 
+                <img id="correctNextButton" src="image/correctnextbutton.svg" class="svg-button next-button"
+                    style="display: none;" alt="正確繼續">
+                <img id="wrongNextButton" src="image/wrongnextbutton.svg" class="svg-button next-button"
+                    style="display: none;" alt="錯誤繼續">
+                <img id="finishNextButton" src="image/correctnextbutton.svg" class="svg-button next-button"
+                    style="display: none;" alt="最後繼續">
+            </div>
 
-    <!-- 結尾動畫 -->
-    <div id="credits-screen">
-        <div class="scrolling-text">
-            <h2>感謝遊玩！</h2>
-            <p>遊戲設計：你自己</p>
-            <p>程式撰寫：你未來的自己</p>
-            <p>SVG 美術：一些 AI 和 Illustrator</p>
-            <p>特別感謝：媽媽、老師、貓</p>
-            <p>還有你，最棒的玩家！</p>
-            <p>期待下次再見～</p>
-            <h2>感謝遊玩！</h2>
-            <p>遊戲設計：你自己</p>
-            <p>程式撰寫：你未來的自己</p>
-            <p>SVG 美術：一些 AI 和 Illustrator</p>
-            <p>特別感謝：媽媽、老師、貓</p>
-            <p>還有你，最棒的玩家！</p>
-            <p>期待下次再見～</p>
-            <h2>感謝遊玩！</h2>
-            <p>遊戲設計：你自己</p>
-            <p>程式撰寫：你未來的自己</p>
-            <p>SVG 美術：一些 AI 和 Illustrator</p>
-            <p>特別感謝：媽媽、老師、貓</p>
-            <p>還有你，最棒的玩家！</p>
-            <p>期待下次再見～</p>
         </div>
+        <div id="overlay"></div>
+        <div id="overlayblue"></div>
 
+        <div class="hints-wrapper">
+            <div id="again">
+                <img src="image/againtext.svg" class="again">
+
+            </div>
+            <div class="hints">
+                <p id="hint1">1. 這是必要留著的</p>
+                <p id="hint2">2. 只是宣告空間</p>
+                <p id="hint3">3. 本體在下面</p>
+            </div>
+        </div>
     </div>
-
-
-
-
-
-
 
 
     <script>
@@ -459,52 +348,52 @@
             {
                 hints: ['1. 台灣水鹿', '2. 台灣水鹿', '3. 台灣水鹿'],
                 artifacts: [
-                    { id: 1, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '15%', left: '62%' },
-                    { id: 2, src: 'image/五色鳥.svg', isAnswer: false, top: '40%', left: '60%' },
-                    { id: 3, src: 'image/泰雅族貝珠裙.svg', isAnswer: false, top: '48%', left: '30%' },
-                    { id: 4, src: 'image/硫磺.svg', isAnswer: false, top: '50%', left: '80%' },
-                    { id: 5, src: 'image/雲豹.svg', isAnswer: false, top: '30%', left: '75%' },
-                    { id: 6, src: 'image/黑長尾雉.svg', isAnswer: false, top: '62%', left: '65%' },
-                    { id: 7, src: 'image/寬尾鳳蝶.svg', isAnswer: false, top: '28%', left: '16%' },
-                    { id: 8, src: 'image/龍宮翁戎螺.svg', isAnswer: false, top: '20%', left: '35%' },
-                    { id: 9, src: 'image/熊鷹.svg', isAnswer: false, top: '60%', left: '19%' },
-                    { id: 10, src: 'image/台灣水鹿.svg', isAnswer: true, top: '45%', left: '45%' }
+                    { id: 1, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '10%', left: '62%' },
+                    { id: 2, src: 'image/五色鳥.svg', isAnswer: false, top: '35%', left: '60%' },
+                    { id: 3, src: 'image/泰雅族貝珠裙.svg', isAnswer: false, top: '43%', left: '30%' },
+                    { id: 4, src: 'image/硫磺.svg', isAnswer: false, top: '45%', left: '80%' },
+                    { id: 5, src: 'image/雲豹.svg', isAnswer: false, top: '25%', left: '75%' },
+                    { id: 6, src: 'image/黑長尾雉.svg', isAnswer: false, top: '57%', left: '65%' },
+                    { id: 7, src: 'image/寬尾鳳蝶.svg', isAnswer: false, top: '23%', left: '16%' },
+                    { id: 8, src: 'image/龍宮翁戎螺.svg', isAnswer: false, top: '15%', left: '35%' },
+                    { id: 9, src: 'image/熊鷹.svg', isAnswer: false, top: '55%', left: '19%' },
+                    { id: 10, src: 'image/台灣水鹿.svg', isAnswer: true, top: '40%', left: '45%' }
                 ]
             },
             {
                 hints: ['1. 龍宮翁戎螺', '2. 龍宮翁戎螺', '3. 龍宮翁戎螺'],
                 artifacts: [
-                    { id: 1, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '15%', left: '62%' },
-                    { id: 2, src: 'image/五色鳥.svg', isAnswer: false, top: '40%', left: '60%' },
-                    { id: 3, src: 'image/泰雅族貝珠裙.svg', isAnswer: false, top: '48%', left: '30%' },
-                    { id: 4, src: 'image/硫磺.svg', isAnswer: false, top: '50%', left: '80%' },
-                    { id: 5, src: 'image/雲豹.svg', isAnswer: false, top: '30%', left: '75%' },
-                    { id: 6, src: 'image/黑長尾雉.svg', isAnswer: false, top: '62%', left: '65%' },
-                    { id: 7, src: 'image/寬尾鳳蝶.svg', isAnswer: false, top: '28%', left: '16%' },
-                    { id: 8, src: 'image/龍宮翁戎螺.svg', isAnswer: true, top: '20%', left: '35%' },
-                    { id: 9, src: 'image/熊鷹.svg', isAnswer: false, top: '60%', left: '19%' },
-                    { id: 10, src: 'image/台灣水鹿.svg', isAnswer: false, top: '45%', left: '45%' }
+                    { id: 1, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '10%', left: '62%' },
+                    { id: 2, src: 'image/五色鳥.svg', isAnswer: false, top: '35%', left: '60%' },
+                    { id: 3, src: 'image/泰雅族貝珠裙.svg', isAnswer: false, top: '43%', left: '30%' },
+                    { id: 4, src: 'image/硫磺.svg', isAnswer: false, top: '45%', left: '80%' },
+                    { id: 5, src: 'image/雲豹.svg', isAnswer: false, top: '25%', left: '75%' },
+                    { id: 6, src: 'image/黑長尾雉.svg', isAnswer: false, top: '57%', left: '65%' },
+                    { id: 7, src: 'image/寬尾鳳蝶.svg', isAnswer: false, top: '23%', left: '16%' },
+                    { id: 8, src: 'image/龍宮翁戎螺.svg', isAnswer: true, top: '15%', left: '35%' },
+                    { id: 9, src: 'image/熊鷹.svg', isAnswer: false, top: '55%', left: '19%' },
+                    { id: 10, src: 'image/台灣水鹿.svg', isAnswer: false, top: '40%', left: '45%' }
                 ]
             },
             {
                 hints: ['1. 寬尾鳳蝶', '2. 寬尾鳳蝶', '3. 寬尾鳳蝶'],
                 artifacts: [
-                    { id: 1, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '15%', left: '62%' },
-                    { id: 2, src: 'image/五色鳥.svg', isAnswer: false, top: '40%', left: '60%' },
-                    { id: 3, src: 'image/泰雅族貝珠裙.svg', isAnswer: false, top: '48%', left: '30%' },
-                    { id: 4, src: 'image/硫磺.svg', isAnswer: false, top: '50%', left: '80%' },
-                    { id: 5, src: 'image/雲豹.svg', isAnswer: false, top: '30%', left: '75%' },
-                    { id: 6, src: 'image/黑長尾雉.svg', isAnswer: false, top: '62%', left: '65%' },
-                    { id: 7, src: 'image/寬尾鳳蝶.svg', isAnswer: true, top: '28%', left: '16%' },
-                    { id: 8, src: 'image/龍宮翁戎螺.svg', isAnswer: false, top: '20%', left: '35%' },
-                    { id: 9, src: 'image/熊鷹.svg', isAnswer: false, top: '60%', left: '19%' },
-                    { id: 10, src: 'image/台灣水鹿.svg', isAnswer: false, top: '45%', left: '45%' }
+                    { id: 1, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '10%', left: '62%' },
+                    { id: 2, src: 'image/五色鳥.svg', isAnswer: false, top: '35%', left: '60%' },
+                    { id: 3, src: 'image/泰雅族貝珠裙.svg', isAnswer: false, top: '43%', left: '30%' },
+                    { id: 4, src: 'image/硫磺.svg', isAnswer: false, top: '45%', left: '80%' },
+                    { id: 5, src: 'image/雲豹.svg', isAnswer: false, top: '25%', left: '75%' },
+                    { id: 6, src: 'image/黑長尾雉.svg', isAnswer: false, top: '57%', left: '65%' },
+                    { id: 7, src: 'image/寬尾鳳蝶.svg', isAnswer: true, top: '23%', left: '16%' },
+                    { id: 8, src: 'image/龍宮翁戎螺.svg', isAnswer: false, top: '15%', left: '35%' },
+                    { id: 9, src: 'image/熊鷹.svg', isAnswer: false, top: '55%', left: '19%' },
+                    { id: 10, src: 'image/台灣水鹿.svg', isAnswer: false, top: '40%', left: '45%' }
                 ]
             },
 
-        ]; // 目前這輪要做的題目列表（初始是全部題目）
+        ];
 
-        let wrongQuestions = []; // 記錄答錯的題目
+        let wrongQuestions = [];
 
         const container = document.getElementById('artifacts-container');
         const overlay = document.getElementById('overlay');
@@ -514,6 +403,9 @@
         const cancelButton = document.getElementById('cancelButton');
         const correctNextButton = document.getElementById('correctNextButton');
         const wrongNextButton = document.getElementById('wrongNextButton');
+        const modalBg = document.querySelector('.modal-bg');
+        const modalBgCorrect = document.querySelector('.modal-bg-correct');
+        const modalBgWrong = document.querySelector('.modal-bg-wrong');
 
         let selectedArtifact = null;
 
@@ -540,7 +432,6 @@
         function selectArtifact(img) {
             selectedArtifact = img;
             selectedImageContainer.innerHTML = '';
-
             const clone = img.cloneNode(true);
 
             clone.style.position = 'absolute';
@@ -549,27 +440,13 @@
             clone.style.top = '45%';
             clone.style.left = '50%';
             clone.style.transform = 'translate(-50%, -50%)';
-
-            clone.style.userSelect = 'none';
-            clone.style.webkitUserSelect = 'none';
-            clone.style.mozUserSelect = 'none';
-            clone.style.msUserSelect = 'none';
-            clone.style.webkitUserDrag = 'none';
-            clone.style.pointerEvents = 'auto';
-
-
-
-
-
             selectedImageContainer.appendChild(clone);
-
             overlay.style.display = 'block';
             modal.style.display = 'block';
-
-            document.querySelector('.modal-bg').style.display = 'block';
-            document.querySelector('.modal-bg-correct').style.display = 'none';
-            document.querySelector('.modal-bg-wrong').style.display = 'none';
-
+            modalBg.style.display = 'block';
+            modalBgCorrect.style.display = 'none';
+            modalBgWrong.style.display = 'none';
+            container.style.filter = 'blur(6px)';
             confirmtButton.style.display = 'inline';
             cancelButton.style.display = 'inline';
             correctNextButton.style.display = 'none';
@@ -578,14 +455,12 @@
 
         confirmtButton.addEventListener('click', () => {
             const isCorrect = selectedArtifact.dataset.isAnswer === 'true';
-
             selectedImageContainer.innerHTML = '';
-            document.querySelector('.modal-bg').style.display = 'none';
-
+            modalBg.style.display = 'none';
             if (isCorrect) {
-                document.querySelector('.modal-bg-correct').style.display = 'block';
+                modalBgCorrect.style.display = 'block';
             } else {
-                document.querySelector('.modal-bg-wrong').style.display = 'block';
+                modalBgWrong.style.display = 'block';
                 wrongQuestions.push(currentQuestionList[currentQuestion]);
             }
 
@@ -604,41 +479,28 @@
         cancelButton.addEventListener('click', () => {
             overlay.style.display = 'none';
             modal.style.display = 'none';
+            container.style.filter = '';
             selectedArtifact = null;
         });
 
-        function showReviewReminder() {
-            const reminder = document.getElementById("reviewReminder");
-            reminder.classList.remove("hidden");
-            reminder.classList.add("show");
-
-            // 等動畫結束後再隱藏（1.5 秒後）
-            setTimeout(() => {
-                reminder.classList.remove("show");
-                reminder.classList.add("hidden");
-            }, 1500);
+        function updateHintScale() {
+            const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+            document.documentElement.style.setProperty('--scale', scale);
         }
 
-        function showCredits() {
-            const screen = document.getElementById("credits-screen");
-            screen.style.display = "block";
-        }
-
-
+        window.addEventListener('resize', updateHintScale);
+        updateHintScale();
 
         correctNextButton.addEventListener('click', goToNextQuestion);
         wrongNextButton.addEventListener('click', goToNextQuestion);
 
-        let hasShownReviewReminder = true;  //讓錯題重練的提示只出現一次，不知道為什麼要宣告在這裡，不能宣告在function中
-
         function goToNextQuestion() {
+            container.style.filter = '';
             overlay.style.display = 'none';
             modal.style.display = 'none';
             selectedArtifact = null;
 
             currentQuestion++;
-
-
 
             if (currentQuestion < currentQuestionList.length) {
                 loadQuestion(currentQuestion);
@@ -649,21 +511,29 @@
                     wrongQuestions = [];
                     currentQuestion = 0;
                     loadQuestion(currentQuestion);
-                    if (hasShownReviewReminder) {
-                        showReviewReminder(); // 執行動畫
-                        hasShownReviewReminder = false; // 設為已執行過
-                    }
+
+                    document.getElementById('again').style.display = 'block';
 
                 } else {
-                    // 全部答對，遊戲結束
-                    // alert('恭喜！全部完成了！');
-                    // 你也可以在這裡加上自訂動畫或跳轉頁面
-                    showCredits();
+                    
+                    document.querySelector('.modal-bg-finish').style.display = 'block';
+                    document.getElementById('finishNextButton').style.display = 'inline';
+                    document.querySelector('.hints').style.display = 'none';
+                    overlay.style.display = 'block';
+                    modal.style.display = 'block';
+                    modalBg.style.display = 'block';
+                    modalBgCorrect.style.display = 'none';
+                    container.style.filter = 'blur(6px)';
+                    correctNextButton.style.display = 'none';
+
                 }
             }
         }
 
-        // 一開始載入第一題
+        document.getElementById('finishNextButton').addEventListener('click', () => {
+            window.parent.postMessage("complete", "*");
+        });
+
         loadQuestion(currentQuestion);
     </script>
 </body>
