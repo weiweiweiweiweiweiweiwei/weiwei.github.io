@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="_圖層_1" data-name="圖層 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1641.26 757.45">
+  <defs>
+    <radialGradient id="_未命名漸層_127" data-name="未命名漸層 127" cx="820.63" cy="378.73" fx="820.63" fy="378.73" r="549.42" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#bdccd4"/>
+      <stop offset="1" stop-color="gray"/>
+    </radialGradient>
+    <filter id="drop-shadow-1" x="522.37" y="76.06" width="597" height="454" filterUnits="userSpaceOnUse">
+      <feOffset dx="0" dy="0"/>
+      <feGaussianBlur result="blur" stdDeviation="37.11"/>
+      <feFlood flood-color="#000" flood-opacity=".2"/>
+      <feComposite in2="blur" operator="in"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <polygon points="296.2 752.36 5.1 471.76 15.6 230.17 279.69 5.1 1360.07 5.85 1627.16 239.93 1636.17 480.01 1352.57 751.61 296.2 752.36" style="fill: url(#_未命名漸層_127); opacity: .4;"/>
+  <g>
+    <polyline points="1360.07 5.85 1627.16 239.93 1636.17 480.01 1352.57 751.61" style="fill: none; stroke: #d9fbff; stroke-linecap: round; stroke-linejoin: round; stroke-width: 10.19px;"/>
+    <polyline points="279.69 5.1 15.6 230.17 5.1 471.76 296.2 752.36" style="fill: none; stroke: #d9fbff; stroke-linecap: round; stroke-linejoin: round; stroke-width: 10.19px;"/>
+  </g>
+  <g style="filter: url(#drop-shadow-1);">
+    <text transform="translate(634 396.69)" style="fill: #fff; font-family: MFinanceHK-Bold, &apos;MFinance HK&apos;; font-size: 93.31px; font-weight: 700;"><tspan x="0" y="0">不對喔！</tspan></text>
+    <text transform="translate(636.23 289.59)" style="fill: #fff; font-family: MFinanceHK-Bold, &apos;MFinance HK&apos;; font-size: 113.97px; font-weight: 700;"><tspan x="0" y="0">好可惜</tspan></text>
+  </g>
+</svg>
