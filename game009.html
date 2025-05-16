@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
-    <title>總ek7qu4</title>
+    <title>台灣博物館互動教材</title>
     <style>
         html,
         body {
@@ -332,6 +332,77 @@
                 opacity: 1;
             }
         }
+
+        .letter-body {
+            background-color: #fafbff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .letter-container {
+            width: 45vw;
+            height: 65vh;
+            background-color: #F9F4E7;
+            border-radius: 15px;
+            padding: 40px 30px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #D3C9B4;
+            background-image: repeating-linear-gradient(to bottom,
+                    transparent 0px,
+                    transparent 35px,
+                    rgba(0, 0, 0, 0.05) 36px);
+            opacity: 0;
+            transform: translateY(100vh);
+            transition: opacity 0.5s ease, transform 1s ease-out;
+        }
+
+        .letter-container.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .letter-container h1 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .letter-container p {
+            font-size: 1.1em;
+            line-height: 1.6em;
+            color: #555;
+        }
+
+        .signature-container {
+            position: absolute;
+            bottom: 40px;
+            right: 40px;
+            width: 150px;
+            height: 100px;
+        }
+
+        .signature path {
+            fill: none;
+            stroke: #333;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 500;
+            stroke-dashoffset: 500;
+            animation: drawSignature 2.5s ease forwards 0.5s;
+        }
+
+        @keyframes drawSignature {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
     </style>
 </head>
 
@@ -405,6 +476,22 @@
             </div>
         </div>
     </div>
+
+    <div class="letter-body">
+        <div class="letter-container" id="letter">
+            <h1>來自時空指揮官的訊息：</h1>
+            <p>時空運輸員，多虧有你，才能夠成功拯救歷史文物的資料！</p>
+            <div class="signature-container">
+                <svg class="signature" viewBox="0 0 300 150">
+                    <path
+                        d="M 20 80 Q 60 40, 80 70 T 120 80 Q 130 90, 140 60 T 170 70 Q 190 80, 200 50 T 240 60 Q 260 90, 280 70" />
+                    <path d="M 100 110 C 110 140, 160 140, 170 110 S 220 110, 230 140" />
+                    <path d="M 30 110 C 50 130, 80 130, 100 100 S 140 110, 160 120" />
+                </svg>
+            </div>
+        </div>
+    </div>
+
 
     <script>
 
@@ -602,8 +689,8 @@
         }
 
         document.getElementById('finishNextButton').addEventListener('click', () => {
-            window.location.href = "animate.html";
-
+            document.querySelector('.game-screen').style.display = 'none';
+            document.querySelector('.letter-container').classList.add('show');
         });
 
         loadQuestion(currentQuestion);
