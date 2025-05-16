@@ -4,10 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <title>總ek7qu4</title>
     <style>
         html,
         body {
+            /* font-family: 'Noto Serif TC', serif; */
             margin: 0;
             padding: 0;
             height: 100%;
@@ -20,23 +22,60 @@
             position: relative;
             left: 50%;
             transform: translate(-50%);
-            aspect-ratio: 16 / 9;
+            aspect-ratio: 2/ 1;
             width: 100vw;
-            /* max-height: 100vh;
-            max-width: 177.77vh; */
-            /* height: 100vh; */
             overflow: hidden;
+        }
+
+        #begin-out {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            background-color: rgba(0, 0, 0, 0.7);
+            aspect-ratio: 2/ 1;
+            z-index: 960;
+        }
+
+        #begin-in {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            top: 50%;
+            left: 50%;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #begin-in h1 {
+            position: absolute;
+            top: 42%;
+            left: 50%;
+            font-size: 2vw;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-family: 'Noto Sans TC', sans-serif;
+            font-weight: 800;
+        }
+
+        #begin-in h3 {
+            position: absolute;
+            top: 52%;
+            left: 50%;
+            font-size: 1vw;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-family: 'Noto Sans TC', sans-serif;
+            font-weight: 200;
+            animation: fadeInOut 2s infinite;
         }
 
         #game-container {
             position: absolute;
-            top: 50%;
+            top: 52%;
             left: 50%;
             transform: translate(-50%, -50%);
-            aspect-ratio: 16 / 9;
+            aspect-ratio: 16 / 8;
             width: 100vw;
-            /* max-height: 100vh;
-            max-width: 177.77vh; */
             overflow: hidden;
             z-index: 950;
         }
@@ -49,7 +88,6 @@
             transform: translate(-50%, -50%);
             width: 100%;
             height: 100%;
-            background-image: url('image/太空艙.png');
             background-size: contain;
             background-repeat: no-repeat;
             overflow: hidden;
@@ -60,9 +98,9 @@
         #starbg {
             position: absolute;
             width: 100vw;
-            height: 100vh;
-            background-image: url('image/星空.jpg');
-            background-size: cover;
+
+            aspect-ratio: 16 / 8;
+            background-size: contain;
             background-repeat: no-repeat;
             pointer-events: none;
             z-index: 900;
@@ -101,18 +139,19 @@
 
         .hints-wrapper {
             position: fixed;
-            bottom: 12%;
+            bottom: 2%;
             left: 50%;
-            transform: translateX(-50%) scale(var(--scale));
+            transform: translateX(-50%);
             transform-origin: bottom center;
+            aspect-ratio: 35 / 18;
+            width: 35vw;
+            max-height: 20vh;
+            max-width: 194.44vh;
             z-index: 1000;
         }
 
         .hints {
-            aspect-ratio: 35 / 18;
-            width: 35vw;
-            max-height: 22vh;
-            max-width: 194.44vh;
+            height: 100%;
             font-size: 2.5vh;
             padding-left: 6%;
             padding-top: 2%;
@@ -123,6 +162,7 @@
         }
 
         .hints p {
+            /* font-weight: 600; */
             margin: 0.5em 0;
             font-size: inherit;
             line-height: inherit;
@@ -141,7 +181,7 @@
         #confirm-modal {
             display: none;
             position: fixed;
-            top: 40%;
+            top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             width: 50vw;
@@ -151,7 +191,6 @@
             padding: 0;
             border: none;
             z-index: 970;
-
         }
 
         .modal-bg {
@@ -159,7 +198,7 @@
             width: 170%;
             height: 170%;
             transform: translate(-50%, -50%);
-            top: 55%;
+            top: 50%;
             left: 50%;
             object-fit: contain;
             pointer-events: none;
@@ -176,7 +215,7 @@
             display: none;
             position: absolute;
             transform: translate(-50%, -50%);
-            top: 55%;
+            top: 50%;
             left: 50%;
             width: 170%;
             height: 170%;
@@ -195,7 +234,7 @@
             display: none;
             position: absolute;
             transform: translate(-50%, -50%);
-            top: 55%;
+            top: 50%;
             left: 50%;
             width: 170%;
             height: 170%;
@@ -214,7 +253,7 @@
             display: none;
             position: absolute;
             transform: translate(-50%, -50%);
-            top: 55%;
+            top: 50%;
             left: 50%;
             width: 170%;
             height: 170%;
@@ -230,12 +269,13 @@
         }
 
         #selected-image-container img {
+            transform: translate(-50%, -50%);
             position: absolute;
             height: 20vh;
             width: 55%;
-            top: 45%;
+            top: 15%;
             left: 50%;
-            transform: translate(-50%, -50%);
+
             user-select: none;
             -webkit-user-select: none;
             -moz-user-select: none;
@@ -255,20 +295,9 @@
             z-index: 960;
         }
 
-        #result-message {
-            position: absolute;
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 6rem;
-            white-space: pre-line;
-            margin-top: 20px;
-            color: #ffffff;
-        }
-
         .button-group {
             position: absolute;
-            bottom: 6%;
+            bottom: 17%;
             left: 50%;
             transform: translateX(-50%);
         }
@@ -283,12 +312,25 @@
             cursor: pointer;
             user-select: none;
             -webkit-user-drag: none;
-            margin: 0 2vw;
+            margin: 1 2vw;
             transition: transform 0.2s ease;
         }
 
         .svg-button:hover {
             transform: scale(1.05);
+        }
+
+        @keyframes fadeInOut {
+
+            0%,
+            100% {
+                opacity: 0.2;
+            }
+
+            65%,
+            70% {
+                opacity: 1;
+            }
         }
     </style>
 </head>
@@ -298,38 +340,62 @@
 <body>
     <div class="game-screen">
 
-        <div id="starbg"></div>
-        <div id="bg"></div>
+        <div id="star">
+            <img src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/main/image/%E6%98%9F%E7%A9%BA.jpg"
+                id="starbg">
+        </div>
+        <div>
+            <img src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/%E5%A4%AA%E7%A9%BA%E8%89%99.svg"
+                id="bg">
+        </div>
         <div id="game-container">
             <div id="artifacts-container"></div>
         </div>
 
         <div id="confirm-modal">
-            <img src="image/select.png" class="modal-bg">
-            <img src="image/correct.png" class="modal-bg-correct">
-            <img src="image/wrong.png" class="modal-bg-wrong">
-            <img src="image/finish.png" class="modal-bg-finish">
+            <img src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/select.svg"
+                class="modal-bg">
+            <img src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/correct.svg"
+                class="modal-bg-correct">
+            <img src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/wrong.svg"
+                class="modal-bg-wrong">
+            <img src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/36f161ac5a8e4257f8d3765f989cca9e507dbbb1/pic/finish.svg"
+                class="modal-bg-finish">
 
             <div id="selected-image-container"></div>
             <div class="button-group">
-                <img id="confirmtButton" src="image/confirmtbutton.svg" class="svg-button">
-                <img id="cancelButton" src="image/cancelbutton.svg" class="svg-button">
+                <img id="confirmtButton"
+                    src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/462fb0269931e222b2646dd986316ccca9d16802/image/confirmtbutton.svg"
+                    class="svg-button choose">
+                <img id="cancelButton"
+                    src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/cancelbutton.svg"
+                    class="svg-button choose">
 
-                <img id="correctNextButton" src="image/correctnextbutton.svg" class="svg-button next-button"
-                    style="display: none;" alt="正確繼續">
-                <img id="wrongNextButton" src="image/wrongnextbutton.svg" class="svg-button next-button"
-                    style="display: none;" alt="錯誤繼續">
-                <img id="finishNextButton" src="image/correctnextbutton.svg" class="svg-button next-button"
-                    style="display: none;" alt="最後繼續">
+                <img id="correctNextButton"
+                    src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/correctnextbutton.svg"
+                    class="svg-button next-button" style="display: none;" alt="正確繼續">
+                <img id="wrongNextButton"
+                    src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/wrongnextbutton.svg"
+                    class="svg-button next-button" style="display: none;" alt="錯誤繼續">
+                <img id="finishNextButton"
+                    src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/correctnextbutton.svg"
+                    class="svg-button next-button" style="display: none;" alt="最後繼續">
             </div>
 
         </div>
         <div id="overlay"></div>
+        <div id="begin-out">
+            <div id="begin-in">
+                <h1>請依提示選出正確的文物</h1>
+                <h3>點擊螢幕繼續</h3>
+            </div>
+        </div>
         <div id="overlayblue"></div>
 
         <div class="hints-wrapper">
             <div id="again">
-                <img src="image/againtext.svg" class="again">
+                <img src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/againtext.svg"
+                    class="again">
 
             </div>
             <div class="hints">
@@ -340,7 +406,6 @@
         </div>
     </div>
 
-
     <script>
 
         let currentQuestion = 0;
@@ -348,46 +413,46 @@
             {
                 hints: ['1. 台灣水鹿', '2. 台灣水鹿', '3. 台灣水鹿'],
                 artifacts: [
-                    { id: 1, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '10%', left: '62%' },
-                    { id: 2, src: 'image/五色鳥.svg', isAnswer: false, top: '35%', left: '60%' },
-                    { id: 3, src: 'image/泰雅族貝珠裙.svg', isAnswer: false, top: '43%', left: '30%' },
-                    { id: 4, src: 'image/硫磺.svg', isAnswer: false, top: '45%', left: '80%' },
-                    { id: 5, src: 'image/雲豹.svg', isAnswer: false, top: '25%', left: '75%' },
-                    { id: 6, src: 'image/黑長尾雉.svg', isAnswer: false, top: '57%', left: '65%' },
-                    { id: 7, src: 'image/寬尾鳳蝶.svg', isAnswer: false, top: '23%', left: '16%' },
-                    { id: 8, src: 'image/龍宮翁戎螺.svg', isAnswer: false, top: '15%', left: '35%' },
-                    { id: 9, src: 'image/熊鷹.svg', isAnswer: false, top: '55%', left: '19%' },
-                    { id: 10, src: 'image/台灣水鹿.svg', isAnswer: true, top: '40%', left: '45%' }
+                    { id: 1, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E5%8F%B0%E7%81%A3%E8%97%8D%E9%B5%B2.svg', isAnswer: false, top: '10%', left: '62%' },
+                    { id: 2, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/%E4%BA%94%E8%89%B2%E9%B3%A5.svg', isAnswer: false, top: '35%', left: '60%' },
+                    { id: 3, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/7ce042c6c9cacd6de311c900325f1a4faa418c09/pic/%E6%B3%B0%E9%9B%85%E6%97%8F%E8%B2%9D%E7%8F%A0%E8%A3%99.svg', isAnswer: false, top: '43%', left: '30%' },
+                    { id: 4, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E7%A1%AB%E7%A3%BA.svg', isAnswer: false, top: '45%', left: '80%' },
+                    { id: 5, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E9%9B%B2%E8%B1%B9.svg', isAnswer: false, top: '25%', left: '75%' },
+                    { id: 6, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E9%BB%91%E9%95%B7%E5%B0%BE%E9%9B%89.svg', isAnswer: false, top: '57%', left: '65%' },
+                    { id: 7, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E5%AF%AC%E5%B0%BE%E9%B3%B3%E8%9D%B6.svg', isAnswer: false, top: '23%', left: '16%' },
+                    { id: 8, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E9%BE%8D%E5%AE%AE%E7%BF%81%E6%88%8E%E8%9E%BA.svg', isAnswer: false, top: '15%', left: '35%' },
+                    { id: 9, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E7%86%8A%E9%B7%B9.svg', isAnswer: false, top: '55%', left: '19%' },
+                    { id: 10, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E5%8F%B0%E7%81%A3%E6%B0%B4%E9%B9%BF.svg', isAnswer: true, top: '40%', left: '45%' }
                 ]
             },
             {
                 hints: ['1. 龍宮翁戎螺', '2. 龍宮翁戎螺', '3. 龍宮翁戎螺'],
                 artifacts: [
-                    { id: 1, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '10%', left: '62%' },
-                    { id: 2, src: 'image/五色鳥.svg', isAnswer: false, top: '35%', left: '60%' },
-                    { id: 3, src: 'image/泰雅族貝珠裙.svg', isAnswer: false, top: '43%', left: '30%' },
-                    { id: 4, src: 'image/硫磺.svg', isAnswer: false, top: '45%', left: '80%' },
-                    { id: 5, src: 'image/雲豹.svg', isAnswer: false, top: '25%', left: '75%' },
-                    { id: 6, src: 'image/黑長尾雉.svg', isAnswer: false, top: '57%', left: '65%' },
-                    { id: 7, src: 'image/寬尾鳳蝶.svg', isAnswer: false, top: '23%', left: '16%' },
-                    { id: 8, src: 'image/龍宮翁戎螺.svg', isAnswer: true, top: '15%', left: '35%' },
-                    { id: 9, src: 'image/熊鷹.svg', isAnswer: false, top: '55%', left: '19%' },
-                    { id: 10, src: 'image/台灣水鹿.svg', isAnswer: false, top: '40%', left: '45%' }
+                    { id: 1, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E5%8F%B0%E7%81%A3%E8%97%8D%E9%B5%B2.svg', isAnswer: false, top: '10%', left: '62%' },
+                    { id: 2, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/%E4%BA%94%E8%89%B2%E9%B3%A5.svg', isAnswer: false, top: '35%', left: '60%' },
+                    { id: 3, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/7ce042c6c9cacd6de311c900325f1a4faa418c09/pic/%E6%B3%B0%E9%9B%85%E6%97%8F%E8%B2%9D%E7%8F%A0%E8%A3%99.svg', isAnswer: false, top: '43%', left: '30%' },
+                    { id: 4, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E7%A1%AB%E7%A3%BA.svg', isAnswer: false, top: '45%', left: '80%' },
+                    { id: 5, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E9%9B%B2%E8%B1%B9.svg', isAnswer: false, top: '25%', left: '75%' },
+                    { id: 6, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E9%BB%91%E9%95%B7%E5%B0%BE%E9%9B%89.svg', isAnswer: false, top: '57%', left: '65%' },
+                    { id: 7, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E5%AF%AC%E5%B0%BE%E9%B3%B3%E8%9D%B6.svg', isAnswer: false, top: '23%', left: '16%' },
+                    { id: 8, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E9%BE%8D%E5%AE%AE%E7%BF%81%E6%88%8E%E8%9E%BA.svg', isAnswer: true, top: '15%', left: '35%' },
+                    { id: 9, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E7%86%8A%E9%B7%B9.svg', isAnswer: false, top: '55%', left: '19%' },
+                    { id: 10, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E5%8F%B0%E7%81%A3%E6%B0%B4%E9%B9%BF.svg', isAnswer: false, top: '40%', left: '45%' }
                 ]
             },
             {
                 hints: ['1. 寬尾鳳蝶', '2. 寬尾鳳蝶', '3. 寬尾鳳蝶'],
                 artifacts: [
-                    { id: 1, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '10%', left: '62%' },
-                    { id: 2, src: 'image/五色鳥.svg', isAnswer: false, top: '35%', left: '60%' },
-                    { id: 3, src: 'image/泰雅族貝珠裙.svg', isAnswer: false, top: '43%', left: '30%' },
-                    { id: 4, src: 'image/硫磺.svg', isAnswer: false, top: '45%', left: '80%' },
-                    { id: 5, src: 'image/雲豹.svg', isAnswer: false, top: '25%', left: '75%' },
-                    { id: 6, src: 'image/黑長尾雉.svg', isAnswer: false, top: '57%', left: '65%' },
-                    { id: 7, src: 'image/寬尾鳳蝶.svg', isAnswer: true, top: '23%', left: '16%' },
-                    { id: 8, src: 'image/龍宮翁戎螺.svg', isAnswer: false, top: '15%', left: '35%' },
-                    { id: 9, src: 'image/熊鷹.svg', isAnswer: false, top: '55%', left: '19%' },
-                    { id: 10, src: 'image/台灣水鹿.svg', isAnswer: false, top: '40%', left: '45%' }
+                    { id: 1, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E5%8F%B0%E7%81%A3%E8%97%8D%E9%B5%B2.svg', isAnswer: false, top: '10%', left: '62%' },
+                    { id: 2, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/%E4%BA%94%E8%89%B2%E9%B3%A5.svg', isAnswer: false, top: '35%', left: '60%' },
+                    { id: 3, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/7ce042c6c9cacd6de311c900325f1a4faa418c09/pic/%E6%B3%B0%E9%9B%85%E6%97%8F%E8%B2%9D%E7%8F%A0%E8%A3%99.svg', isAnswer: false, top: '43%', left: '30%' },
+                    { id: 4, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E7%A1%AB%E7%A3%BA.svg', isAnswer: false, top: '45%', left: '80%' },
+                    { id: 5, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E9%9B%B2%E8%B1%B9.svg', isAnswer: false, top: '25%', left: '75%' },
+                    { id: 6, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E9%BB%91%E9%95%B7%E5%B0%BE%E9%9B%89.svg', isAnswer: false, top: '57%', left: '65%' },
+                    { id: 7, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E5%AF%AC%E5%B0%BE%E9%B3%B3%E8%9D%B6.svg', isAnswer: true, top: '23%', left: '16%' },
+                    { id: 8, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E9%BE%8D%E5%AE%AE%E7%BF%81%E6%88%8E%E8%9E%BA.svg', isAnswer: false, top: '15%', left: '35%' },
+                    { id: 9, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E7%86%8A%E9%B7%B9.svg', isAnswer: false, top: '55%', left: '19%' },
+                    { id: 10, src: 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E5%8F%B0%E7%81%A3%E6%B0%B4%E9%B9%BF.svg', isAnswer: false, top: '40%', left: '45%' }
                 ]
             },
 
@@ -429,6 +494,11 @@
             document.getElementById('hint3').textContent = question.hints[2] || '';
         }
 
+        document.getElementById('begin-out').addEventListener('click', () => {
+            document.getElementById('begin-out').style.display = 'none';
+        });
+
+
         function selectArtifact(img) {
             selectedArtifact = img;
             selectedImageContainer.innerHTML = '';
@@ -437,7 +507,7 @@
             clone.style.position = 'absolute';
             clone.style.height = '20vh';
             clone.style.width = '55%';
-            clone.style.top = '45%';
+            clone.style.top = '35%';
             clone.style.left = '50%';
             clone.style.transform = 'translate(-50%, -50%)';
             selectedImageContainer.appendChild(clone);
@@ -515,13 +585,14 @@
                     document.getElementById('again').style.display = 'block';
 
                 } else {
-                    
+
                     document.querySelector('.modal-bg-finish').style.display = 'block';
+                    document.getElementById('again').style.display = 'none';
                     document.getElementById('finishNextButton').style.display = 'inline';
                     document.querySelector('.hints').style.display = 'none';
                     overlay.style.display = 'block';
                     modal.style.display = 'block';
-                    modalBg.style.display = 'block';
+                    modalBg.style.display = 'none';
                     modalBgCorrect.style.display = 'none';
                     container.style.filter = 'blur(6px)';
                     correctNextButton.style.display = 'none';
@@ -531,7 +602,8 @@
         }
 
         document.getElementById('finishNextButton').addEventListener('click', () => {
-            window.parent.postMessage("complete", "*");
+            window.location.href = "animate.html";
+
         });
 
         loadQuestion(currentQuestion);
