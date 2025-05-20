@@ -412,8 +412,8 @@
         }
 
         let currentQuestionIndex = 0;
+        // 為了演示錯題重練，這裡至少保留4個問題
         const initialQuestions = [
-
             {
                 hints: ['I. 從博物館老物品研究傳統織品', 'II. 汲取靈感研究泰雅織藝技術', 'III. 作品融入自然景觀創彩虹橋意象'],
                 artifacts: [
@@ -710,7 +710,7 @@
         const beginOutScreen = document.getElementById('begin-out');
         const hintsWrapperEl = document.querySelector('.hints-wrapper');
         const questionCounterEl = document.getElementById('question-counter');
-        const totalInitialQuestions = initialQuestions.length;
+        const totalInitialQuestions = initialQuestions.length; // 確保在 initialQuestions 初始化後計算
 
         let selectedArtifactData = null;
         let originalSelectedArtifactElement = null;
@@ -730,6 +730,7 @@
             if (state === 'select' || state === 'correct' || state === 'wrong' || state === 'finish') {
                 if (hintsWrapperEl) hintsWrapperEl.style.pointerEvents = 'none';
             } else {
+                // 這個 else 分支目前不會被觸發，因為 closeModalAndReset 負責恢復 pointerEvents
                 if (hintsWrapperEl) hintsWrapperEl.style.pointerEvents = 'auto';
             }
 
@@ -760,6 +761,7 @@
         function loadQuestion(index) {
             if (index >= currentQuestionList.length) {
                 if (questionCounterEl) questionCounterEl.style.display = 'none';
+                // 理論上不應該執行到這裡，因為 goToNextQuestion 會處理列表結束的情況
                 return;
             }
             const question = currentQuestionList[index];
@@ -784,10 +786,12 @@
 
             if (questionCounterEl) {
                 if (isAnsweringInitialQuestions) {
-                    questionCounterEl.textContent = `${index + 1} / ${totalInitialQuestions}`;
+                    questionCounterEl.textContent = `${currentQuestionIndex + 1} / ${totalInitialQuestions}`; // 使用 currentQuestionIndex
                     questionCounterEl.style.display = 'block';
                 } else {
-                    questionCounterEl.style.display = 'none';
+                    // 在錯題重練階段，可以選擇顯示不同的計數器或不顯示
+                    // 例如: questionCounterEl.textContent = `錯題 ${currentQuestionIndex + 1} / ${currentQuestionList.length}`;
+                    questionCounterEl.style.display = 'none'; // 根據原代碼，重練時不顯示
                 }
             }
         }
@@ -797,9 +801,9 @@
             if (hintsWrapperEl) hintsWrapperEl.style.pointerEvents = 'auto';
 
             currentQuestionIndex = 0;
-            currentQuestionList = [...initialQuestions];
-            wrongQuestions = [];
-            isAnsweringInitialQuestions = true;
+            currentQuestionList = [...initialQuestions]; // 重置為初始問題列表
+            wrongQuestions = []; // 清空錯題記錄
+            isAnsweringInitialQuestions = true; // 標記為初始答題階段
 
             if (againIndicator) againIndicator.style.display = 'none';
             loadQuestion(currentQuestionIndex);
@@ -817,10 +821,10 @@
             clone.classList.add('cloned-artifact');
 
             clone.style.position = 'absolute';
-            clone.style.height = '20vh';
-            clone.style.width = '20%';
-            clone.style.top = '35%';
-            clone.style.left = '50%';
+            clone.style.height = '20vh'; // 這些樣式可以根據需要調整
+            clone.style.width = '20%';   // 這些樣式可以根據需要調整
+            clone.style.top = '35%';     // 這些樣式可以根據需要調整
+            clone.style.left = '50%';    // 這些樣式可以根據需要調整
             clone.style.transform = 'translate(-50%, -50%)';
 
             selectedImageContainer.appendChild(clone);
@@ -834,6 +838,7 @@
             updateModalState('select');
         }
 
+        // --- MODIFICATION START ---
         confirmButton.addEventListener('click', () => {
             if (!selectedArtifactData) return;
             selectedImageContainer.innerHTML = '';
@@ -844,11 +849,14 @@
             } else {
                 updateModalState('wrong');
                 const currentQuestionObject = currentQuestionList[currentQuestionIndex];
-                if (!wrongQuestions.some(q => q.id === currentQuestionObject.id)) {
-                    wrongQuestions.push(currentQuestionObject);
-                }
+                // 直接將當前答錯的題目加入 wrongQuestions 列表
+                // 無需檢查是否已存在，因為 wrongQuestions 是針對本輪的錯題，
+                // 並且會在 goToNextQuestion 中被正確處理（賦值給 currentQuestionList 後清空）。
+                wrongQuestions.push(currentQuestionObject);
             }
+
         });
+        // --- MODIFICATION END ---
 
         cancelButton.addEventListener('click', () => {
             closeModalAndReset();
@@ -859,7 +867,7 @@
             modal.style.display = 'none';
             modal.style.transform = 'translate(-50%, -50%) scale(1)';
             gameContentWrapper.style.filter = '';
-            selectedImageContainer.innerHTML = '';
+            selectedImageContainer.innerHTML = ''; // 清除模態框中選擇的圖片
             selectedArtifactData = null;
             originalSelectedArtifactElement = null;
             if (hintsWrapperEl) hintsWrapperEl.style.pointerEvents = 'auto';
@@ -875,15 +883,18 @@
             if (currentQuestionIndex < currentQuestionList.length) {
                 loadQuestion(currentQuestionIndex);
             } else {
+                // 當前列表的題目已全部回答完畢
                 if (wrongQuestions.length > 0) {
-                    currentQuestionList = [...wrongQuestions];
-                    wrongQuestions = [];
-                    currentQuestionIndex = 0;
-                    isAnsweringInitialQuestions = false;
+                    // 如果有錯題，則進入錯題重練環節
+                    currentQuestionList = [...wrongQuestions]; // 將本輪錯題設為新的待答列表
+                    wrongQuestions = []; // 清空錯題記錄，為下一輪重練做準備
+                    currentQuestionIndex = 0; // 重置題目索引
+                    isAnsweringInitialQuestions = false; // 標記為非初始答題階段（即錯題重練）
 
                     loadQuestion(currentQuestionIndex);
-                    if (againIndicator) againIndicator.style.display = 'block';
+                    if (againIndicator) againIndicator.style.display = 'block'; // 顯示重練提示
                 } else {
+                    // 如果沒有錯題了（wrongQuestions 為空），則表示所有題目已掌握
                     if (againIndicator) againIndicator.style.display = 'none';
                     overlay.style.display = 'block';
                     modal.style.display = 'block';
@@ -891,31 +902,34 @@
                         modal.style.transform = 'translate(-50%, -50%) scale(1.7)';
                     });
                     gameContentWrapper.style.filter = 'blur(6px)';
-                    updateModalState('finish');
+                    updateModalState('finish'); // 顯示完成界面
                 }
             }
         }
 
         finishNextButton.addEventListener('click', () => {
-            alert("Congratulations! You've completed the game!");
+            // alert("Congratulations! You've completed the game!"); // 你可以保留或修改這個提示
             currentQuestionIndex = 0;
             currentQuestionList = [...initialQuestions];
             wrongQuestions = [];
             isAnsweringInitialQuestions = true;
             if (againIndicator) againIndicator.style.display = 'none';
             closeModalAndReset();
-            beginOutScreen.style.display = 'flex';
-            if (hintsWrapperEl) hintsWrapperEl.style.pointerEvents = 'none';
+            beginOutScreen.style.display = 'flex'; // 顯示開始界面以重新開始
+            if (hintsWrapperEl) hintsWrapperEl.style.pointerEvents = 'none'; // 開始界面時提示區不可點
             if (questionCounterEl) questionCounterEl.style.display = 'none';
         });
 
         window.addEventListener('resize', resizeGame);
         resizeGame();
 
+        // 初始狀態設置
         if (questionCounterEl) {
-            questionCounterEl.style.display = 'none';
+            questionCounterEl.style.display = 'none'; // 初始不顯示題號，直到遊戲開始
         }
-        if (hintsWrapperEl) hintsWrapperEl.style.pointerEvents = 'none';
+        if (hintsWrapperEl) {
+            hintsWrapperEl.style.pointerEvents = 'none'; // 初始提示區不可點，直到遊戲開始
+        }
     </script>
 </body>
 
