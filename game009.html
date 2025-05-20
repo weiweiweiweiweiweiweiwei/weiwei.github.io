@@ -4,106 +4,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>總ek7qu4</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&family=Noto+Serif+TC:wght@200..900&display=swap"
-        rel="stylesheet">
+    <title>台灣博物館互動教材</title>
     <style>
         html,
         body {
-            /* font-family: 'Noto Serif TC', serif; */
-            font-family: "Noto Sans TC", sans-serif;
-            font-optical-sizing: auto;
-            font-weight: 400;
-            font-style: normal;
-            letter-spacing: 1px;
             margin: 0;
             padding: 0;
-            width: min(100vw, 200vh);
-            height: min(50vw, 100vh);
-            min-width: 500px;
+            height: 100%;
+            width: 100%;
             overflow: hidden;
             background-color: #000000;
+            font-family: 'Noto Sans TC', sans-serif;
         }
 
-        .center-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
+        #viewport-scaler {
             width: 100vw;
-            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .game-screen {
             position: relative;
-            left: 50%;
-            transform: translate(-50%);
-            aspect-ratio: 2/ 1;
-            width: min(100vw, 200vh);
-            height: min(50vw, 100vh);
+            aspect-ratio: 2 / 1;
+            background-color: #0c0c18;
             overflow: hidden;
         }
 
+        #game-content-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transition: filter 0.3s ease-out;
+            z-index: 10;
+        }
+
         #begin-out {
-            position: fixed;
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.7);
-            aspect-ratio: 2/ 1;
-            z-index: 960;
-        }
-
-        #begin-in {
-            position: absolute;
-            transform: translate(-50%, -50%);
-            top: 50%;
-            left: 50%;
-            width: 100%;
-            height: 100%;
+            z-index: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
         }
 
         #begin-in h1 {
-            position: absolute;
-            top: 42%;
-            left: 50%;
-            font-size: 2vw;
-            transform: translate(-50%, -50%);
+            font-size: 2rem;
             color: white;
-            font-family: 'Noto Sans TC', sans-serif;
             font-weight: 800;
+            margin-bottom: 1em;
         }
 
         #begin-in h3 {
-            position: absolute;
-            top: 52%;
-            left: 50%;
-            font-size: 1vw;
-            transform: translate(-50%, -50%);
+            font-size: 1rem;
             color: white;
-            font-family: 'Noto Sans TC', sans-serif;
             font-weight: 200;
             animation: fadeInOut 2s infinite;
         }
 
         #game-container {
             position: absolute;
-            top: 52%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            aspect-ratio: 16 / 8;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             overflow: hidden;
-            z-index: 950;
+            z-index: 5;
         }
 
-        /* 太空艙*/
         #bg {
             position: absolute;
             top: 50%;
@@ -111,40 +88,47 @@
             transform: translate(-50%, -50%);
             width: 100%;
             height: 100%;
+            background-image: url('https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/%E5%A4%AA%E7%A9%BA%E8%89%99.svg');
             background-size: contain;
             background-repeat: no-repeat;
-            overflow: hidden;
+            background-position: center;
             pointer-events: none;
-            z-index: 1000;
+            z-index: 960;
+        }
+
+        #starbg-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
         }
 
         #starbg {
-            position: absolute;
             width: 100%;
             height: 100%;
-            aspect-ratio: 16 / 8;
-            background-size: contain;
-            background-repeat: no-repeat;
+            object-fit: cover;
             pointer-events: none;
-            z-index: 900;
-            overflow: hidden;
         }
 
         #artifacts-container {
-            position: fixed;
+            position: absolute;
             width: 100%;
             height: 100%;
-            z-index: 1000;
         }
 
         #overlayblue {
-            position: fixed;
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            z-index: 900;
+            z-index: 2;
             background-color: #0f304f;
             opacity: 0.4;
-            overflow: hidden;
+            pointer-events: none;
         }
 
         .answer-image {
@@ -158,42 +142,45 @@
             -ms-user-select: none;
             -webkit-user-drag: none;
             pointer-events: auto;
+            transition: transform 0.2s ease;
+        }
+
+        .answer-image:hover {
+            transform: scale(1.1);
         }
 
         .hints-wrapper {
-            position: fixed;
-            bottom: 2%;
+            position: absolute;
+            bottom: 1%;
             left: 50%;
             transform: translateX(-50%);
-            transform-origin: bottom center;
-            aspect-ratio: 35 / 18;
             width: 35%;
-            height: 18%;
-            min-height: 20vh;
-            /* max-height: 20vh;    
-            max-width: 194.44vh; */
-            z-index: 1000;
+            max-width: 194.44vh;
+            aspect-ratio: 35 / 11;
+            z-index: 980;
         }
 
         .hints {
             height: 100%;
-            font-size: clamp(1.2rem, 2.5vmin, 2.5vw);
+            font-size: clamp(1rem, 2.2vmin, 1.5rem);
             padding-left: 6%;
             padding-top: 2%;
-            border-radius: 20px;
+            border-radius: 1.5rem;
             background-color: #98bbc8f0;
-            color: white;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            color: #ffffff;
+            box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.3);
+            box-sizing: border-box;
         }
 
         .hints p {
-            /* font-weight: 600; */
             margin: 0.5em 0;
-            font-size: inherit;
-            line-height: inherit;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            line-height: 1.2;
+        }
+
+        @media (min-width: 768px) {
+            .hints p {
+                line-height: 1.8;
+            }
         }
 
         #again {
@@ -202,113 +189,122 @@
             top: -16%;
             left: 2%;
             width: 18%;
-            height: 18%;
-            z-index: 1010;
+            z-index: 5;
+        }
+
+        #again img {
+            width: 100%;
+            height: auto;
+        }
+
+        #overlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 950;
         }
 
         #confirm-modal {
             display: none;
-            position: fixed;
+            position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
-            width: 50vw;
-            aspect-ratio: 16 / 9;
-            z-index: 1000;
+            transform: translate(-50%, -50%) scale(1);
+            width: 50%;
+            aspect-ratio: 16 / 10;
+            z-index: 970;
             background: none;
             padding: 0;
             border: none;
-            z-index: 970;
+            transition: transform 0.3s ease-out;
         }
 
-        .modal-bg {
+        .modal-bg,
+        .modal-bg-correct,
+        .modal-bg-wrong,
+        .modal-bg-finish {
             position: absolute;
-            width: 170%;
-            height: 170%;
-            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
             top: 50%;
             left: 50%;
+            transform: translate(-50%, -50%);
             object-fit: contain;
             pointer-events: none;
-            z-index: -1;
             user-select: none;
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             -webkit-user-drag: none;
-            pointer-events: auto;
         }
 
         .modal-bg-correct,
         .modal-bg-wrong,
         .modal-bg-finish {
             display: none;
-            position: absolute;
-            transform: translate(-50%, -50%);
-            top: 50%;
-            left: 50%;
-            width: 170%;
-            height: 170%;
-            object-fit: contain;
-            pointer-events: none;
-            z-index: -1;
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            -webkit-user-drag: none;
-            pointer-events: auto;
         }
 
-        #selected-image-container img {
-            transform: translate(-50%, -50%);
+        #selected-image-container {
             position: absolute;
-            height: 20vh;
-            width: 55%;
-            top: 15%;
-            left: 50%;
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            -webkit-user-drag: none;
-            pointer-events: auto;
-        }
-
-        #overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 960;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        #selected-image-container img.cloned-artifact {
+            object-fit: contain;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -webkit-user-drag: none;
         }
 
         .button-group {
             position: absolute;
-            bottom: 17%;
+            bottom: 32%;
             left: 50%;
             transform: translateX(-50%);
-        }
-
-        .button-group img {
-            margin: 10px 18px;
+            display: flex;
+            gap: 1rem;
+            width: 90%;
+            justify-content: center;
         }
 
         .svg-button {
-            height: 8vh;
+            height: 3rem;
             width: auto;
+            max-width: 30%;
+            flex-shrink: 1;
             cursor: pointer;
             user-select: none;
             -webkit-user-drag: none;
-            margin: 1 2vw;
             transition: transform 0.2s ease;
         }
 
         .svg-button:hover {
             transform: scale(1.05);
+        }
+
+        #question-counter {
+            position: absolute;
+            top: 3%;
+            left: 3%;
+            transform: translateY(0);
+            font-family: 'Noto Sans TC', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.9);
+            z-index: 965;
+            padding: 0.5rem 1rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            display: none;
         }
 
         @keyframes fadeInOut {
@@ -326,84 +322,99 @@
     </style>
 </head>
 
-
-
 <body>
-    <div class="center-wrapper">
+    <div id="viewport-scaler">
         <div class="game-screen">
-
-            <div id="star">
-                <img src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/main/image/%E6%98%9F%E7%A9%BA.jpg"
-                    id="starbg">
-            </div>
-            <div>
-                <img src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/%E5%A4%AA%E7%A9%BA%E8%89%99.svg"
-                    id="bg">
-            </div>
-            <div id="game-container">
-                <div id="artifacts-container"></div>
-            </div>
-
-            <div id="confirm-modal">
-                <img src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/select.svg"
-                    class="modal-bg">
-                <img src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/correct.svg"
-                    class="modal-bg-correct">
-                <img src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/wrong.svg"
-                    class="modal-bg-wrong">
-                <img src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/36f161ac5a8e4257f8d3765f989cca9e507dbbb1/pic/finish.svg"
-                    class="modal-bg-finish">
-
-                <div id="selected-image-container"></div>
-                <div class="button-group">
-                    <img id="confirmtButton"
-                        src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/462fb0269931e222b2646dd986316ccca9d16802/image/confirmtbutton.svg"
-                        class="svg-button choose">
-                    <img id="cancelButton"
-                        src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/cancelbutton.svg"
-                        class="svg-button choose">
-
-                    <img id="correctNextButton"
-                        src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/correctnextbutton.svg"
-                        class="svg-button next-button" style="display: none;" alt="正確繼續">
-                    <img id="wrongNextButton"
-                        src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/wrongnextbutton.svg"
-                        class="svg-button next-button" style="display: none;" alt="錯誤繼續">
-                    <img id="finishNextButton"
-                        src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/correctnextbutton.svg"
-                        class="svg-button next-button" style="display: none;" alt="最後繼續">
+            <div id="game-content-wrapper">
+                <div id="starbg-container">
+                    <img src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/main/image/%E6%98%9F%E7%A9%BA.jpg"
+                        id="starbg" alt="Starry sky background">
                 </div>
-
+                <div id="overlayblue"></div>
+                <div id="game-container">
+                    <div id="artifacts-container"></div>
+                </div>
             </div>
             <div id="overlay"></div>
+            <div id="bg"></div>
+            <div id="question-counter"></div>
+            <div id="confirm-modal">
+                <img src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/select.svg"
+                    class="modal-bg" alt="Selection dialog background">
+                <img src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/correct.svg"
+                    class="modal-bg-correct" alt="Correct answer dialog background">
+                <img src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/wrong.svg"
+                    class="modal-bg-wrong" alt="Wrong answer dialog background">
+                <img src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/36f161ac5a8e4257f8d3765f989cca9e507dbbb1/pic/finish.svg"
+                    class="modal-bg-finish" alt="Game finished dialog background">
+                <div id="selected-image-container">
+                </div>
+                <div class="button-group">
+                    <img id="confirmButton"
+                        src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/462fb0269931e222b2646dd986316ccca9d16802/image/confirmtbutton.svg"
+                        class="svg-button choose" alt="Confirm selection">
+                    <img id="cancelButton"
+                        src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/cancelbutton.svg"
+                        class="svg-button choose" alt="Cancel selection">
+                    <img id="correctNextButton"
+                        src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/correctnextbutton.svg"
+                        class="svg-button next-button" style="display: none;" alt="Next (correct)">
+                    <img id="wrongNextButton"
+                        src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/wrongnextbutton.svg"
+                        class="svg-button next-button" style="display: none;" alt="Next (wrong)">
+                    <img id="finishNextButton"
+                        src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/correctnextbutton.svg"
+                        class="svg-button next-button" style="display: none;" alt="Finish">
+                </div>
+            </div>
+            <div class="hints-wrapper">
+                <div id="again">
+                    <img src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/againtext.svg"
+                        class="again" alt="Try again indicator">
+                </div>
+                <div class="hints">
+                    <p id="hint1"></p>
+                    <p id="hint2"></p>
+                    <p id="hint3"></p>
+                </div>
+            </div>
             <div id="begin-out">
                 <div id="begin-in">
                     <h1>請依提示選出正確的文物</h1>
                     <h3>點擊螢幕繼續</h3>
                 </div>
             </div>
-            <div id="overlayblue"></div>
-
-            <div class="hints-wrapper">
-                <div id="again">
-                    <img src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/againtext.svg"
-                        class="again">
-
-                </div>
-                <div class="hints">
-                    <p id="hint1">1. 這是必要留著的</p>
-                    <p id="hint2">2. 只是宣告空間</p>
-                    <p id="hint3">3. 本體在下面</p>
-                </div>
-            </div>
         </div>
     </div>
-
     <script>
+        const gameScreen = document.querySelector('.game-screen');
+        const viewportScaler = document.getElementById('viewport-scaler');
+        const gameContentWrapper = document.getElementById('game-content-wrapper');
+        const DESIGN_ASPECT_RATIO = 2 / 1;
 
-        let currentQuestion = 0;
-        let currentQuestionList = [
-            {//1
+        function resizeGame() {
+            const viewportWidth = viewportScaler.clientWidth;
+            const viewportHeight = viewportScaler.clientHeight;
+            const viewportAspectRatio = viewportWidth / viewportHeight;
+            let newGameWidth, newGameHeight;
+
+            if (viewportAspectRatio > DESIGN_ASPECT_RATIO) {
+                newGameHeight = viewportHeight;
+                newGameWidth = newGameHeight * DESIGN_ASPECT_RATIO;
+            } else {
+                newGameWidth = viewportWidth;
+                newGameHeight = newGameWidth / DESIGN_ASPECT_RATIO;
+            }
+
+            gameScreen.style.width = newGameWidth + 'px';
+            gameScreen.style.height = newGameHeight + 'px';
+            document.documentElement.style.fontSize = (newGameWidth / 100) + 'px';
+        }
+
+        let currentQuestionIndex = 0;
+        const initialQuestions = [
+
+            {
                 hints: ['I. 從博物館老物品研究傳統織品', 'II. 汲取靈感研究泰雅織藝技術', 'III. 作品融入自然景觀創彩虹橋意象'],
                 artifacts: [
                     { id: 1, src: 'image/古虹新姿.svg', isAnswer: true, top: '10%', left: '62%' },
@@ -418,7 +429,7 @@
                     { id: 10, src: 'image/黑長尾雉.svg', isAnswer: false, top: '40%', left: '45%' }
                 ]
             },
-            {//2
+            {
                 hints: ['I. 裙子以麻布為底縫上貝殼小珠', 'II. 象徵部落頭目或富裕人士地位', 'III. 傳統婚禮習俗中的重要聘禮'],
                 artifacts: [
                     { id: 1, src: 'image/古虹新姿.svg', isAnswer: false, top: '10%', left: '62%' },
@@ -433,7 +444,7 @@
                     { id: 10, src: 'image/黑長尾雉.svg', isAnswer: false, top: '40%', left: '45%' }
                 ]
             },
-            {//3
+            {
                 hints: ['I. 身體兩側有像雲朵狀的黑色斑點', 'II. 喜歡藏身樹上等待時機進行狩獵', 'III. 魯凱族文化中象徵著高貴與神聖'],
                 artifacts: [
                     { id: 1, src: 'image/古虹新姿.svg', isAnswer: false, top: '10%', left: '62%' },
@@ -448,7 +459,7 @@
                     { id: 10, src: 'image/黑長尾雉.svg', isAnswer: false, top: '40%', left: '45%' }
                 ]
             },
-            {//4
+            {
                 hints: ['I. 構成材料包含獸骨貝珠和玻璃珠', 'II. 賽夏族男子在重要場合時會佩戴', 'III. 象徵佩戴者的社會地位與勇氣'],
                 artifacts: [
                     { id: 1, src: 'image/古虹新姿.svg', isAnswer: false, top: '10%', left: '62%' },
@@ -463,7 +474,7 @@
                     { id: 10, src: 'image/黑長尾雉.svg', isAnswer: false, top: '40%', left: '45%' }
                 ]
             },
-            {//5
+            {
                 hints: ['I. 身體顏色是橄欖綠色腹部為白色', 'II. 屬於會在河川與海洋間迴游魚類', 'III. 釣魚友釣法利用牠領域性作誘餌'],
                 artifacts: [
                     { id: 1, src: 'image/古虹新姿.svg', isAnswer: false, top: '10%', left: '62%' },
@@ -478,7 +489,7 @@
                     { id: 10, src: 'image/黑長尾雉.svg', isAnswer: false, top: '40%', left: '45%' }
                 ]
             },
-            {//6
+            {
                 hints: ['I. 對溪流水質和環境變化非常敏感', 'II. 棲息在臺灣高山地區的溪流中', 'III. 因為對環境敏感所以被稱為國寶魚'],
                 artifacts: [
                     { id: 1, src: 'image/古虹新姿.svg', isAnswer: false, top: '10%', left: '62%' },
@@ -493,7 +504,7 @@
                     { id: 10, src: 'image/黑長尾雉.svg', isAnswer: false, top: '40%', left: '45%' }
                 ]
             },
-            {//7
+            {
                 hints: ['I. 殼表面有如同橘紅色火焰狀的斑紋', 'II. 主要棲息在水深五十至兩百五十米', 'III. 數量稀少是深海中的獨特稀有物種'],
                 artifacts: [
                     { id: 1, src: 'image/龍宮翁戎螺.svg', isAnswer: true, top: '10%', left: '62%' },
@@ -508,7 +519,7 @@
                     { id: 10, src: 'image/台灣水鹿.svg', isAnswer: false, top: '40%', left: '45%' }
                 ]
             },
-            {//8
+            {
                 hints: ['I. 牠的眼睛虹膜呈現漂亮的紅褐色', 'II. 雄鳥的腳上具有明顯的距', 'III. 通常在晨昏或起霧時比較活躍'],
                 artifacts: [
                     { id: 1, src: 'image/龍宮翁戎螺.svg', isAnswer: false, top: '10%', left: '62%' },
@@ -523,7 +534,7 @@
                     { id: 10, src: 'image/台灣水鹿.svg', isAnswer: false, top: '40%', left: '45%' }
                 ]
             },
-            {//9
+            {
                 hints: ['I. 翅膀為黑色帶有橘紅色斑點', 'II. 後翅具有寬大且顯著的尾突', 'III. 幼蟲以臺灣檫樹的新芽及嫩葉為食'],
                 artifacts: [
                     { id: 1, src: 'image/龍宮翁戎螺.svg', isAnswer: false, top: '10%', left: '62%' },
@@ -538,7 +549,7 @@
                     { id: 10, src: 'image/台灣水鹿.svg', isAnswer: false, top: '40%', left: '45%' }
                 ]
             },
-            {//10
+            {
                 hints: ['I. 成鳥眼睛是耀眼的金黃色', 'II. 牠的嘴部與腳是醒目的紅色', 'III. 性情兇悍特別是繁殖期領域性強'],
                 artifacts: [
                     { id: 1, src: 'image/龍宮翁戎螺.svg', isAnswer: false, top: '10%', left: '62%' },
@@ -553,7 +564,7 @@
                     { id: 10, src: 'image/台灣水鹿.svg', isAnswer: false, top: '40%', left: '45%' }
                 ]
             },
-            {//11
+            {
                 hints: ['I. 其顏色像金黃色的顆粒狀物', 'II. 英文名字 Sulfur 來自拉丁語有關火閃電', 'III. 常常在火山爆發後自然形成出現'],
                 artifacts: [
                     { id: 1, src: 'image/龍宮翁戎螺.svg', isAnswer: false, top: '10%', left: '62%' },
@@ -568,7 +579,7 @@
                     { id: 10, src: 'image/台灣水鹿.svg', isAnswer: false, top: '40%', left: '45%' }
                 ]
             },
-            {//12
+            {
                 hints: ['I. 是由鉀鉛和硫酸鹽所組成的礦物', 'II. 英文名稱直接來自臺灣北投溫泉', 'III. 這種礦物本身含有微量放射性'],
                 artifacts: [
                     { id: 1, src: 'image/龍宮翁戎螺.svg', isAnswer: false, top: '10%', left: '62%' },
@@ -583,7 +594,7 @@
                     { id: 10, src: 'image/台灣水鹿.svg', isAnswer: false, top: '40%', left: '45%' }
                 ]
             },
-            {//13
+            {
                 hints: ['I. 雌雄外觀極為相似不易分辨', 'II. 羽毛顏色以綠色為主適合隱身樹葉間', 'III. 鳴叫聲特色是單調且聽起來很渾厚'],
                 artifacts: [
                     { id: 1, src: 'image/五色鳥.svg', isAnswer: true, top: '10%', left: '62%' },
@@ -598,7 +609,7 @@
                     { id: 10, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '40%', left: '45%' }
                 ]
             },
-            {//14
+            {
                 hints: ['I. 屬於臺灣原住民盾中的屋頂類型', 'II. 傳世多為排灣族貴族階級所持用', 'III. 盾上常繪刻人頭紋百步蛇或幾何紋'],
                 artifacts: [
                     { id: 1, src: 'image/五色鳥.svg', isAnswer: false, top: '10%', left: '62%' },
@@ -613,7 +624,7 @@
                     { id: 10, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '40%', left: '45%' }
                 ]
             },
-            {//15
+            {
                 hints: ['I. 根據 IUCN紅皮書列為瀕臨絕種物種', 'II. 耳後是黑底帶有明顯的白斑', 'III. 主要食物是小型哺乳動物及各種小動物'],
                 artifacts: [
                     { id: 1, src: 'image/五色鳥.svg', isAnswer: false, top: '10%', left: '62%' },
@@ -628,7 +639,7 @@
                     { id: 10, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '40%', left: '45%' }
                 ]
             },
-            {//16
+            {
                 hints: ['I. 因眼眶下腺體明顯所以俗稱四目鹿', 'II. 是臺灣所有草食性動物中體型最大', 'III. 牠的體色會隨著季節的變化而改變'],
                 artifacts: [
                     { id: 1, src: 'image/五色鳥.svg', isAnswer: false, top: '10%', left: '62%' },
@@ -643,7 +654,7 @@
                     { id: 10, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '40%', left: '45%' }
                 ]
             },
-            {//17
+            {
                 hints: ['I. 雌鳥與雄鳥外觀幾乎相同', 'II. 後枕羽毛較長常豎立形成短羽冠', 'III. 飛行時雙翼會上揚呈現獨特 V形'],
                 artifacts: [
                     { id: 1, src: 'image/五色鳥.svg', isAnswer: false, top: '10%', left: '62%' },
@@ -658,9 +669,8 @@
                     { id: 10, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '40%', left: '45%' }
                 ]
             },
-            {//18
+            {
                 hints: ['I. 根據 IUCN紅皮書列為極危物種', 'II. 全身覆蓋著堅硬且明顯的鱗片', 'III. 遇到危險會縮成緊密的球狀保護自己'],
-
                 artifacts: [
                     { id: 1, src: 'image/五色鳥.svg', isAnswer: false, top: '10%', left: '62%' },
                     { id: 2, src: 'image/排灣族木盾.svg', isAnswer: false, top: '35%', left: '60%' },
@@ -676,25 +686,84 @@
             }
         ];
 
+        let currentQuestionList = [...initialQuestions];
         let wrongQuestions = [];
+        let isAnsweringInitialQuestions = true;
 
-        const container = document.getElementById('artifacts-container');
+        const artifactsContainer = document.getElementById('artifacts-container');
         const overlay = document.getElementById('overlay');
         const modal = document.getElementById('confirm-modal');
         const selectedImageContainer = document.getElementById('selected-image-container');
-        const confirmtButton = document.getElementById('confirmtButton');
+        const confirmButton = document.getElementById('confirmButton');
         const cancelButton = document.getElementById('cancelButton');
         const correctNextButton = document.getElementById('correctNextButton');
         const wrongNextButton = document.getElementById('wrongNextButton');
-        const modalBg = document.querySelector('.modal-bg');
-        const modalBgCorrect = document.querySelector('.modal-bg-correct');
-        const modalBgWrong = document.querySelector('.modal-bg-wrong');
+        const finishNextButton = document.getElementById('finishNextButton');
 
-        let selectedArtifact = null;
+        const modalBg = modal.querySelector('.modal-bg');
+        const modalBgCorrect = modal.querySelector('.modal-bg-correct');
+        const modalBgWrong = modal.querySelector('.modal-bg-wrong');
+        const modalBgFinish = modal.querySelector('.modal-bg-finish');
+
+        const againIndicator = document.getElementById('again');
+        const hintsEl = document.querySelector('.hints');
+        const beginOutScreen = document.getElementById('begin-out');
+        const hintsWrapperEl = document.querySelector('.hints-wrapper');
+        const questionCounterEl = document.getElementById('question-counter');
+        const totalInitialQuestions = initialQuestions.length;
+
+        let selectedArtifactData = null;
+        let originalSelectedArtifactElement = null;
+
+        function updateModalState(state) {
+            modalBg.style.display = 'none';
+            modalBgCorrect.style.display = 'none';
+            modalBgWrong.style.display = 'none';
+            modalBgFinish.style.display = 'none';
+
+            confirmButton.style.display = 'none';
+            cancelButton.style.display = 'none';
+            correctNextButton.style.display = 'none';
+            wrongNextButton.style.display = 'none';
+            finishNextButton.style.display = 'none';
+
+            if (state === 'select' || state === 'correct' || state === 'wrong' || state === 'finish') {
+                if (hintsWrapperEl) hintsWrapperEl.style.pointerEvents = 'none';
+            } else {
+                if (hintsWrapperEl) hintsWrapperEl.style.pointerEvents = 'auto';
+            }
+
+            switch (state) {
+                case 'select':
+                    modalBg.style.display = 'block';
+                    confirmButton.style.display = 'inline-block';
+                    cancelButton.style.display = 'inline-block';
+                    break;
+                case 'correct':
+                    modalBgCorrect.style.display = 'block';
+                    correctNextButton.style.display = 'inline-block';
+                    break;
+                case 'wrong':
+                    modalBgWrong.style.display = 'block';
+                    wrongNextButton.style.display = 'inline-block';
+                    break;
+                case 'finish':
+                    modalBgFinish.style.display = 'block';
+                    finishNextButton.style.display = 'inline-block';
+                    if (hintsEl) hintsEl.style.display = 'none';
+                    if (againIndicator) againIndicator.style.display = 'none';
+                    if (questionCounterEl) questionCounterEl.style.display = 'none';
+                    break;
+            }
+        }
 
         function loadQuestion(index) {
+            if (index >= currentQuestionList.length) {
+                if (questionCounterEl) questionCounterEl.style.display = 'none';
+                return;
+            }
             const question = currentQuestionList[index];
-            container.innerHTML = '';
+            artifactsContainer.innerHTML = '';
 
             question.artifacts.forEach(artifact => {
                 const img = document.createElement('img');
@@ -703,127 +772,150 @@
                 img.style.top = artifact.top;
                 img.style.left = artifact.left;
                 img.dataset.isAnswer = artifact.isAnswer;
-                img.addEventListener('click', () => selectArtifact(img));
-                container.appendChild(img);
+                img.alt = `Artifact image ${artifact.id}`;
+                img.addEventListener('click', () => selectArtifact(img, artifact));
+                artifactsContainer.appendChild(img);
             });
 
             document.getElementById('hint1').textContent = question.hints[0] || '';
             document.getElementById('hint2').textContent = question.hints[1] || '';
             document.getElementById('hint3').textContent = question.hints[2] || '';
+            if (hintsEl) hintsEl.style.display = 'block';
+
+            if (questionCounterEl) {
+                if (isAnsweringInitialQuestions) {
+                    questionCounterEl.textContent = `${index + 1} / ${totalInitialQuestions}`;
+                    questionCounterEl.style.display = 'block';
+                } else {
+                    questionCounterEl.style.display = 'none';
+                }
+            }
         }
 
-        document.getElementById('begin-out').addEventListener('click', () => {
-            document.getElementById('begin-out').style.display = 'none';
+        beginOutScreen.addEventListener('click', () => {
+            beginOutScreen.style.display = 'none';
+            if (hintsWrapperEl) hintsWrapperEl.style.pointerEvents = 'auto';
+
+            currentQuestionIndex = 0;
+            currentQuestionList = [...initialQuestions];
+            wrongQuestions = [];
+            isAnsweringInitialQuestions = true;
+
+            if (againIndicator) againIndicator.style.display = 'none';
+            loadQuestion(currentQuestionIndex);
         });
 
+        function selectArtifact(imgElement, artifactData) {
+            selectedArtifactData = artifactData;
+            originalSelectedArtifactElement = imgElement;
 
-        function selectArtifact(img) {
-            selectedArtifact = img;
             selectedImageContainer.innerHTML = '';
-            const clone = img.cloneNode(true);
+            const clone = imgElement.cloneNode(true);
+
+            clone.className = '';
+            clone.removeAttribute('style');
+            clone.classList.add('cloned-artifact');
 
             clone.style.position = 'absolute';
             clone.style.height = '20vh';
-            clone.style.width = '55%';
+            clone.style.width = '20%';
             clone.style.top = '35%';
             clone.style.left = '50%';
             clone.style.transform = 'translate(-50%, -50%)';
+
             selectedImageContainer.appendChild(clone);
+
             overlay.style.display = 'block';
             modal.style.display = 'block';
-            modalBg.style.display = 'block';
-            modalBgCorrect.style.display = 'none';
-            modalBgWrong.style.display = 'none';
-            container.style.filter = 'blur(6px)';
-            confirmtButton.style.display = 'inline';
-            cancelButton.style.display = 'inline';
-            correctNextButton.style.display = 'none';
-            wrongNextButton.style.display = 'none';
+            requestAnimationFrame(() => {
+                modal.style.transform = 'translate(-50%, -50%) scale(1.7)';
+            });
+            gameContentWrapper.style.filter = 'blur(6px)';
+            updateModalState('select');
         }
 
-        confirmtButton.addEventListener('click', () => {
-            const isCorrect = selectedArtifact.dataset.isAnswer === 'true';
+        confirmButton.addEventListener('click', () => {
+            if (!selectedArtifactData) return;
             selectedImageContainer.innerHTML = '';
-            modalBg.style.display = 'none';
-            if (isCorrect) {
-                modalBgCorrect.style.display = 'block';
-            } else {
-                modalBgWrong.style.display = 'block';
-                wrongQuestions.push(currentQuestionList[currentQuestion]);
-            }
-
-            confirmtButton.style.display = 'none';
-            cancelButton.style.display = 'none';
+            const isCorrect = selectedArtifactData.isAnswer;
 
             if (isCorrect) {
-                correctNextButton.style.display = 'inline';
-                wrongNextButton.style.display = 'none';
+                updateModalState('correct');
             } else {
-                correctNextButton.style.display = 'none';
-                wrongNextButton.style.display = 'inline';
+                updateModalState('wrong');
+                const currentQuestionObject = currentQuestionList[currentQuestionIndex];
+                if (!wrongQuestions.some(q => q.id === currentQuestionObject.id)) {
+                    wrongQuestions.push(currentQuestionObject);
+                }
             }
         });
 
         cancelButton.addEventListener('click', () => {
-            overlay.style.display = 'none';
-            modal.style.display = 'none';
-            container.style.filter = '';
-            selectedArtifact = null;
+            closeModalAndReset();
         });
 
-        function updateHintScale() {
-            const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
-            document.documentElement.style.setProperty('--scale', scale);
+        function closeModalAndReset() {
+            overlay.style.display = 'none';
+            modal.style.display = 'none';
+            modal.style.transform = 'translate(-50%, -50%) scale(1)';
+            gameContentWrapper.style.filter = '';
+            selectedImageContainer.innerHTML = '';
+            selectedArtifactData = null;
+            originalSelectedArtifactElement = null;
+            if (hintsWrapperEl) hintsWrapperEl.style.pointerEvents = 'auto';
         }
-
-        window.addEventListener('resize', updateHintScale);
-        updateHintScale();
 
         correctNextButton.addEventListener('click', goToNextQuestion);
         wrongNextButton.addEventListener('click', goToNextQuestion);
 
         function goToNextQuestion() {
-            container.style.filter = '';
-            overlay.style.display = 'none';
-            modal.style.display = 'none';
-            selectedArtifact = null;
+            closeModalAndReset();
+            currentQuestionIndex++;
 
-            currentQuestion++;
-
-            if (currentQuestion < currentQuestionList.length) {
-                loadQuestion(currentQuestion);
+            if (currentQuestionIndex < currentQuestionList.length) {
+                loadQuestion(currentQuestionIndex);
             } else {
                 if (wrongQuestions.length > 0) {
-
                     currentQuestionList = [...wrongQuestions];
                     wrongQuestions = [];
-                    currentQuestion = 0;
-                    loadQuestion(currentQuestion);
+                    currentQuestionIndex = 0;
+                    isAnsweringInitialQuestions = false;
 
-                    document.getElementById('again').style.display = 'block';
-
+                    loadQuestion(currentQuestionIndex);
+                    if (againIndicator) againIndicator.style.display = 'block';
                 } else {
-
-                    document.querySelector('.modal-bg-finish').style.display = 'block';
-                    document.getElementById('again').style.display = 'none';
-                    document.getElementById('finishNextButton').style.display = 'inline';
-                    document.querySelector('.hints').style.display = 'none';
+                    if (againIndicator) againIndicator.style.display = 'none';
                     overlay.style.display = 'block';
                     modal.style.display = 'block';
-                    modalBg.style.display = 'none';
-                    modalBgCorrect.style.display = 'none';
-                    container.style.filter = 'blur(6px)';
-                    correctNextButton.style.display = 'none';
+                    requestAnimationFrame(() => {
+                        modal.style.transform = 'translate(-50%, -50%) scale(1.7)';
+                    });
+                    gameContentWrapper.style.filter = 'blur(6px)';
+                    updateModalState('finish');
                 }
             }
         }
 
-        document.getElementById('finishNextButton').addEventListener('click', () => {
-            window.location.href = "animate.html";
-
+        finishNextButton.addEventListener('click', () => {
+            alert("Congratulations! You've completed the game!");
+            currentQuestionIndex = 0;
+            currentQuestionList = [...initialQuestions];
+            wrongQuestions = [];
+            isAnsweringInitialQuestions = true;
+            if (againIndicator) againIndicator.style.display = 'none';
+            closeModalAndReset();
+            beginOutScreen.style.display = 'flex';
+            if (hintsWrapperEl) hintsWrapperEl.style.pointerEvents = 'none';
+            if (questionCounterEl) questionCounterEl.style.display = 'none';
         });
 
-        loadQuestion(currentQuestion);
+        window.addEventListener('resize', resizeGame);
+        resizeGame();
+
+        if (questionCounterEl) {
+            questionCounterEl.style.display = 'none';
+        }
+        if (hintsWrapperEl) hintsWrapperEl.style.pointerEvents = 'none';
     </script>
 </body>
 
