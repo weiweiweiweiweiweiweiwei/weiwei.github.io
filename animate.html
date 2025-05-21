@@ -1,103 +1,524 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>台灣博物館互動教材</title>
+    <title>時空數據同步完成 - 成就展示</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Orbitron:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
+        :root {
+            --bg-dark-purple: #0a001f;
+            --text-light-gray: #e0e0e0;
+            --text-tech-blue: #c3d9ff;
+            --text-subtle-blue: #8ea8c7;
+            --highlight-orange: #f0a050;
+            --panel-accent-border: rgba(100, 180, 255, 0.4);
+            --portal-border-color: rgba(220, 235, 255, 0.35);
+            --portal-border-hover-color: rgba(220, 235, 255, 0.7);
+            --portal-bg-color: rgba(200, 220, 255, 0.08);
+            --portal-bg-hover-color: rgba(200, 220, 255, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background-color: #fafbff;
+            background-color: var(--bg-dark-purple);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Noto Sans TC', sans-serif;
+            color: var(--text-light-gray);
+            overflow-x: hidden;
+        }
+
+        .name-input-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            margin: 0;
-            font-family: Arial, sans-serif;
-            overflow: hidden;
+            z-index: 2000;
+            opacity: 1;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+            visibility: visible;
         }
 
-        .letter-container {
-            width: 45vw;
-            height: 65vh;
-            background-color: #F9F4E7;
+        .name-input-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .name-input-modal {
+            background-color: rgba(10, 0, 31, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 30px 40px;
             border-radius: 15px;
-            padding: 40px 30px;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--panel-accent-border);
+            box-shadow: 0 0 25px rgba(100, 180, 255, 0.2);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            animation: modalPop 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        }
+
+        @keyframes modalPop {
+            from {
+                transform: scale(0.8) translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .name-input-modal h2 {
+            font-family: 'Orbitron', 'Noto Sans TC', sans-serif;
+            font-size: clamp(1.2rem, 5vw, 1.5rem);
+            margin-bottom: 25px;
+            color: var(--text-tech-blue);
+            text-shadow: 0 0 8px rgba(195, 217, 255, 0.5);
+            letter-spacing: 0.05em;
+        }
+
+        .name-input-modal input[type="text"] {
+            width: calc(100% - 20px);
+            padding: 12px 15px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            border: 1px solid var(--portal-border-color);
+            background-color: rgba(20, 35, 65, 0.6);
+            color: var(--text-light-gray);
+            font-size: clamp(0.9rem, 4vw, 1rem);
+            outline: none;
+            text-align: center;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .name-input-modal input[type="text"]::placeholder {
+            color: var(--text-subtle-blue);
+            font-weight: 300;
+        }
+
+        .name-input-modal input[type="text"]:focus {
+            border-color: var(--portal-border-hover-color);
+            box-shadow: 0 0 12px rgba(180, 220, 255, 0.3);
+        }
+
+        .styled-button {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(0.9rem, 2.8vw, 1.1rem);
+            color: var(--text-tech-blue);
+            background-color: var(--portal-bg-color);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid var(--portal-border-color);
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
             position: relative;
             overflow: hidden;
-            border: 1px solid #D3C9B4;
-            background-image: repeating-linear-gradient(to bottom,
-                    transparent 0px,
-                    transparent 35px,
-                    rgba(0, 0, 0, 0.05) 36px);
-            animation: slideIn 1s ease-out forwards;
-            overflow: hidden;
+            transition: color 0.3s ease, border-color 0.3s ease, background-color 0.3s ease, transform 0.2s ease;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: 0 0 15px rgba(100, 150, 255, 0.05);
+            display: inline-block;
+            text-decoration: none;
+            margin: 5px;
         }
 
-        .letter-container h1 {
-            font-size: 1.5em;
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        .letter-container p {
-            font-size: 1.1em;
-            line-height: 1.6em;
-            color: #555;
-        }
-
-        .signature-container {
+        .styled-button::before {
+            content: '';
             position: absolute;
-            bottom: 40px;
-            right: 40px;
-            width: 150px;
-            height: 100px;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(220, 235, 255, 0.1), transparent);
+            transition: left 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+            z-index: 0;
         }
 
-        .signature path {
-            fill: none;
-            stroke: #333;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            stroke-dasharray: 500;
-            stroke-dashoffset: 500;
-            animation: drawSignature 2.5s ease forwards 1.5s;
+        .styled-button .button-text {
+            position: relative;
+            z-index: 1;
         }
 
-        @keyframes slideIn {
-            from {
-                transform: translateY(100vh);
-            }
-
-            to {
-                transform: translateY(0);
-            }
+        .styled-button:hover {
+            background-color: var(--portal-bg-hover-color);
+            border-color: var(--portal-border-hover-color);
+            color: #ffffff;
+            transform: translateY(-1px) scale(1.02);
+            box-shadow: 0 0 25px rgba(120, 170, 255, 0.15);
         }
 
-        @keyframes drawSignature {
-            to {
-                stroke-dashoffset: 0;
-            }
+        .styled-button:hover::before {
+            left: 100%;
+        }
+
+        .styled-button:active {
+            transform: translateY(0px) scale(0.99);
+            background-color: rgba(180, 200, 255, 0.18);
+        }
+
+        .button-confirm {
+            border-color: var(--highlight-orange);
+            color: var(--highlight-orange);
+        }
+
+        .button-confirm:hover {
+            border-color: var(--highlight-orange);
+            background-color: rgba(240, 160, 80, 0.15);
+            color: #FFD700;
+        }
+
+        .artifacts-display-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            opacity: 0;
+            transform: scale(0.95);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .artifacts-display-container.visible {
+            display: flex;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .display-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .display-header h1 {
+            font-family: 'Orbitron', 'Noto Sans TC', sans-serif;
+            font-size: clamp(1.6rem, 6vw, 2.2rem);
+            color: var(--text-tech-blue);
+            text-shadow: 0 0 10px rgba(195, 217, 255, 0.6);
+            margin-bottom: 5px;
+        }
+
+        .display-header .player-name {
+            color: var(--highlight-orange);
+            font-weight: 700;
+        }
+
+        .display-header p {
+            font-size: clamp(0.85rem, 3vw, 1rem);
+            color: var(--text-subtle-blue);
+            letter-spacing: 0.5px;
+        }
+
+        .artifacts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 20px;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .artifact-item {
+            background-color: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(100, 180, 255, 0.15);
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px) scale(0.9);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out, box-shadow 0.3s ease;
+            min-height: 120px;
+        }
+
+        .artifact-item:hover {
+            box-shadow: 0 0 15px rgba(100, 180, 255, 0.3);
+            transform: translateY(-3px) scale(1.03);
+        }
+
+        .artifact-item img {
+            max-width: 70px;
+            max-height: 70px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            margin-bottom: 8px;
+            filter: drop-shadow(0 0 5px rgba(180, 220, 255, 0.6));
+        }
+
+        .artifact-item p {
+            font-size: clamp(0.65rem, 2vw, 0.75rem);
+            color: var(--text-subtle-blue);
+            word-break: keep-all;
+        }
+
+        .action-buttons-container {
+            text-align: center;
+            width: 100%;
         }
     </style>
 </head>
 
 <body>
-    <div class="letter-container">
-        <h1>來自時空指揮官的訊息：</h1>
-        <p>時空運輸員，多虧有你，才能夠成功拯救歷史文物的資料！</p>
-        <div class="signature-container">
-            <svg class="signature" viewBox="0 0 300 150">
-                <path
-                    d="M 20 80 Q 60 40, 80 70 T 120 80 Q 130 90, 140 60 T 170 70 Q 190 80, 200 50 T 240 60 Q 260 90, 280 70" />
-                <path d="M 100 110 C 110 140, 160 140, 170 110 S 220 110, 230 140" />
-                <path d="M 30 110 C 50 130, 80 130, 100 100 S 140 110, 160 120" />
-            </svg>
+    <div class="name-input-overlay" id="nameInputOverlay">
+        <div class="name-input-modal">
+            <h2>時空導航終端：標註探險家代號</h2>
+            <input type="text" id="playerNameInput" placeholder="例如：星塵旅者">
+            <button id="submitNameButton" class="styled-button button-confirm">
+                <span class="button-text">繼續</span>
+            </button>
         </div>
     </div>
 
+    <div class="artifacts-display-container" id="artifactsDisplayContainer">
+        <div class="display-header">
+            <h1>時空數據庫同步完成</h1>
+            <p><span id="displayName" class="player-name">探險家</span>，您已成功回溯並記錄以下歷史瑰寶：</p>
+        </div>
+        <div class="artifacts-grid" id="artifactsGrid">
+            <!-- Artifact items will be populated by JS -->
+        </div>
+        <div class="action-buttons-container">
+            <button id="downloadDisplayButton" class="styled-button">
+                <span class="button-text">下載成就展示 (PNG)</span>
+            </button>
+        </div>
+    </div>
+    <!-- ... (您的 <head>, <style>, 和 <body> HTML 結構保持不變) ... -->
+
+    <script>
+        // ... (頂部的變量聲明和 populateArtifactsGridSequentially 函數，以及 Enter 鍵監聽器保持不變) ...
+        const nameInputOverlay = document.getElementById('nameInputOverlay');
+        const playerNameInput = document.getElementById('playerNameInput');
+        const submitNameButton = document.getElementById('submitNameButton');
+
+        const artifactsDisplayContainer = document.getElementById('artifactsDisplayContainer');
+        const displayName = document.getElementById('displayName');
+        const artifactsGrid = document.getElementById('artifactsGrid');
+        const downloadDisplayButton = document.getElementById('downloadDisplayButton'); // Defined
+
+        const artifactImageFileNames = [
+            '五色鳥.png', '北投石.png', '古虹新姿.png', '台灣水鹿.png',
+            '台灣藍鵲.png', '寬尾鳳蝶.png', '排灣族木盾.png', '櫻花鉤吻鮭.png',
+            '熊鷹.png', '石虎.png', '硫磺.png', '穿山甲.png',
+            '賽夏族貝珠踝飾.png', '雲豹.png', '香魚.png', '黑長尾雉.png',
+            '龍宮翁戎螺.png', '泰雅族貝珠裙.png'
+        ];
+        const githubPicBaseUrl = 'https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/refs/heads/main/210px/';
+
+        if (playerNameInput && submitNameButton) {
+            playerNameInput.addEventListener('keypress', function (event) {
+                if (event.key === "Enter" || event.keyCode === 13) {
+                    event.preventDefault();
+                    submitNameButton.click();
+                }
+            });
+        }
+
+        submitNameButton.addEventListener('click', () => {
+            let playerName = playerNameInput.value.trim();
+            if (!playerName) {
+                playerName = "英勇的時空旅者";
+            }
+
+            nameInputOverlay.classList.add('hidden');
+            displayName.textContent = playerName;
+
+            artifactsDisplayContainer.classList.add('visible');
+            populateArtifactsGridSequentially();
+        });
+
+        function populateArtifactsGridSequentially() {
+            artifactsGrid.innerHTML = '';
+
+            artifactImageFileNames.forEach((fileName, index) => {
+                const artifactName = fileName.split('.')[0];
+
+                const itemDiv = document.createElement('div');
+                itemDiv.classList.add('artifact-item');
+
+                const img = document.createElement('img');
+                img.src = githubPicBaseUrl + encodeURIComponent(fileName);
+                img.alt = artifactName;
+                img.crossOrigin = "anonymous";
+
+                img.onerror = () => {
+                    console.error(`圖片加載失敗: ${img.src}`);
+                    img.alt = "文物圖像加載錯誤";
+                    itemDiv.innerHTML = `<p>${artifactName}</p><p>(圖像加載失敗)</p>`;
+                };
+
+                const namePara = document.createElement('p');
+                namePara.textContent = artifactName;
+
+                itemDiv.appendChild(img);
+                itemDiv.appendChild(namePara);
+                artifactsGrid.appendChild(itemDiv);
+
+                setTimeout(() => {
+                    itemDiv.style.opacity = '1';
+                    itemDiv.style.transform = 'translateY(0) scale(1)';
+                }, index * 100 + 50);
+            });
+        }
+
+        downloadDisplayButton.addEventListener('click', () => {
+            const playerName = displayName.textContent || "探險家";
+            const filename = `${playerName}_時空文物全覽_${new Date().toISOString().split('T')[0]}.png`;
+            const elementToCapture = document.getElementById('artifactsDisplayContainer');
+
+            if (!elementToCapture || typeof html2canvas === 'undefined') {
+                alert("截圖功能初始化失敗，請稍後重試。");
+                console.error("截圖目標或 html2canvas 未準備好。");
+                return;
+            }
+
+            // --- NO LONGER MODIFYING ORIGINAL DOM HERE ---
+            // const originalButtonDisplay = downloadDisplayButton.style.display;
+            // downloadDisplayButton.style.display = 'none';
+            // const dateElement = document.createElement('p'); ...
+            // if (actionButtonsContainer) { actionButtonsContainer.appendChild(dateElement); } ...
+
+            const images = elementToCapture.querySelectorAll('.artifact-item img');
+            const imageLoadPromises = [];
+            images.forEach(img => {
+                if (!img.complete || img.naturalWidth === 0) {
+                    imageLoadPromises.push(new Promise((resolve, reject) => {
+                        img.onload = resolve;
+                        img.onerror = reject;
+                    }));
+                }
+            });
+
+            Promise.all(imageLoadPromises)
+                .then(() => document.fonts.ready)
+                .then(() => new Promise(resolve => setTimeout(resolve, 200)))
+                .then(() => {
+                    console.log("資源加載完畢，開始截圖...");
+                    return html2canvas(elementToCapture, {
+                        backgroundColor: getComputedStyle(document.body).backgroundColor,
+                        useCORS: true,
+                        scale: window.devicePixelRatio > 1 ? 2 : 1.5,
+                        logging: true,
+                        imageTimeout: 20000,
+                        removeContainer: true,
+                        letterRendering: true,
+                        onclone: (documentClone, clonedElement) => { // clonedElement is the cloned version of elementToCapture
+                            if (clonedElement) {
+                                clonedElement.style.transition = 'none';
+                                const items = clonedElement.querySelectorAll('.artifact-item');
+                                items.forEach(item => {
+                                    item.style.transition = 'none';
+                                    item.style.opacity = '1';
+                                    item.style.transform = 'translateY(0) scale(1)';
+                                });
+
+                                const h1Clone = clonedElement.querySelector('.display-header h1');
+                                if (h1Clone) {
+                                    h1Clone.style.fontFamily = "'Orbitron', 'Noto Sans TC', sans-serif";
+                                    h1Clone.style.fontWeight = '700';
+                                }
+
+                                // --- MODIFICATIONS INSIDE ONCLONE ---
+                                // 1. Hide the download button IN THE CLONE
+                                const clonedDownloadButton = clonedElement.querySelector('#downloadDisplayButton'); // Assuming button has ID
+                                if (clonedDownloadButton) {
+                                    clonedDownloadButton.style.display = 'none';
+                                } else {
+                                    // Fallback if ID isn't on button but on a wrapper, or need to select by class.
+                                    // This example assumes the button itself has the ID 'downloadDisplayButton'
+                                    console.warn("Cloned download button not found by ID 'downloadDisplayButton' in onclone.");
+                                }
+
+
+                                // 2. Create and add date element IN THE CLONE
+                                const dateElementClone = documentClone.createElement('p'); // Use documentClone to create element
+                                const today = new Date();
+                                const yyyy = today.getFullYear();
+                                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                                const dd = String(today.getDate()).padStart(2, '0');
+                                dateElementClone.textContent = `認證日期：${yyyy} 年 ${mm} 月 ${dd} 日`;
+                                dateElementClone.style.textAlign = 'center';
+                                dateElementClone.style.marginTop = '20px';
+                                dateElementClone.style.marginBottom = '10px';
+                                dateElementClone.style.fontSize = 'clamp(0.8rem, 2.5vw, 0.9rem)'; // Use fixed size for consistency
+                                // dateElementClone.style.fontSize = '14px'; // Example fixed size
+                                dateElementClone.style.color = 'var(--text-subtle-blue)'; // Ensure CSS variables are resolved or use hex/rgb
+                                dateElementClone.style.fontFamily = "'Noto Sans TC', sans-serif"; // Apply font
+
+                                // Append date to the action buttons container IN THE CLONE
+                                const clonedActionButtonsContainer = clonedElement.querySelector('.action-buttons-container');
+                                if (clonedActionButtonsContainer) {
+                                    clonedActionButtonsContainer.appendChild(dateElementClone);
+                                } else {
+                                    clonedElement.appendChild(dateElementClone); // Fallback
+                                }
+                                // --- END MODIFICATIONS INSIDE ONCLONE ---
+                            }
+                        }
+                    });
+                })
+                .then(canvas => {
+                    const image = canvas.toDataURL('image/png');
+                    const link = document.createElement('a');
+                    link.download = filename;
+                    link.href = image;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                })
+                .catch(error => {
+                    console.error("資源加載或截圖過程中發生錯誤:", error);
+                    let userMessage = "抱歉，生成圖片時遇到問題。";
+                    if (error && error.message) {
+                        if (error.message.toLowerCase().includes('tainted canvases may not be exported')) {
+                            userMessage += " (可能是跨域圖片問題，請檢查圖片是否都允許CORS)";
+                        } else if (error.message.toLowerCase().includes('font')) {
+                            userMessage += " (可能是字體加載問題)";
+                        }
+                    }
+                    alert(userMessage);
+                })
+                .finally(() => {
+                    // --- NO LONGER NEED TO RESTORE BUTTON OR REMOVE DATE FROM ORIGINAL DOM ---
+                    // downloadDisplayButton.style.display = originalButtonDisplay;
+                    // const tempDate = document.getElementById('tempDateElementForScreenshot');
+                    // if (tempDate) { tempDate.remove(); }
+                    console.log("截圖流程完成。");
+                });
+        });
+
+        console.log("成就展示頁面初始化完畢。");
+        console.log("文物基礎 URL:", githubPicBaseUrl);
+    </script>
 </body>
 
 </html>
