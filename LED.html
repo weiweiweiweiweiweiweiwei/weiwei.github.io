@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>時空運輸員 - 數據搶救行動</title>
+    <style>
+        /* 基本重置與全域設定 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            /* 避免 canvas 造成捲軸 */
+            font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+            /* 優先使用思源黑體，或微軟正黑體 */
+            color: #e0e0e0;
+            /* 淺灰色文字 */
+            background-color: #0a001f;
+            /* 深邃的暗藍紫色背景 */
+        }
+
+        /* --- 前景內容覆蓋層 --- */
+        .content-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            display: grid;
+            /* 使用 Grid 佈局來劃分區域 */
+            grid-template-rows: auto 1fr auto;
+            /* header, main(flexible), footer */
+            grid-template-columns: 1fr minmax(auto, 1200px) 1fr;
+            /* 側邊空白, 中心內容區, 側邊空白 */
+            align-items: center;
+            /* 垂直居中網格項（如果行高固定）*/
+            pointer-events: none;
+            /* Overlay 本身不攔截事件 */
+        }
+
+        /* 子元素可以跨越多個網格列 */
+        .main-header,
+        .action-center,
+        .mission-briefing {
+            grid-column: 2 / 3;
+            /* 內容放在中間列 */
+            pointer-events: auto;
+            /* 允許這些區塊交互 */
+            width: 100%;
+            /* 佔滿中間列的寬度 */
+        }
+
+        /* --- 標題區域 --- */
+        .main-header {
+            padding: 4vh 20px 0;
+            /* 頂部內邊距，讓開頂部 */
+            text-align: center;
+            align-self: start;
+            /* 標題區塊靠上 */
+        }
+
+        .title-block {
+            display: inline-block;
+            /* 讓背景可以只包住文字 */
+            position: relative;
+            /* For pseudo-elements */
+        }
+
+        /* 主標題：使用 Orbitron 字體，增加科技感 */
+        #main-title {
+            font-family: 'Orbitron', 'Noto Sans TC', sans-serif;
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            /* RWD 字體大小 */
+            color: #c3d9ff;
+            /* 淡科技藍 */
+            letter-spacing: 0.1em;
+            font-weight: 500;
+            text-transform: uppercase;
+            /* 可選 */
+            margin-bottom: 5px;
+            /* 移除 text-shadow，採用更清晰的風格 */
+        }
+
+        /* 副標題：數據流動/Glitch 效果 */
+        .subtitle-glitch {
+            font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+            color: #8ea8c7;
+            /* 稍暗的藍灰色 */
+            font-weight: 300;
+            position: relative;
+            display: inline-block;
+            overflow: hidden;
+            /* For glitch line */
+        }
+
+        /* --- 中央行動區 (按鈕) --- */
+        .action-center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            align-self: center;
+            /* 主要內容垂直居中 */
+            padding: 20px;
+            margin-top: -5vh;
+            /* 稍微向上偏移，避免完全遮擋正中文物 */
+        }
+
+        /* 新的按鈕設計 - Portal Button (玻璃霧感) */
+        .portal-button {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(1.2rem, 3vw, 1.6rem);
+            color: #e0f0ff;
+            /* 文字和圖標顏色 */
+
+            /* --- 玻璃霧感核心樣式 --- */
+            background-color: rgba(200, 220, 255, 0.1);
+            /* 半透明背景，帶一點淡藍色調 */
+            backdrop-filter: blur(10px);
+            /* 背景模糊效果 */
+            -webkit-backdrop-filter: blur(10px);
+            /* Safari 瀏覽器兼容 */
+            border: 1px solid rgba(220, 235, 255, 0.35);
+            /* 細緻的半透明邊框 */
+            /* --- -------------------- --- */
+
+            padding: 12px 28px 12px 48px;
+            /* 增加左邊距給icon */
+            /*   */
+            /* 圓角，玻璃感更柔和 */
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            /* 確保 backdrop-filter 和 border-radius 正常作用 */
+            transition: color 0.3s ease, border-color 0.3s ease, background-color 0.3s ease, transform 0.2s ease;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            display: flex;
+            /* 用於 icon 和文字對齊 */
+            align-items: center;
+            box-shadow: 0 0 20px rgba(100, 150, 255, 0.1);
+            /* 可選：輕微的發光效果 */
+        }
+
+        .portal-button .button-text {
+            position: relative;
+            z-index: 2;
+        }
+
+        .portal-button .button-icon {
+            position: absolute;
+            left: 15px;
+            /* icon 位置 */
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            /* icon 大小 */
+            height: 20px;
+            fill: currentColor;
+            z-index: 2;
+            transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        /* 按鈕懸停時的內部高光/填充效果 */
+        .portal-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 100%;
+            /* 調整為更適合玻璃感的顏色，或輕微增加亮度 */
+            background-color: rgba(220, 235, 255, 0.15);
+            /* 懸停時的內部高光 */
+            transition: width 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+            z-index: 0;
+            /* 確保在文字和圖標之下，但在按鈕主背景之上 */
+            border-radius: inherit;
+            /* 繼承父元素的圓角 */
+        }
+
+        .portal-button:hover::before {
+            width: 100%;
+        }
+
+        .portal-button:hover {
+            /* 懸停時可以稍微增加背景的飽和度或亮度 */
+            background-color: rgba(200, 220, 255, 0.2);
+            border-color: rgba(220, 235, 255, 0.7);
+            /* 懸停時邊框更明顯 */
+            color: #ffffff;
+            /* 文字變更亮 */
+            transform: scale(1.03);
+            box-shadow: 0 0 30px rgba(120, 170, 255, 0.2);
+            /* 懸停時發光更強 */
+        }
+
+        .portal-button:active {
+            transform: scale(0.98);
+            background-color: rgba(180, 200, 255, 0.25);
+            /* 點擊時稍微暗一點或不同效果 */
+        }
+
+        /* Glitch layers for button - 玻璃霧感下，glitch 效果可能需要調整或移除 */
+        .button-glitch-layers {
+            /* display: none; */
+            /* 如果不想要 glitch 效果，可以取消註釋這一行 */
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+            /* 在 ::before 之上，但在文字之下 */
+            pointer-events: none;
+            /* 確保不影響按鈕點擊 */
+        }
+
+        .glitch-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* 調整 glitch 顏色和透明度以配合玻璃效果 */
+            background: rgba(180, 220, 255, 0.05);
+            /* 非常淡的 glitch 層 */
+            opacity: 0;
+        }
+
+        /* Glitch 動畫保持不變，但顏色已調整 */
+        .portal-button:hover .glitch-layer:nth-child(1) {
+            animation: btn-glitch1 0.5s infinite;
+        }
+
+        .portal-button:hover .glitch-layer:nth-child(2) {
+            animation: btn-glitch2 0.6s infinite 0.1s;
+        }
+
+        .portal-button:hover .glitch-layer:nth-child(3) {
+            animation: btn-glitch3 0.4s infinite 0.2s;
+        }
+
+        /* @keyframes btn-glitch1, btn-glitch2, btn-glitch3 保持不變 */
+        /* ... (你原有的 @keyframes btn-glitch1, btn-glitch2, btn-glitch3 規則) ... */
+
+        /* --- 底部任務簡報 --- */
+        .mission-briefing {
+            padding: 0 20px 4vh;
+            /* 底部內邊距 */
+            text-align: center;
+            align-self: end;
+            /* 簡報區塊靠下 */
+            width: 100%;
+        }
+
+        .briefing-text-mask {
+            /* 用於創造一個視窗感 */
+            max-width: 600px;
+            /* 控制簡報寬度 */
+            margin: 0 auto;
+            padding: 15px 20px;
+            border: 1px solid rgba(100, 180, 255, 0.2);
+            /* 非常淡的邊框 */
+            background-color: rgba(10, 0, 31, 0.3);
+            /* 輕微背景，增加可讀性 */
+            position: relative;
+            overflow: hidden;
+        }
+
+        .story-intro {
+            font-family: 'Noto Sans TC', sans-serif;
+            font-size: clamp(0.7rem, 2vw, 0.85rem);
+            color: #9fb8d3;
+            /* 更柔和的藍灰色 */
+            font-weight: 300;
+            line-height: 1.7;
+        }
+
+        .story-intro span {
+            /* 每行文字獨立，用於動畫或強調 */
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .highlight-text {
+            color: #f0a050;
+            /* 橘黃色高亮 */
+            font-weight: 500;
+        }
+
+        /* 可以添加 data-stream-text 效果 */
+        .data-stream-text span {
+            opacity: 0;
+            animation: fadeInBlock 0.5s forwards;
+        }
+
+        /* 讓每行文字逐行顯示 */
+        .data-stream-text span:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+
+        .data-stream-text span:nth-child(2) {
+            animation-delay: 0.7s;
+        }
+
+        .data-stream-text span:nth-child(3) {
+            animation-delay: 1.2s;
+        }
+
+        @keyframes fadeInBlock {
+            to {
+                opacity: 1;
+            }
+        }
+
+
+        /* --- RWD 微調 --- */
+        @media (max-width: 768px) {
+
+            /* 平板及更小 */
+            .content-overlay {
+                grid-template-columns: 10px 1fr 10px;
+                /* 減小側邊空白 */
+            }
+
+            .main-header {
+                padding-top: 3vh;
+            }
+
+            .action-center {
+                margin-top: -2vh;
+                /* 減少上移 */
+            }
+
+            .mission-briefing {
+                padding-bottom: 3vh;
+            }
+
+            .briefing-text-mask {
+                max-width: 90%;
+                padding: 10px 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+
+            /* 手機 */
+            .main-header {
+                padding-top: 2vh;
+            }
+
+            .action-center {
+                /* 在手機上，按鈕可以考慮移到任務簡報之上，或簡報移到非常底部 */
+                margin-top: 0;
+                position: relative;
+                /* 從絕對定位改為相對，使其自然流動在header下方 */
+                padding: 5vh 0;
+                /* 上下間隔 */
+                align-self: stretch;
+                /* 佔滿寬度 */
+            }
+
+            .portal-button {
+                margin: 0 auto;
+                /* 按鈕居中 */
+            }
+
+            .mission-briefing {
+                position: absolute;
+                /* 確保它在底部 */
+                bottom: 2vh;
+                left: 0;
+                right: 0;
+                align-self: flex-end;
+                /* 重置對齊 */
+            }
+        }
+
+        /* 橫向且高度很小時 */
+        @media (max-height: 450px) and (orientation: landscape) {
+            .main-header {
+                padding-top: 2vh;
+            }
+
+            #main-title {
+                font-size: 1.8rem;
+            }
+
+            .subtitle-glitch {
+                display: none;
+            }
+
+            /* 空間不足 */
+            .action-center {
+                margin-top: -2vh;
+            }
+
+            .portal-button {
+                padding: 10px 20px 10px 40px;
+                font-size: 1rem;
+            }
+
+            .portal-button .button-icon {
+                width: 16px;
+                height: 16px;
+                left: 12px;
+            }
+
+            .mission-briefing {
+                display: none;
+            }
+
+            /* 空間不足 */
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="starfield-bg"></canvas>
+    <div class="content-overlay">
+        <header class="main-header">
+            <div class="title-block">
+                <h1 id="main-title">時空運輸員</h1>
+                <p id="subtitle" class="subtitle-glitch">蒐集文物歷史資料大作戰！</p>
+            </div>
+        </header>
+
+        <main class="action-center">
+            <button id="enter-button" class="portal-button" aria-label="進入任務">
+                <span class="button-text">進入</span>
+                <span class="button-glitch-layers">
+                    <span class="glitch-layer"></span>
+                    <span class="glitch-layer"></span>
+                    <span class="glitch-layer"></span>
+                </span>
+                <svg class="button-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18a8 8 0 110-16 8 8 0 010 16zm-1-12h2v4h-2V8zm0 6h2v2h-2v-2z"
+                        fill="currentColor" />
+                </svg>
+            </button>
+        </main>
+        <footer class="mission-briefing">
+            <div class="briefing-text-mask">
+                <p class="story-intro data-stream-text">
+                    <span>警示：//未來.2000025AD//::歷史數據資料庫_完整性受損-狀態：未知異常！</span>
+                    <span>
+                        << 時空總部>> 緊急召集 <span class="highlight-text">
+                                <時空運輸員>
+                            </span>
+                    </span>
+                    <span>任務指令：回溯至//2025AD//實體博物館 == 蒐集關鍵數據 == RESTORE_DB_INTEGRITY</span>
+                </p>
+            </div>
+        </footer>
+    </div>
+    <script>
+        console.log("--- Interactive Pixel Circle Display - Initializing ---");
+
+        const canvas = document.getElementById('starfield-bg');
+        const ctx = canvas.getContext('2d');
+
+        if (!canvas || !ctx) {
+            console.error("FATAL: Canvas or Context not found. Halting script.");
+            throw new Error("Canvas or Context failed to initialize.");
+        }
+
+        // --- Configuration Object (FROM USER) ---
+        const CONFIG = {
+            // GRID & CIRCLE APPEARANCE (Inspired by CodePen)
+            GRID_SPACING: 15,        // Distance between centers of circles in the grid
+            BASE_RADIUS: 4,
+            MAX_RADIUS_MOUSE: 15,    // Max radius when mouse is very close
+            MAX_RADIUS_RIPPLE: 20,   // Max radius during ripple peak
+            MOUSE_EFFECT_RADIUS: 150, // How far mouse interaction extends
+            RIPPLE_EFFECT_RADIUS: 200,// How far ripple interaction extends (for single circle)
+
+            PULSE_SPEED: 0.02,
+            PULSE_MAGNITUDE: 0.1,   // 10% size variation
+
+            BASE_COLOR_HSLA: [200, 70, 60, 0.3], // Hue, Sat, Light, Alpha for background circles
+            MOUSE_HIGHLIGHT_COLOR_HSLA: [180, 80, 70, 0.7],
+            RIPPLE_HIGHLIGHT_COLOR_HSLA: [220, 85, 75, 0.8],
+
+            // RIPPLE EFFECT
+            RIPPLE_SPEED: 5,       // How fast the ripple source point travels across grid units
+            RIPPLE_MAX_WAVES: 3,   // Max concurrent ripples
+            RIPPLE_TRIGGER_INTERVAL: 3000, // ms, for automatic ripples
+            RIPPLE_DURATION_MS: 1500, // How long a ripple's influence lasts at a spot
+
+            // ARTIFACT DISPLAY
+            // ARTIFACT_CHANGE_INTERVAL: 10000, // This is present in user's CONFIG but unused by current manageArtifactDisplay
+            ARTIFACT_GLITCH_IN_DURATION: 800,  // ms
+            ARTIFACT_DISPLAY_DURATION: 7000,    // ADDED: For the state machine, ensure this is present
+            ARTIFACT_GLITCH_OUT_DURATION: 800, // ADDED: For the state machine
+            ARTIFACT_PAUSE_DURATION: 1500,   // ADDED: For the state machine
+
+            ARTIFACT_PIXEL_SAMPLE_STEP: 8,  // Lower = more artifact "pixels" (circles), e.g., 4-16
+            ARTIFACT_DISPLAY_SCALE: 0.6,    // How large the artifact appears relative to canvas height
+
+            // Glitch effect colors
+            GLITCH_COLOR_1_HSLA: [0, 100, 50, 0.9], // Red
+            GLITCH_COLOR_2_HSLA: [0, 0, 100, 0.9],  // White
+            GLITCH_FLICKER_SPEED: 50, // ms
+
+            // PERFORMANCE
+            USE_OFFSCREEN_ARTIFACT_CANVAS: true, // Improves performance for artifact pixel sampling
+
+            BACKGROUND_COLOR: 'rgba(10, 0, 31, 1)',
+        };
+
+
+        const ARTIFACTS_DATA = [
+            { name: "五色鳥", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/%E4%BA%94%E8%89%B2%E9%B3%A5.svg" },
+            { name: "北投石", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/%E5%8C%97%E6%8A%95%E7%9F%B3.svg" },
+            { name: "古虹新姿", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/%E5%8F%A4%E8%99%B9%E6%96%B0%E5%A7%BF.svg" },
+            { name: "台灣水鹿", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E5%8F%B0%E7%81%A3%E6%B0%B4%E9%B9%BF.svg" },
+            { name: "台灣藍鵲", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/main/pic/%E5%8F%B0%E7%81%A3%E8%97%8D%E9%B5%B2.svg" },
+            { name: "寬尾鳳蝶", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E5%AF%AC%E5%B0%BE%E9%B3%B3%E8%9D%B6.svg" },
+            { name: "排灣族木盾", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E6%8E%92%E7%81%A3%E6%97%8F%E6%9C%A8%E7%9B%BE.svg" },
+            { name: "櫻花鉤吻鮭", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E6%AB%BB%E8%8A%B1%E9%89%A4%E5%90%BB%E9%AE%AD.svg" },
+            { name: "泰雅族貝珠裙", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/7ce042c6c9cacd6de311c900325f1a4faa418c09/pic/%E6%B3%B0%E9%9B%85%E6%97%8F%E8%B2%9D%E7%8F%A0%E8%A3%99.svg" },
+            { name: "熊鷹", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E7%86%8A%E9%B7%B9.svg" },
+            { name: "石虎", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E7%9F%B3%E8%99%8E.svg" },
+            { name: "硫磺", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E7%A1%AB%E7%A3%BA.svg" },
+            { name: "穿山甲", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E7%A9%BF%E5%B1%B1%E7%94%B2.svg" },
+            { name: "賽夏族貝珠踝飾", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E8%B3%BD%E5%A4%8F%E6%97%8F%E8%B2%9D%E7%8F%A0%E8%B8%9D%E9%A3%BE.svg" },
+            { name: "雲豹", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E9%9B%B2%E8%B1%B9.svg" },
+            { name: "香魚", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E9%A6%99%E9%AD%9A.svg" },
+            { name: "黑長尾雉", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E9%BB%91%E9%95%B7%E5%B0%BE%E9%9B%89.svg" },
+            { name: "龍宮翁戎螺", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E9%BE%8D%E5%AE%AE%E7%BF%81%E6%88%8E%E8%9E%BA.svg" },
+        ];
+        const PRELOADED_ARTIFACT_IMAGES = {};
+        const ARTIFACT_PIXEL_DATA_CACHE = {};
+
+        let gridCircles = [];
+        let mouse = { x: canvas.width / 2, y: canvas.height / 2, down: false };
+        let ripples = [];
+        let lastRippleTime = 0;
+
+        let currentArtifactIndex = -1;
+        let artifactDisplayState = 'idle';
+        let artifactStateTime = 0;
+        let currentArtifactPixelMap = null;
+        let currentlyMappedArtifactCircles = [];
+
+        function getRandom(min, max) { return Math.random() * (max - min) + min; }
+        function getDistance(x1, y1, x2, y2) { const dx = x1 - x2; const dy = y1 - y2; return Math.sqrt(dx * dx + dy * dy); }
+        function hslaToString(h, s, l, a) { return `hsla(${h % 360},${s}%,${l}%,${a})`; }
+        function lerp(start, end, amt) { return (1 - amt) * start + amt * end; }
+
+        async function preloadArtifacts() {
+            console.log("Preloading artifacts...");
+            const promises = ARTIFACTS_DATA.map(artifactData => {
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.crossOrigin = "Anonymous";
+                    img.onload = () => { PRELOADED_ARTIFACT_IMAGES[artifactData.name] = img; resolve(); };
+                    img.onerror = (e) => { console.error(`Failed to load artifact image: ${artifactData.name} from ${artifactData.url}`, e); reject(new Error(`Failed to load ${artifactData.name}`)); };
+                    img.src = artifactData.url;
+                });
+            });
+            try { await Promise.all(promises); console.log("All artifact images preloaded (or attempted)."); }
+            catch (error) { console.error("Error during artifact preloading:", error); }
+        }
+
+        function processArtifactImageToPixelMap(artifactName) {
+            const img = PRELOADED_ARTIFACT_IMAGES[artifactName];
+            if (!img) return null;
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
+            const artifactMaxDisplayHeight = canvas.height * CONFIG.ARTIFACT_DISPLAY_SCALE;
+            const scale = Math.min(artifactMaxDisplayHeight / img.height, (canvas.width * CONFIG.ARTIFACT_DISPLAY_SCALE) / img.width);
+            const W = Math.floor(img.width * scale);
+            const H = Math.floor(img.height * scale);
+            tempCanvas.width = W; tempCanvas.height = H;
+            tempCtx.drawImage(img, 0, 0, W, H);
+            const points = [];
+            try {
+                const imageData = tempCtx.getImageData(0, 0, W, H).data;
+                const step = CONFIG.ARTIFACT_PIXEL_SAMPLE_STEP;
+                for (let y = 0; y < H; y += step) {
+                    for (let x = 0; x < W; x += step) {
+                        const i = (y * W + x) * 4;
+                        if (imageData[i + 3] > 128) {
+                            const r = imageData[i], g = imageData[i + 1], b = imageData[i + 2], aVal = imageData[i + 3];
+                            const maxC = Math.max(r, g, b), minC = Math.min(r, g, b);
+                            let h = 0, s = 0, l = (maxC + minC) / 2 / 255;
+                            if (maxC !== minC) {
+                                const d = maxC - minC;
+                                s = l > 0.5 ? d / (2 * 255 - maxC - minC) : d / (maxC + minC);
+                                switch (maxC) {
+                                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                                    case g: h = (b - r) / d + 2; break;
+                                    case b: h = (r - g) / d + 4; break;
+                                }
+                                h /= 6;
+                            }
+                            points.push({ x: x - W / 2, y: y - H / 2, color: [h * 360, s * 100, l * 100, aVal / 255] });
+                        }
+                    }
+                }
+                const result = { points, width: W, height: H };
+                if (CONFIG.USE_OFFSCREEN_ARTIFACT_CANVAS) { ARTIFACT_PIXEL_DATA_CACHE[artifactName] = result; }
+                return result;
+            } catch (e) { console.error("Error processing artifact image (getImageData):", e, artifactName, img.src); return null; }
+        }
+
+        // --- GridCircle Class (FROM USER) ---
+        class GridCircle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.baseRadius = CONFIG.BASE_RADIUS * getRandom(0.8, 1.2);
+                this.radius = this.baseRadius;
+                this.targetRadius = this.baseRadius;
+
+                this.baseColor = [...CONFIG.BASE_COLOR_HSLA]; // Clone
+                this.color = [...this.baseColor];
+                this.targetColor = [...this.baseColor];
+
+                this.pulsePhase = Math.random() * Math.PI * 2;
+
+                // For artifact overlay
+                this.isArtifactPixel = false;
+                this.artifactColor = null;
+                this.isGlitchingForArtifact = false;
+                // this.glitchTimeLeft = 0; // Not used by this version of the class logic
+                this.lastGlitchFlickerTime = 0;
+            }
+
+            update(deltaTime) {
+                // Ambient pulse
+                this.pulsePhase += CONFIG.PULSE_SPEED * (deltaTime / 16.67);
+                const pulseOffset = Math.sin(this.pulsePhase) * CONFIG.PULSE_MAGNITUDE * this.baseRadius;
+
+                let mDist = getDistance(this.x, this.y, mouse.x, mouse.y);
+                let effectRadius = this.baseRadius + pulseOffset;
+                let effectColor = [...this.baseColor];
+
+
+                // Mouse effect (strongest)
+                if (mDist < CONFIG.MOUSE_EFFECT_RADIUS) {
+                    const mInfluence = 1 - (mDist / CONFIG.MOUSE_EFFECT_RADIUS); // 0 to 1
+                    effectRadius = lerp(effectRadius, CONFIG.MAX_RADIUS_MOUSE, mInfluence * 0.8);
+                    for (let i = 0; i < 4; i++) effectColor[i] = lerp(effectColor[i], CONFIG.MOUSE_HIGHLIGHT_COLOR_HSLA[i], mInfluence);
+                }
+
+                // Ripple effects (additive or takes precedence based on strength)
+                ripples.forEach(ripple => {
+                    const rDist = getDistance(this.x, this.y, ripple.x, ripple.y);
+                    if (rDist < ripple.currentVisualRadius) {
+                        // Ripple influence is strongest at its wave front, fades over time
+                        const timeSinceImpact = (Date.now() - ripple.startTime) - (rDist / CONFIG.RIPPLE_SPEED) * 16.67; //approx ms
+                        let rInfluence = 0;
+                        if (timeSinceImpact > 0 && timeSinceImpact < CONFIG.RIPPLE_DURATION_MS) {
+                            rInfluence = Math.sin((timeSinceImpact / CONFIG.RIPPLE_DURATION_MS) * Math.PI) * ripple.strength; //sinusoidal falloff
+                            rInfluence = Math.max(0, rInfluence);
+                        }
+
+                        effectRadius = lerp(effectRadius, CONFIG.MAX_RADIUS_RIPPLE, rInfluence * 0.7);
+                        for (let i = 0; i < 4; i++) effectColor[i] = lerp(effectColor[i], CONFIG.RIPPLE_HIGHLIGHT_COLOR_HSLA[i], rInfluence);
+                    }
+                });
+
+                // Artifact display logic
+                if (this.isGlitchingForArtifact) {
+                    if (Date.now() > this.lastGlitchFlickerTime + CONFIG.GLITCH_FLICKER_SPEED) {
+                        this.color = (Math.random() > 0.5) ? [...CONFIG.GLITCH_COLOR_1_HSLA] : [...CONFIG.GLITCH_COLOR_2_HSLA];
+                        this.radius = this.baseRadius * getRandom(0.5, 1.5);
+                        this.lastGlitchFlickerTime = Date.now();
+                    }
+                } else if (this.isArtifactPixel && this.artifactColor) {
+                    this.targetRadius = CONFIG.BASE_RADIUS * 1.1; // Make artifact pixels slightly prominent
+                    this.targetColor = [...this.artifactColor];
+                    effectRadius = this.targetRadius; // Override other effects when it's an artifact part
+                    effectColor = this.targetColor;
+                } else {
+                    this.targetRadius = this.baseRadius + pulseOffset; // Original logic: if not artifact, target is base pulse
+                    this.targetColor = effectColor; // effectColor would have mouse/ripple baked in already
+                }
+
+                // Lerp towards target radius and color for smooth transitions
+                this.radius = lerp(this.radius, this.targetRadius, 0.2);
+                for (let i = 0; i < 4; i++) this.color[i] = lerp(this.color[i], this.targetColor[i], 0.2);
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, Math.max(1, this.radius), 0, Math.PI * 2);
+                ctx.fillStyle = hslaToString(this.color[0], this.color[1], this.color[2], this.color[3]);
+                ctx.fill();
+            }
+        }
+
+        // --- Ripple Class (FROM USER) ---
+        class Ripple {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.startTime = Date.now();
+                this.maxRadius = Math.max(canvas.width, canvas.height); // Ripple can expand beyond view
+                this.strength = getRandom(0.7, 1); // How much this ripple affects circles
+                this.currentVisualRadius = 0; // The radius up to which circles are currently affected strongly
+                this.isDone = false;
+            }
+
+            update(deltaTime) { // deltaTime is passed but not used by this version of update
+                const elapsedTime = Date.now() - this.startTime;
+                this.currentVisualRadius = (elapsedTime / (1000 / 60)) * CONFIG.RIPPLE_SPEED; // Radius grows based on frames passed
+
+                // A ripple "dies" when its visual influence would have passed over most of the screen
+                // or after a certain total duration, its effect is handled by the circles
+                if (elapsedTime > CONFIG.RIPPLE_DURATION_MS + (this.maxRadius / CONFIG.RIPPLE_SPEED) * (1000 / 60) * 0.5) {
+                    this.isDone = true;
+                }
+            }
+        }
+
+        function setup() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            if (CONFIG.USE_OFFSCREEN_ARTIFACT_CANVAS) {
+                for (const key in ARTIFACT_PIXEL_DATA_CACHE) { delete ARTIFACT_PIXEL_DATA_CACHE[key]; }
+            }
+            gridCircles = [];
+            for (let y = CONFIG.GRID_SPACING / 2; y < canvas.height; y += CONFIG.GRID_SPACING) {
+                for (let x = CONFIG.GRID_SPACING / 2; x < canvas.width; x += CONFIG.GRID_SPACING) {
+                    gridCircles.push(new GridCircle(x, y));
+                }
+            }
+            ripples = [];
+            lastRippleTime = Date.now();
+            currentArtifactIndex = -1;
+            artifactDisplayState = 'idle';
+            artifactStateTime = 0;
+            currentlyMappedArtifactCircles = [];
+            console.log(`Setup complete. ${gridCircles.length} grid circles.`);
+            if (!animationFrameId) animate();
+        }
+
+        function manageArtifactDisplay(deltaTime) {
+            artifactStateTime += deltaTime;
+            if (artifactDisplayState === 'idle') {
+                currentArtifactIndex = (currentArtifactIndex + 1) % ARTIFACTS_DATA.length;
+                const artifactData = ARTIFACTS_DATA[currentArtifactIndex];
+                currentArtifactPixelMap = ARTIFACT_PIXEL_DATA_CACHE[artifactData.name] || processArtifactImageToPixelMap(artifactData.name);
+                currentlyMappedArtifactCircles = [];
+                if (currentArtifactPixelMap && currentArtifactPixelMap.points.length > 0) {
+                    const artifactCenterX = canvas.width / 2; const artifactCenterY = canvas.height / 2;
+                    let tempArtifactPointGrid = {};
+                    const gridKey = (gx, gy) => `${Math.floor(gx / CONFIG.GRID_SPACING)},${Math.floor(gy / CONFIG.GRID_SPACING)}`;
+                    currentArtifactPixelMap.points.forEach(p => {
+                        const worldX = artifactCenterX + p.x; const worldY = artifactCenterY + p.y;
+                        const k = gridKey(worldX, worldY);
+                        if (!tempArtifactPointGrid[k]) tempArtifactPointGrid[k] = [];
+                        tempArtifactPointGrid[k].push({ pointData: p, worldX, worldY });
+                    });
+                    gridCircles.forEach(circle => {
+                        circle.isGlitchingForArtifact = false; circle.isArtifactPixel = false; circle.artifactColor = null;
+                        const k = gridKey(circle.x, circle.y);
+                        if (tempArtifactPointGrid[k]) {
+                            let closestDist = Infinity; let bestPointData = null;
+                            tempArtifactPointGrid[k].forEach(p_entry => {
+                                const d = getDistance(circle.x, circle.y, p_entry.worldX, p_entry.worldY);
+                                if (d < closestDist && d < CONFIG.GRID_SPACING) { closestDist = d; bestPointData = p_entry.pointData; }
+                            });
+                            if (bestPointData) {
+                                currentlyMappedArtifactCircles.push({ circle, artifactPointData: bestPointData });
+                                circle.isGlitchingForArtifact = true;
+                            }
+                        }
+                    });
+                    if (currentlyMappedArtifactCircles.length > 0) { artifactDisplayState = 'glitching-in'; }
+                    else { console.warn("No circles for artifact", artifactData.name); artifactDisplayState = 'paused'; }
+                } else { console.warn("Pixel map fail/empty", artifactData.name); artifactDisplayState = 'paused'; }
+                artifactStateTime = 0;
+            } else if (artifactDisplayState === 'glitching-in') {
+                if (artifactStateTime >= CONFIG.ARTIFACT_GLITCH_IN_DURATION) {
+                    artifactDisplayState = 'displaying'; artifactStateTime = 0;
+                    currentlyMappedArtifactCircles.forEach(entry => {
+                        entry.circle.isGlitchingForArtifact = false; entry.circle.isArtifactPixel = true;
+                        entry.circle.artifactColor = [...entry.artifactPointData.color];
+                    });
+                    gridCircles.forEach(c => { if (!currentlyMappedArtifactCircles.find(e => e.circle === c)) { c.isGlitchingForArtifact = false; } });
+                }
+            } else if (artifactDisplayState === 'displaying') {
+                if (artifactStateTime >= CONFIG.ARTIFACT_DISPLAY_DURATION) {
+                    artifactDisplayState = 'glitching-out'; artifactStateTime = 0;
+                    currentlyMappedArtifactCircles.forEach(entry => {
+                        entry.circle.isGlitchingForArtifact = true; entry.circle.isArtifactPixel = false; entry.circle.artifactColor = null;
+                    });
+                }
+            } else if (artifactDisplayState === 'glitching-out') {
+                if (artifactStateTime >= CONFIG.ARTIFACT_GLITCH_OUT_DURATION) {
+                    artifactDisplayState = 'paused'; artifactStateTime = 0;
+                    gridCircles.forEach(circle => { circle.isGlitchingForArtifact = false; circle.isArtifactPixel = false; circle.artifactColor = null; });
+                    currentArtifactPixelMap = null; currentlyMappedArtifactCircles = [];
+                }
+            } else if (artifactDisplayState === 'paused') {
+                if (artifactStateTime >= CONFIG.ARTIFACT_PAUSE_DURATION) {
+                    artifactDisplayState = 'idle'; artifactStateTime = 0;
+                }
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            animationFrameId = null; setup();
+        });
+        canvas.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
+        canvas.addEventListener('mousedown', () => mouse.down = true);
+        canvas.addEventListener('mouseup', () => mouse.down = false);
+        canvas.addEventListener('click', (e) => {
+            if (ripples.length < CONFIG.RIPPLE_MAX_WAVES) { ripples.push(new Ripple(e.clientX, e.clientY)); }
+        });
+
+        let animationFrameId;
+        let lastTimestamp = 0;
+
+        function animate(timestamp) {
+            animationFrameId = requestAnimationFrame(animate);
+            const deltaTime = timestamp - lastTimestamp || 16.67;
+            lastTimestamp = timestamp;
+            ctx.fillStyle = CONFIG.BACKGROUND_COLOR;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            manageArtifactDisplay(deltaTime);
+            if (Date.now() > lastRippleTime + CONFIG.RIPPLE_TRIGGER_INTERVAL && ripples.length < CONFIG.RIPPLE_MAX_WAVES) {
+                ripples.push(new Ripple(Math.random() * canvas.width, Math.random() * canvas.height));
+                lastRippleTime = Date.now();
+            }
+            ripples.forEach(r => r.update(deltaTime)); // deltaTime is passed, but Ripple class might not use it for all calcs
+            ripples = ripples.filter(r => !r.isDone);
+            gridCircles.forEach(circle => {
+                circle.update(deltaTime); // GridCircle uses deltaTime for pulse
+                circle.draw();
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log("DOM Content Loaded. Preloading assets for interactive display...");
+            await preloadArtifacts(); setup();
+        });
+
+        const enterButton = document.getElementById('enter-button');
+        if (enterButton) {
+            enterButton.addEventListener('click', () => {
+                console.log("Enter button clicked - Interactive Grid Teleport!");
+                alert("交互式數據網格校準...時空涟漪同步...目標：2025年博物館！");
+            });
+        }
+    </script>
+</body>
+
+</html>
