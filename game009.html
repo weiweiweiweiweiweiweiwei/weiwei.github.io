@@ -1,935 +1,823 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <title>台灣博物館互動教材</title>
+    <link rel="icon"
+        href="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/refs/heads/main/210px/%E9%BE%8D%E5%AE%AE%E7%BF%81%E6%88%8E%E8%9E%BA.png"
+        type="image/x-icon">
     <style>
-        html,
-        body {
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400&display=swap');
+
+        * {
             margin: 0;
             padding: 0;
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
-            background-color: #000000;
-            font-family: 'Noto Sans TC', sans-serif;
+            box-sizing: border-box;
         }
 
-        #viewport-scaler {
-            width: 100vw;
-            height: 100vh;
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+            color: #e0e0e0;
+            background-color: #0a001f;
+        }
+
+        .top-navbar.hud-style {
+            position: fixed;
+            top: 15px;
+            left: 2vw;
+            right: 2vw;
+            width: auto;
+            height: auto;
+            z-index: 1000;
+            background-color: transparent;
             display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .game-screen {
-            position: relative;
-            aspect-ratio: 2 / 1;
-            background-color: #0c0c18;
-            overflow: hidden;
-        }
-
-        #game-content-wrapper {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            transition: filter 0.3s ease-out;
-            z-index: 10;
-        }
-
-        #begin-out {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 900;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-
-        #begin-in h1 {
-            font-size: 2rem;
-            color: white;
-            font-weight: 800;
-            margin-bottom: 1em;
-        }
-
-        #begin-in h3 {
-            font-size: 1rem;
-            color: white;
-            font-weight: 200;
-            animation: fadeInOut 2s infinite;
-        }
-
-        #game-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            z-index: 5;
-        }
-
-        #bg {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100%;
-            height: 100%;
-            background-image: url('https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/%E5%A4%AA%E7%A9%BA%E8%89%99.svg');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
+            justify-content: space-between;
+            align-items: flex-start;
             pointer-events: none;
-            z-index: 960;
+            font-family: 'Orbitron', 'Noto Sans TC', sans-serif;
         }
 
-        #starbg-container {
-            position: absolute;
+        .top-navbar.hud-style .hud-brand-left,
+        .top-navbar.hud-style .hud-links-right {
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+        }
+
+        .top-navbar.hud-style .hud-text {
+            font-size: clamp(0.8rem, 1.8vw, 1rem);
+            color: #8ea8c7;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 5px 10px;
+            background-color: rgba(10, 20, 40, 0.5);
+            border: 1px solid rgba(70, 130, 180, 0.3);
+            border-left-width: 3px;
+        }
+
+        .top-navbar.hud-style .hud-line-deco {
+            display: inline-block;
+            width: 30px;
+            height: 1px;
+            background-color: rgba(70, 130, 180, 0.5);
+            margin-right: 8px;
+        }
+
+        .top-navbar.hud-style .hud-link {
+            font-size: clamp(0.75rem, 1.7vw, 0.9rem);
+            color: #7aa0c7;
+            text-decoration: none;
+            padding: 5px 10px;
+            margin-left: 15px;
+            border: 1px solid rgba(70, 130, 180, 0.3);
+            background-color: rgba(10, 20, 40, 0.4);
+            transition: color 0.2s, background-color 0.2s;
+        }
+
+        .top-navbar.hud-style .hud-link:hover {
+            color: #c3d9ff;
+            background-color: rgba(70, 130, 180, 0.4);
+        }
+
+        .content-overlay {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             z-index: 1;
-            overflow: hidden;
-        }
-
-        #starbg {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            grid-template-columns: 1fr minmax(auto, 1200px) 1fr;
+            align-items: center;
             pointer-events: none;
+            padding-top: 0;
         }
 
-        #artifacts-container {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-        }
-
-        #overlayblue {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 2;
-            background-color: #0f304f;
-            opacity: 0.4;
-            pointer-events: none;
-        }
-
-        .answer-image {
-            width: 8%;
-            height: auto;
-            position: absolute;
-            cursor: pointer;
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            -webkit-user-drag: none;
+        .main-header,
+        .action-center,
+        .mission-briefing {
+            grid-column: 2 / 3;
             pointer-events: auto;
-            transition: transform 0.2s ease;
-        }
-
-        .answer-image:hover {
-            transform: scale(1.1);
-        }
-
-        .hints-wrapper {
-            position: absolute;
-            bottom: 1%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 35%;
-            max-width: 194.44vh;
-            aspect-ratio: 35 / 11;
-            z-index: 980;
-        }
-
-        .hints {
-            height: 100%;
-            font-size: clamp(1rem, 2.2vmin, 1.5rem);
-            padding-left: 6%;
-            padding-top: 2%;
-            border-radius: 1.5rem;
-            background-color: #98bbc8f0;
-            color: #ffffff;
-            box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.3);
-            box-sizing: border-box;
-        }
-
-        .hints p {
-            margin: 0.5em 0;
-            line-height: 1.2;
-        }
-
-        @media (min-width: 768px) {
-            .hints p {
-                line-height: 1.8;
-            }
-        }
-
-        #again {
-            display: none;
-            position: absolute;
-            top: -16%;
-            left: 2%;
-            width: 18%;
-            z-index: 5;
-        }
-
-        #again img {
             width: 100%;
-            height: auto;
         }
 
-        #overlay {
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 950;
+        .main-header {
+            text-align: center;
+            align-self: start;
+            position: relative;
+            padding: 0 20px;
+            top: 70px;
         }
 
-        #confirm-modal {
-            display: none;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(1);
-            width: 50%;
-            aspect-ratio: 16 / 10;
-            z-index: 970;
-            background: none;
-            padding: 0;
-            border: none;
-            transition: transform 0.3s ease-out;
+        .title-block {
+            display: inline-block;
+            position: relative;
         }
 
-        .modal-bg,
-        .modal-bg-correct,
-        .modal-bg-wrong,
-        .modal-bg-finish {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            object-fit: contain;
-            pointer-events: none;
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            -webkit-user-drag: none;
+        #main-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(2.6rem, 7vw, 4.2rem);
+            font-weight: 600;
+            color: rgba(230, 240, 255, 0.9);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+            position: relative;
+            text-shadow:
+                0 0 2px rgba(255, 255, 255, 0.6),
+                0 0 5px rgba(200, 225, 255, 0.8),
+                0 0 12px rgba(150, 200, 255, 0.6),
+                0 0 25px rgba(100, 180, 255, 0.4),
+                0 0 40px rgba(80, 150, 220, 0.25),
+                1px 2px 3px rgba(0, 0, 10, 0.2);
         }
 
-        .modal-bg-correct,
-        .modal-bg-wrong,
-        .modal-bg-finish {
-            display: none;
+        #subtitle {
+            font-family: 'Exo 2', 'Noto Sans TC', sans-serif;
+            font-size: clamp(0.9rem, 2.5vw, 1.25rem);
+            font-weight: 300;
+            color: rgba(170, 200, 230, 0.85);
+            letter-spacing: 0.06em;
+            text-shadow:
+                0 0 2px rgba(170, 200, 230, 0.6),
+                0 0 8px rgba(100, 150, 200, 0.3);
         }
 
-        #selected-image-container {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-        }
-
-        #selected-image-container img.cloned-artifact {
-            object-fit: contain;
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            -webkit-user-drag: none;
-        }
-
-        .button-group {
-            position: absolute;
-            bottom: 32%;
-            left: 50%;
-            transform: translateX(-50%);
+        .action-center {
             display: flex;
-            gap: 1rem;
-            width: 90%;
             justify-content: center;
+            align-items: center;
+            align-self: center;
+            padding: 20px;
         }
 
-        .svg-button {
-            height: 3rem;
-            width: auto;
-            max-width: 30%;
-            flex-shrink: 1;
+        .portal-button {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(1.2rem, 3vw, 1.6rem);
+            color: #e0f0ff;
+            background-color: rgba(200, 220, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(220, 235, 255, 0.35);
+            padding: 12px 28px 12px 48px;
             cursor: pointer;
-            user-select: none;
-            -webkit-user-drag: none;
-            transition: transform 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            transition: color 0.3s ease, border-color 0.3s ease, background-color 0.3s ease, transform 0.2s ease;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 0 20px rgba(100, 150, 255, 0.1);
         }
 
-        .svg-button:hover {
-            transform: scale(1.05);
+        .portal-button .button-text {
+            position: relative;
+            z-index: 2;
         }
 
-        #question-counter {
+        .portal-button .button-icon {
             position: absolute;
-            top: 3%;
-            left: 3%;
-            transform: translateY(0);
-            font-family: 'Noto Sans TC', sans-serif;
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: rgba(255, 255, 255, 0.9);
-            z-index: 965;
-            padding: 0.5rem 1rem;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-            display: none;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+            z-index: 2;
+            transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
         }
 
-        @keyframes fadeInOut {
+        .portal-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 100%;
+            background-color: rgba(220, 235, 255, 0.15);
+            transition: width 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+            z-index: 0;
+            border-radius: inherit;
+        }
 
-            0%,
-            100% {
+        .portal-button:hover::before {
+            width: 100%;
+        }
+
+        .portal-button:hover {
+            background-color: rgba(200, 220, 255, 0.2);
+            border-color: rgba(220, 235, 255, 0.7);
+            color: #ffffff;
+            transform: scale(1.03);
+            box-shadow: 0 0 30px rgba(120, 170, 255, 0.2);
+        }
+
+        .portal-button:active {
+            transform: scale(0.98);
+            background-color: rgba(180, 200, 255, 0.25);
+        }
+
+        .button-glitch-layers {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .glitch-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(180, 220, 255, 0.05);
+            opacity: 0;
+        }
+
+        .portal-button:hover .glitch-layer:nth-child(1) {
+            animation: btn-glitch1 0.5s infinite;
+        }
+
+        .portal-button:hover .glitch-layer:nth-child(2) {
+            animation: btn-glitch2 0.6s infinite 0.1s;
+        }
+
+        .portal-button:hover .glitch-layer:nth-child(3) {
+            animation: btn-glitch3 0.4s infinite 0.2s;
+        }
+
+        @keyframes btn-glitch1 {
+            0% {
+                transform: translate(2px, 2px);
+                opacity: 0.5;
+            }
+
+            25% {
+                transform: translate(-2px, -2px);
                 opacity: 0.2;
             }
 
-            65%,
-            70% {
+            50% {
+                transform: translate(2px, -2px);
+                opacity: 0.6;
+            }
+
+            75% {
+                transform: translate(-2px, 2px);
+                opacity: 0.3;
+            }
+
+            100% {
+                transform: translate(2px, 2px);
+                opacity: 0.5;
+            }
+        }
+
+        @keyframes btn-glitch2 {
+            0% {
+                transform: translate(-3px, 3px) scale(1.02);
+                opacity: 0.3;
+            }
+
+            33% {
+                transform: translate(3px, -3px) scale(0.98);
+                opacity: 0.7;
+            }
+
+            66% {
+                transform: translate(-3px, -3px) scale(1.01);
+                opacity: 0.2;
+            }
+
+            100% {
+                transform: translate(3px, 3px) scale(0.99);
+                opacity: 0.6;
+            }
+        }
+
+        @keyframes btn-glitch3 {
+            0% {
+                clip-path: polygon(0 0, 100% 0, 100% 30%, 0 30%);
+                opacity: 0.4;
+            }
+
+            20% {
+                clip-path: polygon(0 70%, 100% 70%, 100% 100%, 0 100%);
+                opacity: 0.2;
+            }
+
+            40% {
+                clip-path: polygon(0 20%, 100% 20%, 100% 50%, 0 50%);
+                opacity: 0.6;
+            }
+
+            60% {
+                clip-path: polygon(0 0, 100% 0, 100% 10%, 0 10%);
+                opacity: 0.3;
+            }
+
+            80% {
+                clip-path: polygon(0 90%, 100% 90%, 100% 100%, 0 100%);
+                opacity: 0.5;
+            }
+
+            100% {
+                clip-path: polygon(0 40%, 100% 40%, 100% 70%, 0 70%);
+                opacity: 0.2;
+            }
+        }
+
+
+        .mission-briefing {
+            padding: 0 20px 4vh;
+            text-align: center;
+            align-self: end;
+            width: 100%;
+        }
+
+        .briefing-text-mask {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 15px 20px;
+            border: 1px solid rgba(100, 180, 255, 0.2);
+            background-color: rgba(10, 0, 31, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .story-intro {
+            font-family: 'Noto Sans TC', sans-serif;
+            font-size: clamp(0.7rem, 2vw, 0.85rem);
+            color: #9fb8d3;
+            font-weight: 300;
+            line-height: 1.7;
+        }
+
+        .story-intro span {
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .highlight-text {
+            color: #f0a050;
+            font-weight: 500;
+        }
+
+        .data-stream-text span {
+            opacity: 0;
+            animation: fadeInBlock 0.5s forwards;
+        }
+
+        .data-stream-text span:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+
+        .data-stream-text span:nth-child(2) {
+            animation-delay: 0.7s;
+        }
+
+        .data-stream-text span:nth-child(3) {
+            animation-delay: 1.2s;
+        }
+
+        @keyframes fadeInBlock {
+            to {
                 opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content-overlay {
+                grid-template-columns: 10px 1fr 10px;
+            }
+
+            .main-header {
+                top: 5vh;
+            }
+
+            .action-center {
+                margin-top: -2vh;
+            }
+
+            .mission-briefing {
+                padding-bottom: 3vh;
+            }
+
+            .briefing-text-mask {
+                max-width: 90%;
+                padding: 10px 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-header {
+                top: 9vh;
+            }
+
+            .action-center {
+                margin-top: 0;
+                position: relative;
+                padding: 5vh 0;
+                align-self: stretch;
+            }
+
+            .portal-button {
+                margin: 0 auto;
+            }
+
+            .mission-briefing {
+                position: absolute;
+                bottom: 2vh;
+                left: 0;
+                right: 0;
+                align-self: flex-end;
+            }
+        }
+
+        @media (max-height: 450px) and (orientation: landscape) {
+            .main-header {
+                top: 2vh;
+            }
+
+            #main-title {
+                font-size: 1.8rem;
+            }
+
+            .subtitle-glitch {
+                display: none;
+            }
+
+            .action-center {
+                margin-top: -2vh;
+            }
+
+            .portal-button {
+                padding: 10px 20px 10px 40px;
+                font-size: 1rem;
+            }
+
+            .portal-button .button-icon {
+                width: 16px;
+                height: 16px;
+                left: 12px;
+            }
+
+            .mission-briefing {
+                display: none;
             }
         }
     </style>
 </head>
 
 <body>
-    <div id="viewport-scaler">
-        <div class="game-screen">
-            <div id="game-content-wrapper">
-                <div id="starbg-container">
-                    <img src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/main/image/%E6%98%9F%E7%A9%BA.jpg"
-                        id="starbg" alt="Starry sky background">
-                </div>
-                <div id="overlayblue"></div>
-                <div id="game-container">
-                    <div id="artifacts-container"></div>
-                </div>
-            </div>
-            <div id="overlay"></div>
-            <div id="bg"></div>
-            <div id="question-counter"></div>
-            <div id="confirm-modal">
-                <img src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/select.svg"
-                    class="modal-bg" alt="Selection dialog background">
-                <img src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/correct.svg"
-                    class="modal-bg-correct" alt="Correct answer dialog background">
-                <img src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/wrong.svg"
-                    class="modal-bg-wrong" alt="Wrong answer dialog background">
-                <img src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/36f161ac5a8e4257f8d3765f989cca9e507dbbb1/pic/finish.svg"
-                    class="modal-bg-finish" alt="Game finished dialog background">
-                <div id="selected-image-container">
-                </div>
-                <div class="button-group">
-                    <img id="confirmButton"
-                        src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/462fb0269931e222b2646dd986316ccca9d16802/image/confirmtbutton.svg"
-                        class="svg-button choose" alt="Confirm selection">
-                    <img id="cancelButton"
-                        src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/cancelbutton.svg"
-                        class="svg-button choose" alt="Cancel selection">
-                    <img id="correctNextButton"
-                        src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/correctnextbutton.svg"
-                        class="svg-button next-button" style="display: none;" alt="Next (correct)">
-                    <img id="wrongNextButton"
-                        src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/wrongnextbutton.svg"
-                        class="svg-button next-button" style="display: none;" alt="Next (wrong)">
-                    <img id="finishNextButton"
-                        src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/correctnextbutton.svg"
-                        class="svg-button next-button" style="display: none;" alt="Finish">
-                </div>
-            </div>
-            <div class="hints-wrapper">
-                <div id="again">
-                    <img src="https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/againtext.svg"
-                        class="again" alt="Try again indicator">
-                </div>
-                <div class="hints">
-                    <p id="hint1"></p>
-                    <p id="hint2"></p>
-                    <p id="hint3"></p>
-                </div>
-            </div>
-            <div id="begin-out">
-                <div id="begin-in">
-                    <h1>請依提示選出正確的文物</h1>
-                    <h3>點擊螢幕繼續</h3>
-                </div>
-            </div>
+    <nav class="top-navbar hud-style">
+        <div class="hud-brand-left">
+            <span class="hud-line-deco"></span>
+            <span class="hud-text">國立台灣博物館</span>
         </div>
+        <div class="hud-links-right">
+        </div>
+    </nav>
+    <canvas id="starfield-bg"></canvas>
+    <div class="content-overlay">
+        <header class="main-header">
+            <div class="title-block">
+                <h1 id="main-title">時空運輸員</h1>
+                <p id="subtitle">蒐集文物歷史資料大作戰！</p>
+            </div>
+        </header>
+        <main class="action-center">
+            <button id="enter-button" class="portal-button" aria-label="進入任務">
+                <span class="button-text">進入</span>
+                <span class="button-glitch-layers">
+                    <span class="glitch-layer"></span>
+                    <span class="glitch-layer"></span>
+                    <span class="glitch-layer"></span>
+                </span>
+                <svg class="button-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18a8 8 0 110-16 8 8 0 010 16zm-1-12h2v4h-2V8zm0 6h2v2h-2v-2z"
+                        fill="currentColor" />
+                </svg>
+            </button>
+        </main>
+        <footer class="mission-briefing">
+            <div class="briefing-text-mask">
+                <p class="story-intro data-stream-text">
+                    <span>警示：//未來.2000025AD//::歷史數據資料庫_完整性受損-狀態：未知異常！</span>
+                    <span>
+                        &lt;&lt; 時空總部 &gt;&gt; 緊急召集<span class="highlight-text">
+                            &lt; 時空運輸員 &gt;
+                        </span>
+                    </span>
+                    <span>任務指令：回溯至//2025AD//實體博物館 == 蒐集關鍵數據 == RESTORE_DB_INTEGRITY</span>
+                </p>
+            </div>
+        </footer>
     </div>
     <script>
-        const gameScreen = document.querySelector('.game-screen');
-        const viewportScaler = document.getElementById('viewport-scaler');
-        const gameContentWrapper = document.getElementById('game-content-wrapper');
-        const DESIGN_ASPECT_RATIO = 2 / 1;
+        const canvas = document.getElementById('starfield-bg');
+        const ctx = canvas.getContext('2d');
+        if (!canvas || !ctx) { throw new Error("Canvas or Context failed to initialize."); }
 
-        function resizeGame() {
-            const viewportWidth = viewportScaler.clientWidth;
-            const viewportHeight = viewportScaler.clientHeight;
-            const viewportAspectRatio = viewportWidth / viewportHeight;
-            let newGameWidth, newGameHeight;
+        const CONFIG = {
+            GRID_SPACING: 15, BASE_RADIUS: 4, MAX_RADIUS_MOUSE: 15, MAX_RADIUS_RIPPLE: 20,
+            MOUSE_EFFECT_RADIUS: 150, RIPPLE_EFFECT_RADIUS: 200, PULSE_SPEED: 0.02, PULSE_MAGNITUDE: 0.1,
+            BASE_COLOR_HSLA: [200, 70, 60, 0.3], MOUSE_HIGHLIGHT_COLOR_HSLA: [180, 80, 70, 0.7],
+            RIPPLE_HIGHLIGHT_COLOR_HSLA: [220, 85, 75, 0.8], RIPPLE_SPEED: 5, RIPPLE_MAX_WAVES: 3,
+            RIPPLE_TRIGGER_INTERVAL: 3000, RIPPLE_DURATION_MS: 1500, ARTIFACT_GLITCH_IN_DURATION: 800,
+            ARTIFACT_DISPLAY_DURATION: 7000, ARTIFACT_GLITCH_OUT_DURATION: 800, ARTIFACT_PAUSE_DURATION: 1500,
+            ARTIFACT_PIXEL_SAMPLE_STEP: 8, ARTIFACT_DISPLAY_SCALE: 0.6, GLITCH_COLOR_1_HSLA: [0, 100, 50, 0.9],
+            GLITCH_COLOR_2_HSLA: [0, 0, 100, 0.9], GLITCH_FLICKER_SPEED: 50, USE_OFFSCREEN_ARTIFACT_CANVAS: true,
+            BACKGROUND_COLOR: 'rgba(10, 0, 31, 1)',
+        };
 
-            if (viewportAspectRatio > DESIGN_ASPECT_RATIO) {
-                newGameHeight = viewportHeight;
-                newGameWidth = newGameHeight * DESIGN_ASPECT_RATIO;
-            } else {
-                newGameWidth = viewportWidth;
-                newGameHeight = newGameWidth / DESIGN_ASPECT_RATIO;
-            }
-
-            gameScreen.style.width = newGameWidth + 'px';
-            gameScreen.style.height = newGameHeight + 'px';
-            document.documentElement.style.fontSize = (newGameWidth / 100) + 'px';
-        }
-
-        let currentQuestionIndex = 0;
-        // 為了演示錯題重練，這裡至少保留4個問題
-        const initialQuestions = [
-            {
-                hints: ['I. 從博物館老物品研究傳統織品', 'II. 汲取靈感研究泰雅織藝技術', 'III. 作品融入自然景觀創彩虹橋意象'],
-                artifacts: [
-                    { id: 1, src: 'image/古虹新姿.svg', isAnswer: true, top: '10%', left: '62%' },
-                    { id: 2, src: 'image/泰雅族貝珠裙.svg', isAnswer: false, top: '35%', left: '60%' },
-                    { id: 3, src: 'image/雲豹.svg', isAnswer: false, top: '43%', left: '30%' },
-                    { id: 4, src: 'image/賽夏族貝珠踝飾.svg', isAnswer: false, top: '45%', left: '80%' },
-                    { id: 5, src: 'image/香魚.svg', isAnswer: false, top: '25%', left: '75%' },
-                    { id: 6, src: 'image/櫻花鉤吻鮭.svg', isAnswer: false, top: '57%', left: '65%' },
-                    { id: 7, src: 'image/熊鷹.svg', isAnswer: false, top: '23%', left: '16%' },
-                    { id: 8, src: 'image/五色鳥.svg', isAnswer: false, top: '15%', left: '35%' },
-                    { id: 9, src: 'image/龍宮翁戎螺.svg', isAnswer: false, top: '55%', left: '19%' },
-                    { id: 10, src: 'image/黑長尾雉.svg', isAnswer: false, top: '40%', left: '45%' }
-                ]
-            },
-            {
-                hints: ['I. 裙子以麻布為底縫上貝殼小珠', 'II. 象徵部落頭目或富裕人士地位', 'III. 傳統婚禮習俗中的重要聘禮'],
-                artifacts: [
-                    { id: 1, src: 'image/古虹新姿.svg', isAnswer: false, top: '10%', left: '62%' },
-                    { id: 2, src: 'image/泰雅族貝珠裙.svg', isAnswer: true, top: '35%', left: '60%' },
-                    { id: 3, src: 'image/雲豹.svg', isAnswer: false, top: '43%', left: '30%' },
-                    { id: 4, src: 'image/賽夏族貝珠踝飾.svg', isAnswer: false, top: '45%', left: '80%' },
-                    { id: 5, src: 'image/香魚.svg', isAnswer: false, top: '25%', left: '75%' },
-                    { id: 6, src: 'image/櫻花鉤吻鮭.svg', isAnswer: false, top: '57%', left: '65%' },
-                    { id: 7, src: 'image/熊鷹.svg', isAnswer: false, top: '23%', left: '16%' },
-                    { id: 8, src: 'image/五色鳥.svg', isAnswer: false, top: '15%', left: '35%' },
-                    { id: 9, src: 'image/龍宮翁戎螺.svg', isAnswer: false, top: '55%', left: '19%' },
-                    { id: 10, src: 'image/黑長尾雉.svg', isAnswer: false, top: '40%', left: '45%' }
-                ]
-            },
-            {
-                hints: ['I. 身體兩側有像雲朵狀的黑色斑點', 'II. 喜歡藏身樹上等待時機進行狩獵', 'III. 魯凱族文化中象徵著高貴與神聖'],
-                artifacts: [
-                    { id: 1, src: 'image/古虹新姿.svg', isAnswer: false, top: '10%', left: '62%' },
-                    { id: 2, src: 'image/泰雅族貝珠裙.svg', isAnswer: false, top: '35%', left: '60%' },
-                    { id: 3, src: 'image/雲豹.svg', isAnswer: true, top: '43%', left: '30%' },
-                    { id: 4, src: 'image/賽夏族貝珠踝飾.svg', isAnswer: false, top: '45%', left: '80%' },
-                    { id: 5, src: 'image/香魚.svg', isAnswer: false, top: '25%', left: '75%' },
-                    { id: 6, src: 'image/櫻花鉤吻鮭.svg', isAnswer: false, top: '57%', left: '65%' },
-                    { id: 7, src: 'image/熊鷹.svg', isAnswer: false, top: '23%', left: '16%' },
-                    { id: 8, src: 'image/五色鳥.svg', isAnswer: false, top: '15%', left: '35%' },
-                    { id: 9, src: 'image/龍宮翁戎螺.svg', isAnswer: false, top: '55%', left: '19%' },
-                    { id: 10, src: 'image/黑長尾雉.svg', isAnswer: false, top: '40%', left: '45%' }
-                ]
-            },
-            {
-                hints: ['I. 構成材料包含獸骨貝珠和玻璃珠', 'II. 賽夏族男子在重要場合時會佩戴', 'III. 象徵佩戴者的社會地位與勇氣'],
-                artifacts: [
-                    { id: 1, src: 'image/古虹新姿.svg', isAnswer: false, top: '10%', left: '62%' },
-                    { id: 2, src: 'image/泰雅族貝珠裙.svg', isAnswer: false, top: '35%', left: '60%' },
-                    { id: 3, src: 'image/雲豹.svg', isAnswer: false, top: '43%', left: '30%' },
-                    { id: 4, src: 'image/賽夏族貝珠踝飾.svg', isAnswer: true, top: '45%', left: '80%' },
-                    { id: 5, src: 'image/香魚.svg', isAnswer: false, top: '25%', left: '75%' },
-                    { id: 6, src: 'image/櫻花鉤吻鮭.svg', isAnswer: false, top: '57%', left: '65%' },
-                    { id: 7, src: 'image/熊鷹.svg', isAnswer: false, top: '23%', left: '16%' },
-                    { id: 8, src: 'image/五色鳥.svg', isAnswer: false, top: '15%', left: '35%' },
-                    { id: 9, src: 'image/龍宮翁戎螺.svg', isAnswer: false, top: '55%', left: '19%' },
-                    { id: 10, src: 'image/黑長尾雉.svg', isAnswer: false, top: '40%', left: '45%' }
-                ]
-            },
-            {
-                hints: ['I. 身體顏色是橄欖綠色腹部為白色', 'II. 屬於會在河川與海洋間迴游魚類', 'III. 釣魚友釣法利用牠領域性作誘餌'],
-                artifacts: [
-                    { id: 1, src: 'image/古虹新姿.svg', isAnswer: false, top: '10%', left: '62%' },
-                    { id: 2, src: 'image/泰雅族貝珠裙.svg', isAnswer: false, top: '35%', left: '60%' },
-                    { id: 3, src: 'image/雲豹.svg', isAnswer: false, top: '43%', left: '30%' },
-                    { id: 4, src: 'image/賽夏族貝珠踝飾.svg', isAnswer: false, top: '45%', left: '80%' },
-                    { id: 5, src: 'image/香魚.svg', isAnswer: true, top: '25%', left: '75%' },
-                    { id: 6, src: 'image/櫻花鉤吻鮭.svg', isAnswer: false, top: '57%', left: '65%' },
-                    { id: 7, src: 'image/熊鷹.svg', isAnswer: false, top: '23%', left: '16%' },
-                    { id: 8, src: 'image/五色鳥.svg', isAnswer: false, top: '15%', left: '35%' },
-                    { id: 9, src: 'image/龍宮翁戎螺.svg', isAnswer: false, top: '55%', left: '19%' },
-                    { id: 10, src: 'image/黑長尾雉.svg', isAnswer: false, top: '40%', left: '45%' }
-                ]
-            },
-            {
-                hints: ['I. 對溪流水質和環境變化非常敏感', 'II. 棲息在臺灣高山地區的溪流中', 'III. 因為對環境敏感所以被稱為國寶魚'],
-                artifacts: [
-                    { id: 1, src: 'image/古虹新姿.svg', isAnswer: false, top: '10%', left: '62%' },
-                    { id: 2, src: 'image/泰雅族貝珠裙.svg', isAnswer: false, top: '35%', left: '60%' },
-                    { id: 3, src: 'image/雲豹.svg', isAnswer: false, top: '43%', left: '30%' },
-                    { id: 4, src: 'image/賽夏族貝珠踝飾.svg', isAnswer: false, top: '45%', left: '80%' },
-                    { id: 5, src: 'image/香魚.svg', isAnswer: false, top: '25%', left: '75%' },
-                    { id: 6, src: 'image/櫻花鉤吻鮭.svg', isAnswer: true, top: '57%', left: '65%' },
-                    { id: 7, src: 'image/熊鷹.svg', isAnswer: false, top: '23%', left: '16%' },
-                    { id: 8, src: 'image/五色鳥.svg', isAnswer: false, top: '15%', left: '35%' },
-                    { id: 9, src: 'image/龍宮翁戎螺.svg', isAnswer: false, top: '55%', left: '19%' },
-                    { id: 10, src: 'image/黑長尾雉.svg', isAnswer: false, top: '40%', left: '45%' }
-                ]
-            },
-            {
-                hints: ['I. 殼表面有如同橘紅色火焰狀的斑紋', 'II. 主要棲息在水深五十至兩百五十米', 'III. 數量稀少是深海中的獨特稀有物種'],
-                artifacts: [
-                    { id: 1, src: 'image/龍宮翁戎螺.svg', isAnswer: true, top: '10%', left: '62%' },
-                    { id: 2, src: 'image/黑長尾雉.svg', isAnswer: false, top: '35%', left: '60%' },
-                    { id: 3, src: 'image/寬尾鳳蝶.svg', isAnswer: false, top: '43%', left: '30%' },
-                    { id: 4, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '45%', left: '80%' },
-                    { id: 5, src: 'image/硫磺.svg', isAnswer: false, top: '25%', left: '75%' },
-                    { id: 6, src: 'image/北投石.svg', isAnswer: false, top: '57%', left: '65%' },
-                    { id: 7, src: 'image/穿山甲.svg', isAnswer: false, top: '23%', left: '16%' },
-                    { id: 8, src: 'image/排灣族木盾.svg', isAnswer: false, top: '15%', left: '35%' },
-                    { id: 9, src: 'image/石虎.svg', isAnswer: false, top: '55%', left: '19%' },
-                    { id: 10, src: 'image/台灣水鹿.svg', isAnswer: false, top: '40%', left: '45%' }
-                ]
-            },
-            {
-                hints: ['I. 牠的眼睛虹膜呈現漂亮的紅褐色', 'II. 雄鳥的腳上具有明顯的距', 'III. 通常在晨昏或起霧時比較活躍'],
-                artifacts: [
-                    { id: 1, src: 'image/龍宮翁戎螺.svg', isAnswer: false, top: '10%', left: '62%' },
-                    { id: 2, src: 'image/黑長尾雉.svg', isAnswer: true, top: '35%', left: '60%' },
-                    { id: 3, src: 'image/寬尾鳳蝶.svg', isAnswer: false, top: '43%', left: '30%' },
-                    { id: 4, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '45%', left: '80%' },
-                    { id: 5, src: 'image/硫磺.svg', isAnswer: false, top: '25%', left: '75%' },
-                    { id: 6, src: 'image/北投石.svg', isAnswer: false, top: '57%', left: '65%' },
-                    { id: 7, src: 'image/穿山甲.svg', isAnswer: false, top: '23%', left: '16%' },
-                    { id: 8, src: 'image/排灣族木盾.svg', isAnswer: false, top: '15%', left: '35%' },
-                    { id: 9, src: 'image/石虎.svg', isAnswer: false, top: '55%', left: '19%' },
-                    { id: 10, src: 'image/台灣水鹿.svg', isAnswer: false, top: '40%', left: '45%' }
-                ]
-            },
-            {
-                hints: ['I. 翅膀為黑色帶有橘紅色斑點', 'II. 後翅具有寬大且顯著的尾突', 'III. 幼蟲以臺灣檫樹的新芽及嫩葉為食'],
-                artifacts: [
-                    { id: 1, src: 'image/龍宮翁戎螺.svg', isAnswer: false, top: '10%', left: '62%' },
-                    { id: 2, src: 'image/黑長尾雉.svg', isAnswer: false, top: '35%', left: '60%' },
-                    { id: 3, src: 'image/寬尾鳳蝶.svg', isAnswer: true, top: '43%', left: '30%' },
-                    { id: 4, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '45%', left: '80%' },
-                    { id: 5, src: 'image/硫磺.svg', isAnswer: false, top: '25%', left: '75%' },
-                    { id: 6, src: 'image/北投石.svg', isAnswer: false, top: '57%', left: '65%' },
-                    { id: 7, src: 'image/穿山甲.svg', isAnswer: false, top: '23%', left: '16%' },
-                    { id: 8, src: 'image/排灣族木盾.svg', isAnswer: false, top: '15%', left: '35%' },
-                    { id: 9, src: 'image/石虎.svg', isAnswer: false, top: '55%', left: '19%' },
-                    { id: 10, src: 'image/台灣水鹿.svg', isAnswer: false, top: '40%', left: '45%' }
-                ]
-            },
-            {
-                hints: ['I. 成鳥眼睛是耀眼的金黃色', 'II. 牠的嘴部與腳是醒目的紅色', 'III. 性情兇悍特別是繁殖期領域性強'],
-                artifacts: [
-                    { id: 1, src: 'image/龍宮翁戎螺.svg', isAnswer: false, top: '10%', left: '62%' },
-                    { id: 2, src: 'image/黑長尾雉.svg', isAnswer: false, top: '35%', left: '60%' },
-                    { id: 3, src: 'image/寬尾鳳蝶.svg', isAnswer: false, top: '43%', left: '30%' },
-                    { id: 4, src: 'image/台灣藍鵲.svg', isAnswer: true, top: '45%', left: '80%' },
-                    { id: 5, src: 'image/硫磺.svg', isAnswer: false, top: '25%', left: '75%' },
-                    { id: 6, src: 'image/北投石.svg', isAnswer: false, top: '57%', left: '65%' },
-                    { id: 7, src: 'image/穿山甲.svg', isAnswer: false, top: '23%', left: '16%' },
-                    { id: 8, src: 'image/排灣族木盾.svg', isAnswer: false, top: '15%', left: '35%' },
-                    { id: 9, src: 'image/石虎.svg', isAnswer: false, top: '55%', left: '19%' },
-                    { id: 10, src: 'image/台灣水鹿.svg', isAnswer: false, top: '40%', left: '45%' }
-                ]
-            },
-            {
-                hints: ['I. 其顏色像金黃色的顆粒狀物', 'II. 英文名字 Sulfur 來自拉丁語有關火閃電', 'III. 常常在火山爆發後自然形成出現'],
-                artifacts: [
-                    { id: 1, src: 'image/龍宮翁戎螺.svg', isAnswer: false, top: '10%', left: '62%' },
-                    { id: 2, src: 'image/黑長尾雉.svg', isAnswer: false, top: '35%', left: '60%' },
-                    { id: 3, src: 'image/寬尾鳳蝶.svg', isAnswer: false, top: '43%', left: '30%' },
-                    { id: 4, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '45%', left: '80%' },
-                    { id: 5, src: 'image/硫磺.svg', isAnswer: true, top: '25%', left: '75%' },
-                    { id: 6, src: 'image/北投石.svg', isAnswer: false, top: '57%', left: '65%' },
-                    { id: 7, src: 'image/穿山甲.svg', isAnswer: false, top: '23%', left: '16%' },
-                    { id: 8, src: 'image/排灣族木盾.svg', isAnswer: false, top: '15%', left: '35%' },
-                    { id: 9, src: 'image/石虎.svg', isAnswer: false, top: '55%', left: '19%' },
-                    { id: 10, src: 'image/台灣水鹿.svg', isAnswer: false, top: '40%', left: '45%' }
-                ]
-            },
-            {
-                hints: ['I. 是由鉀鉛和硫酸鹽所組成的礦物', 'II. 英文名稱直接來自臺灣北投溫泉', 'III. 這種礦物本身含有微量放射性'],
-                artifacts: [
-                    { id: 1, src: 'image/龍宮翁戎螺.svg', isAnswer: false, top: '10%', left: '62%' },
-                    { id: 2, src: 'image/黑長尾雉.svg', isAnswer: false, top: '35%', left: '60%' },
-                    { id: 3, src: 'image/寬尾鳳蝶.svg', isAnswer: false, top: '43%', left: '30%' },
-                    { id: 4, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '45%', left: '80%' },
-                    { id: 5, src: 'image/硫磺.svg', isAnswer: false, top: '25%', left: '75%' },
-                    { id: 6, src: 'image/北投石.svg', isAnswer: true, top: '57%', left: '65%' },
-                    { id: 7, src: 'image/穿山甲.svg', isAnswer: false, top: '23%', left: '16%' },
-                    { id: 8, src: 'image/排灣族木盾.svg', isAnswer: false, top: '15%', left: '35%' },
-                    { id: 9, src: 'image/石虎.svg', isAnswer: false, top: '55%', left: '19%' },
-                    { id: 10, src: 'image/台灣水鹿.svg', isAnswer: false, top: '40%', left: '45%' }
-                ]
-            },
-            {
-                hints: ['I. 雌雄外觀極為相似不易分辨', 'II. 羽毛顏色以綠色為主適合隱身樹葉間', 'III. 鳴叫聲特色是單調且聽起來很渾厚'],
-                artifacts: [
-                    { id: 1, src: 'image/五色鳥.svg', isAnswer: true, top: '10%', left: '62%' },
-                    { id: 2, src: 'image/排灣族木盾.svg', isAnswer: false, top: '35%', left: '60%' },
-                    { id: 3, src: 'image/石虎.svg', isAnswer: false, top: '43%', left: '30%' },
-                    { id: 4, src: 'image/台灣水鹿.svg', isAnswer: false, top: '45%', left: '80%' },
-                    { id: 5, src: 'image/熊鷹.svg', isAnswer: false, top: '25%', left: '75%' },
-                    { id: 6, src: 'image/穿山甲.svg', isAnswer: false, top: '57%', left: '65%' },
-                    { id: 7, src: 'image/寬尾鳳蝶.svg', isAnswer: false, top: '23%', left: '16%' },
-                    { id: 8, src: 'image/古虹新姿.svg', isAnswer: false, top: '15%', left: '35%' },
-                    { id: 9, src: 'image/雲豹.svg', isAnswer: false, top: '55%', left: '19%' },
-                    { id: 10, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '40%', left: '45%' }
-                ]
-            },
-            {
-                hints: ['I. 屬於臺灣原住民盾中的屋頂類型', 'II. 傳世多為排灣族貴族階級所持用', 'III. 盾上常繪刻人頭紋百步蛇或幾何紋'],
-                artifacts: [
-                    { id: 1, src: 'image/五色鳥.svg', isAnswer: false, top: '10%', left: '62%' },
-                    { id: 2, src: 'image/排灣族木盾.svg', isAnswer: true, top: '35%', left: '60%' },
-                    { id: 3, src: 'image/石虎.svg', isAnswer: false, top: '43%', left: '30%' },
-                    { id: 4, src: 'image/台灣水鹿.svg', isAnswer: false, top: '45%', left: '80%' },
-                    { id: 5, src: 'image/熊鷹.svg', isAnswer: false, top: '25%', left: '75%' },
-                    { id: 6, src: 'image/穿山甲.svg', isAnswer: false, top: '57%', left: '65%' },
-                    { id: 7, src: 'image/寬尾鳳蝶.svg', isAnswer: false, top: '23%', left: '16%' },
-                    { id: 8, src: 'image/古虹新姿.svg', isAnswer: false, top: '15%', left: '35%' },
-                    { id: 9, src: 'image/雲豹.svg', isAnswer: false, top: '55%', left: '19%' },
-                    { id: 10, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '40%', left: '45%' }
-                ]
-            },
-            {
-                hints: ['I. 根據 IUCN紅皮書列為瀕臨絕種物種', 'II. 耳後是黑底帶有明顯的白斑', 'III. 主要食物是小型哺乳動物及各種小動物'],
-                artifacts: [
-                    { id: 1, src: 'image/五色鳥.svg', isAnswer: false, top: '10%', left: '62%' },
-                    { id: 2, src: 'image/排灣族木盾.svg', isAnswer: false, top: '35%', left: '60%' },
-                    { id: 3, src: 'image/石虎.svg', isAnswer: true, top: '43%', left: '30%' },
-                    { id: 4, src: 'image/台灣水鹿.svg', isAnswer: false, top: '45%', left: '80%' },
-                    { id: 5, src: 'image/熊鷹.svg', isAnswer: false, top: '25%', left: '75%' },
-                    { id: 6, src: 'image/穿山甲.svg', isAnswer: false, top: '57%', left: '65%' },
-                    { id: 7, src: 'image/寬尾鳳蝶.svg', isAnswer: false, top: '23%', left: '16%' },
-                    { id: 8, src: 'image/古虹新姿.svg', isAnswer: false, top: '15%', left: '35%' },
-                    { id: 9, src: 'image/雲豹.svg', isAnswer: false, top: '55%', left: '19%' },
-                    { id: 10, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '40%', left: '45%' }
-                ]
-            },
-            {
-                hints: ['I. 因眼眶下腺體明顯所以俗稱四目鹿', 'II. 是臺灣所有草食性動物中體型最大', 'III. 牠的體色會隨著季節的變化而改變'],
-                artifacts: [
-                    { id: 1, src: 'image/五色鳥.svg', isAnswer: false, top: '10%', left: '62%' },
-                    { id: 2, src: 'image/排灣族木盾.svg', isAnswer: false, top: '35%', left: '60%' },
-                    { id: 3, src: 'image/石虎.svg', isAnswer: false, top: '43%', left: '30%' },
-                    { id: 4, src: 'image/台灣水鹿.svg', isAnswer: true, top: '45%', left: '80%' },
-                    { id: 5, src: 'image/熊鷹.svg', isAnswer: false, top: '25%', left: '75%' },
-                    { id: 6, src: 'image/穿山甲.svg', isAnswer: false, top: '57%', left: '65%' },
-                    { id: 7, src: 'image/寬尾鳳蝶.svg', isAnswer: false, top: '23%', left: '16%' },
-                    { id: 8, src: 'image/古虹新姿.svg', isAnswer: false, top: '15%', left: '35%' },
-                    { id: 9, src: 'image/雲豹.svg', isAnswer: false, top: '55%', left: '19%' },
-                    { id: 10, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '40%', left: '45%' }
-                ]
-            },
-            {
-                hints: ['I. 雌鳥與雄鳥外觀幾乎相同', 'II. 後枕羽毛較長常豎立形成短羽冠', 'III. 飛行時雙翼會上揚呈現獨特 V形'],
-                artifacts: [
-                    { id: 1, src: 'image/五色鳥.svg', isAnswer: false, top: '10%', left: '62%' },
-                    { id: 2, src: 'image/排灣族木盾.svg', isAnswer: false, top: '35%', left: '60%' },
-                    { id: 3, src: 'image/石虎.svg', isAnswer: false, top: '43%', left: '30%' },
-                    { id: 4, src: 'image/台灣水鹿.svg', isAnswer: false, top: '45%', left: '80%' },
-                    { id: 5, src: 'image/熊鷹.svg', isAnswer: true, top: '25%', left: '75%' },
-                    { id: 6, src: 'image/穿山甲.svg', isAnswer: false, top: '57%', left: '65%' },
-                    { id: 7, src: 'image/寬尾鳳蝶.svg', isAnswer: false, top: '23%', left: '16%' },
-                    { id: 8, src: 'image/古虹新姿.svg', isAnswer: false, top: '15%', left: '35%' },
-                    { id: 9, src: 'image/雲豹.svg', isAnswer: false, top: '55%', left: '19%' },
-                    { id: 10, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '40%', left: '45%' }
-                ]
-            },
-            {
-                hints: ['I. 根據 IUCN紅皮書列為極危物種', 'II. 全身覆蓋著堅硬且明顯的鱗片', 'III. 遇到危險會縮成緊密的球狀保護自己'],
-                artifacts: [
-                    { id: 1, src: 'image/五色鳥.svg', isAnswer: false, top: '10%', left: '62%' },
-                    { id: 2, src: 'image/排灣族木盾.svg', isAnswer: false, top: '35%', left: '60%' },
-                    { id: 3, src: 'image/石虎.svg', isAnswer: false, top: '43%', left: '30%' },
-                    { id: 4, src: 'image/台灣水鹿.svg', isAnswer: false, top: '45%', left: '80%' },
-                    { id: 5, src: 'image/熊鷹.svg', isAnswer: false, top: '25%', left: '75%' },
-                    { id: 6, src: 'image/穿山甲.svg', isAnswer: true, top: '57%', left: '65%' },
-                    { id: 7, src: 'image/寬尾鳳蝶.svg', isAnswer: false, top: '23%', left: '16%' },
-                    { id: 8, src: 'image/古虹新姿.svg', isAnswer: false, top: '15%', left: '35%' },
-                    { id: 9, src: 'image/雲豹.svg', isAnswer: false, top: '55%', left: '19%' },
-                    { id: 10, src: 'image/台灣藍鵲.svg', isAnswer: false, top: '40%', left: '45%' }
-                ]
-            }
+        const ARTIFACTS_DATA = [
+            { name: "五色鳥", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/%E4%BA%94%E8%89%B2%E9%B3%A5.svg" },
+            { name: "北投石", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/%E5%8C%97%E6%8A%95%E7%9F%B3.svg" },
+            { name: "古虹新姿", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/5d4cabe0bfc222c4bbf462072113ced55a6ff086/pic/%E5%8F%A4%E8%99%B9%E6%96%B0%E5%A7%BF.svg" },
+            { name: "台灣水鹿", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E5%8F%B0%E7%81%A3%E6%B0%B4%E9%B9%BF.svg" },
+            { name: "台灣藍鵲", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/main/pic/%E5%8F%B0%E7%81%A3%E8%97%8D%E9%B5%B2.svg" },
+            { name: "寬尾鳳蝶", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E5%AF%AC%E5%B0%BE%E9%B3%B3%E8%9D%B6.svg" },
+            { name: "排灣族木盾", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E6%8E%92%E7%81%A3%E6%97%8F%E6%9C%A8%E7%9B%BE.svg" },
+            { name: "櫻花鉤吻鮭", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E6%AB%BB%E8%8A%B1%E9%89%A4%E5%90%BB%E9%AE%AD.svg" },
+            { name: "泰雅族貝珠裙", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/7ce042c6c9cacd6de311c900325f1a4faa418c09/pic/%E6%B3%B0%E9%9B%85%E6%97%8F%E8%B2%9D%E7%8F%A0%E8%A3%99.svg" },
+            { name: "熊鷹", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E7%86%8A%E9%B7%B9.svg" },
+            { name: "石虎", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E7%9F%B3%E8%99%8E.svg" },
+            { name: "硫磺", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E7%A1%AB%E7%A3%BA.svg" },
+            { name: "穿山甲", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E7%A9%BF%E5%B1%B1%E7%94%B2.svg" },
+            { name: "賽夏族貝珠踝飾", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E8%B3%BD%E5%A4%8F%E6%97%8F%E8%B2%9D%E7%8F%A0%E8%B8%9D%E9%A3%BE.svg" },
+            { name: "雲豹", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E9%9B%B2%E8%B1%B9.svg" },
+            { name: "香魚", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E9%A6%99%E9%AD%9A.svg" },
+            { name: "黑長尾雉", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E9%BB%91%E9%95%B7%E5%B0%BE%E9%9B%89.svg" },
+            { name: "龍宮翁戎螺", url: "https://raw.githubusercontent.com/weiweiweiweiweiweiweiwei/weiwei.github.io/fc29e99600658117be855b1afb6271a1653073b3/pic/%E9%BE%8D%E5%AE%AE%E7%BF%81%E6%88%8E%E8%9E%BA.svg" },
         ];
 
-        let currentQuestionList = [...initialQuestions];
-        let wrongQuestions = [];
-        let isAnsweringInitialQuestions = true;
+        const PRELOADED_ARTIFACT_IMAGES = {};
+        const ARTIFACT_PIXEL_DATA_CACHE = {};
 
-        const artifactsContainer = document.getElementById('artifacts-container');
-        const overlay = document.getElementById('overlay');
-        const modal = document.getElementById('confirm-modal');
-        const selectedImageContainer = document.getElementById('selected-image-container');
-        const confirmButton = document.getElementById('confirmButton');
-        const cancelButton = document.getElementById('cancelButton');
-        const correctNextButton = document.getElementById('correctNextButton');
-        const wrongNextButton = document.getElementById('wrongNextButton');
-        const finishNextButton = document.getElementById('finishNextButton');
+        let gridCircles = [];
+        let mouse = { x: canvas.width / 2, y: canvas.height / 2, down: false };
+        let ripples = [];
+        let lastRippleTime = 0;
+        let currentArtifactIndex = -1;
+        let artifactDisplayState = 'idle';
+        let artifactStateTime = 0;
+        let currentArtifactPixelMap = null;
+        let currentlyMappedArtifactCircles = [];
 
-        const modalBg = modal.querySelector('.modal-bg');
-        const modalBgCorrect = modal.querySelector('.modal-bg-correct');
-        const modalBgWrong = modal.querySelector('.modal-bg-wrong');
-        const modalBgFinish = modal.querySelector('.modal-bg-finish');
+        function getRandom(min, max) { return Math.random() * (max - min) + min; }
+        function getDistance(x1, y1, x2, y2) { const dx = x1 - x2; const dy = y1 - y2; return Math.sqrt(dx * dx + dy * dy); }
+        function hslaToString(h, s, l, a) { return `hsla(${h % 360},${s}%,${l}%,${a})`; }
+        function lerp(start, end, amt) { return (1 - amt) * start + amt * end; }
 
-        const againIndicator = document.getElementById('again');
-        const hintsEl = document.querySelector('.hints');
-        const beginOutScreen = document.getElementById('begin-out');
-        const hintsWrapperEl = document.querySelector('.hints-wrapper');
-        const questionCounterEl = document.getElementById('question-counter');
-        const totalInitialQuestions = initialQuestions.length; // 確保在 initialQuestions 初始化後計算
+        async function preloadArtifacts() {
+            const promises = ARTIFACTS_DATA.map(artifactData => {
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.crossOrigin = "Anonymous";
+                    img.onload = () => { PRELOADED_ARTIFACT_IMAGES[artifactData.name] = img; resolve(); };
+                    img.onerror = () => { reject(new Error(`Failed to load ${artifactData.name}`)); };
+                    img.src = artifactData.url;
+                });
+            });
+            try { await Promise.all(promises); }
+            catch (error) { console.error("Error during artifact preloading:", error); }
+        }
 
-        let selectedArtifactData = null;
-        let originalSelectedArtifactElement = null;
+        function processArtifactImageToPixelMap(artifactName) {
+            const img = PRELOADED_ARTIFACT_IMAGES[artifactName];
+            if (!img) return null;
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
+            const artifactMaxDisplayHeight = canvas.height * CONFIG.ARTIFACT_DISPLAY_SCALE;
+            const scale = Math.min(artifactMaxDisplayHeight / img.height, (canvas.width * CONFIG.ARTIFACT_DISPLAY_SCALE) / img.width);
+            const W = Math.floor(img.width * scale);
+            const H = Math.floor(img.height * scale);
+            tempCanvas.width = W; tempCanvas.height = H;
+            tempCtx.drawImage(img, 0, 0, W, H);
+            const points = [];
+            try {
+                const imageData = tempCtx.getImageData(0, 0, W, H).data;
+                const step = CONFIG.ARTIFACT_PIXEL_SAMPLE_STEP;
+                for (let y = 0; y < H; y += step) {
+                    for (let x = 0; x < W; x += step) {
+                        const i = (y * W + x) * 4;
+                        if (imageData[i + 3] > 128) {
+                            const r = imageData[i], g = imageData[i + 1], b = imageData[i + 2], aVal = imageData[i + 3];
+                            const maxC = Math.max(r, g, b), minC = Math.min(r, g, b);
+                            let h = 0, s = 0, l = (maxC + minC) / 2 / 255;
+                            if (maxC !== minC) {
+                                const d = maxC - minC;
+                                s = l > 0.5 ? d / (2 * 255 - maxC - minC) : d / (maxC + minC);
+                                switch (maxC) {
+                                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                                    case g: h = (b - r) / d + 2; break;
+                                    case b: h = (r - g) / d + 4; break;
+                                }
+                                h /= 6;
+                            }
+                            points.push({ x: x - W / 2, y: y - H / 2, color: [h * 360, s * 100, l * 100, aVal / 255] });
+                        }
+                    }
+                }
+                const result = { points, width: W, height: H };
+                if (CONFIG.USE_OFFSCREEN_ARTIFACT_CANVAS) { ARTIFACT_PIXEL_DATA_CACHE[artifactName] = result; }
+                return result;
+            } catch (e) { console.error("Error processing artifact image (getImageData):", e, artifactName, img.src); return null; }
+        }
 
-        function updateModalState(state) {
-            modalBg.style.display = 'none';
-            modalBgCorrect.style.display = 'none';
-            modalBgWrong.style.display = 'none';
-            modalBgFinish.style.display = 'none';
-
-            confirmButton.style.display = 'none';
-            cancelButton.style.display = 'none';
-            correctNextButton.style.display = 'none';
-            wrongNextButton.style.display = 'none';
-            finishNextButton.style.display = 'none';
-
-            if (state === 'select' || state === 'correct' || state === 'wrong' || state === 'finish') {
-                if (hintsWrapperEl) hintsWrapperEl.style.pointerEvents = 'none';
-            } else {
-                // 這個 else 分支目前不會被觸發，因為 closeModalAndReset 負責恢復 pointerEvents
-                if (hintsWrapperEl) hintsWrapperEl.style.pointerEvents = 'auto';
+        class GridCircle {
+            constructor(x, y) {
+                this.x = x; this.y = y;
+                this.baseRadius = CONFIG.BASE_RADIUS * getRandom(0.8, 1.2);
+                this.radius = this.baseRadius; this.targetRadius = this.baseRadius;
+                this.baseColor = [...CONFIG.BASE_COLOR_HSLA]; this.color = [...this.baseColor]; this.targetColor = [...this.baseColor];
+                this.pulsePhase = Math.random() * Math.PI * 2;
+                this.isArtifactPixel = false; this.artifactColor = null; this.isGlitchingForArtifact = false; this.lastGlitchFlickerTime = 0;
             }
-
-            switch (state) {
-                case 'select':
-                    modalBg.style.display = 'block';
-                    confirmButton.style.display = 'inline-block';
-                    cancelButton.style.display = 'inline-block';
-                    break;
-                case 'correct':
-                    modalBgCorrect.style.display = 'block';
-                    correctNextButton.style.display = 'inline-block';
-                    break;
-                case 'wrong':
-                    modalBgWrong.style.display = 'block';
-                    wrongNextButton.style.display = 'inline-block';
-                    break;
-                case 'finish':
-                    modalBgFinish.style.display = 'block';
-                    finishNextButton.style.display = 'inline-block';
-                    if (hintsEl) hintsEl.style.display = 'none';
-                    if (againIndicator) againIndicator.style.display = 'none';
-                    if (questionCounterEl) questionCounterEl.style.display = 'none';
-                    break;
+            update(deltaTime) {
+                this.pulsePhase += CONFIG.PULSE_SPEED * (deltaTime / 16.67);
+                const pulseOffset = Math.sin(this.pulsePhase) * CONFIG.PULSE_MAGNITUDE * this.baseRadius;
+                let mDist = getDistance(this.x, this.y, mouse.x, mouse.y);
+                let effectRadius = this.baseRadius + pulseOffset;
+                let effectColor = [...this.baseColor];
+                if (mDist < CONFIG.MOUSE_EFFECT_RADIUS) {
+                    const mInfluence = 1 - (mDist / CONFIG.MOUSE_EFFECT_RADIUS);
+                    effectRadius = lerp(effectRadius, CONFIG.MAX_RADIUS_MOUSE, mInfluence * 0.8);
+                    for (let i = 0; i < 4; i++) effectColor[i] = lerp(effectColor[i], CONFIG.MOUSE_HIGHLIGHT_COLOR_HSLA[i], mInfluence);
+                }
+                ripples.forEach(ripple => {
+                    const rDist = getDistance(this.x, this.y, ripple.x, ripple.y);
+                    if (rDist < ripple.currentVisualRadius) {
+                        const timeSinceImpact = (Date.now() - ripple.startTime) - (rDist / CONFIG.RIPPLE_SPEED) * 16.67;
+                        let rInfluence = 0;
+                        if (timeSinceImpact > 0 && timeSinceImpact < CONFIG.RIPPLE_DURATION_MS) {
+                            rInfluence = Math.sin((timeSinceImpact / CONFIG.RIPPLE_DURATION_MS) * Math.PI) * ripple.strength;
+                            rInfluence = Math.max(0, rInfluence);
+                        }
+                        effectRadius = lerp(effectRadius, CONFIG.MAX_RADIUS_RIPPLE, rInfluence * 0.7);
+                        for (let i = 0; i < 4; i++) effectColor[i] = lerp(effectColor[i], CONFIG.RIPPLE_HIGHLIGHT_COLOR_HSLA[i], rInfluence);
+                    }
+                });
+                if (this.isGlitchingForArtifact) {
+                    if (Date.now() > this.lastGlitchFlickerTime + CONFIG.GLITCH_FLICKER_SPEED) {
+                        this.color = (Math.random() > 0.5) ? [...CONFIG.GLITCH_COLOR_1_HSLA] : [...CONFIG.GLITCH_COLOR_2_HSLA];
+                        this.radius = this.baseRadius * getRandom(0.5, 1.5);
+                        this.lastGlitchFlickerTime = Date.now();
+                    }
+                } else if (this.isArtifactPixel && this.artifactColor) {
+                    this.targetRadius = CONFIG.BASE_RADIUS * 1.1; this.targetColor = [...this.artifactColor];
+                    effectRadius = this.targetRadius; effectColor = this.targetColor;
+                } else {
+                    this.targetRadius = this.baseRadius + pulseOffset; this.targetColor = effectColor;
+                }
+                this.radius = lerp(this.radius, this.targetRadius, 0.2);
+                for (let i = 0; i < 4; i++) this.color[i] = lerp(this.color[i], this.targetColor[i], 0.2);
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, Math.max(1, this.radius), 0, Math.PI * 2);
+                ctx.fillStyle = hslaToString(this.color[0], this.color[1], this.color[2], this.color[3]);
+                ctx.fill();
             }
         }
 
-        function loadQuestion(index) {
-            if (index >= currentQuestionList.length) {
-                if (questionCounterEl) questionCounterEl.style.display = 'none';
-                // 理論上不應該執行到這裡，因為 goToNextQuestion 會處理列表結束的情況
-                return;
+        class Ripple {
+            constructor(x, y) {
+                this.x = x; this.y = y; this.startTime = Date.now();
+                this.maxRadius = Math.max(canvas.width, canvas.height);
+                this.strength = getRandom(0.7, 1); this.currentVisualRadius = 0; this.isDone = false;
             }
-            const question = currentQuestionList[index];
-            artifactsContainer.innerHTML = '';
-
-            question.artifacts.forEach(artifact => {
-                const img = document.createElement('img');
-                img.src = artifact.src;
-                img.classList.add('answer-image');
-                img.style.top = artifact.top;
-                img.style.left = artifact.left;
-                img.dataset.isAnswer = artifact.isAnswer;
-                img.alt = `Artifact image ${artifact.id}`;
-                img.addEventListener('click', () => selectArtifact(img, artifact));
-                artifactsContainer.appendChild(img);
-            });
-
-            document.getElementById('hint1').textContent = question.hints[0] || '';
-            document.getElementById('hint2').textContent = question.hints[1] || '';
-            document.getElementById('hint3').textContent = question.hints[2] || '';
-            if (hintsEl) hintsEl.style.display = 'block';
-
-            if (questionCounterEl) {
-                if (isAnsweringInitialQuestions) {
-                    questionCounterEl.textContent = `${currentQuestionIndex + 1} / ${totalInitialQuestions}`; // 使用 currentQuestionIndex
-                    questionCounterEl.style.display = 'block';
-                } else {
-                    // 在錯題重練階段，可以選擇顯示不同的計數器或不顯示
-                    // 例如: questionCounterEl.textContent = `錯題 ${currentQuestionIndex + 1} / ${currentQuestionList.length}`;
-                    questionCounterEl.style.display = 'none'; // 根據原代碼，重練時不顯示
+            update() {
+                const elapsedTime = Date.now() - this.startTime;
+                this.currentVisualRadius = (elapsedTime / (1000 / 60)) * CONFIG.RIPPLE_SPEED;
+                if (elapsedTime > CONFIG.RIPPLE_DURATION_MS + (this.maxRadius / CONFIG.RIPPLE_SPEED) * (1000 / 60) * 0.5) {
+                    this.isDone = true;
                 }
             }
         }
 
-        beginOutScreen.addEventListener('click', () => {
-            beginOutScreen.style.display = 'none';
-            if (hintsWrapperEl) hintsWrapperEl.style.pointerEvents = 'auto';
-
-            currentQuestionIndex = 0;
-            currentQuestionList = [...initialQuestions]; // 重置為初始問題列表
-            wrongQuestions = []; // 清空錯題記錄
-            isAnsweringInitialQuestions = true; // 標記為初始答題階段
-
-            if (againIndicator) againIndicator.style.display = 'none';
-            loadQuestion(currentQuestionIndex);
-        });
-
-        function selectArtifact(imgElement, artifactData) {
-            selectedArtifactData = artifactData;
-            originalSelectedArtifactElement = imgElement;
-
-            selectedImageContainer.innerHTML = '';
-            const clone = imgElement.cloneNode(true);
-
-            clone.className = '';
-            clone.removeAttribute('style');
-            clone.classList.add('cloned-artifact');
-
-            clone.style.position = 'absolute';
-            clone.style.height = '20vh'; // 這些樣式可以根據需要調整
-            clone.style.width = '20%';   // 這些樣式可以根據需要調整
-            clone.style.top = '35%';     // 這些樣式可以根據需要調整
-            clone.style.left = '50%';    // 這些樣式可以根據需要調整
-            clone.style.transform = 'translate(-50%, -50%)';
-
-            selectedImageContainer.appendChild(clone);
-
-            overlay.style.display = 'block';
-            modal.style.display = 'block';
-            requestAnimationFrame(() => {
-                modal.style.transform = 'translate(-50%, -50%) scale(1.7)';
-            });
-            gameContentWrapper.style.filter = 'blur(6px)';
-            updateModalState('select');
-        }
-
-        // --- MODIFICATION START ---
-        confirmButton.addEventListener('click', () => {
-            if (!selectedArtifactData) return;
-            selectedImageContainer.innerHTML = '';
-            const isCorrect = selectedArtifactData.isAnswer;
-
-            if (isCorrect) {
-                updateModalState('correct');
-            } else {
-                updateModalState('wrong');
-                const currentQuestionObject = currentQuestionList[currentQuestionIndex];
-                // 直接將當前答錯的題目加入 wrongQuestions 列表
-                // 無需檢查是否已存在，因為 wrongQuestions 是針對本輪的錯題，
-                // 並且會在 goToNextQuestion 中被正確處理（賦值給 currentQuestionList 後清空）。
-                wrongQuestions.push(currentQuestionObject);
+        function setup() {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            if (CONFIG.USE_OFFSCREEN_ARTIFACT_CANVAS) { for (const key in ARTIFACT_PIXEL_DATA_CACHE) { delete ARTIFACT_PIXEL_DATA_CACHE[key]; } }
+            gridCircles = [];
+            for (let y = CONFIG.GRID_SPACING / 2; y < canvas.height; y += CONFIG.GRID_SPACING) {
+                for (let x = CONFIG.GRID_SPACING / 2; x < canvas.width; x += CONFIG.GRID_SPACING) {
+                    gridCircles.push(new GridCircle(x, y));
+                }
             }
-
-        });
-        // --- MODIFICATION END ---
-
-        cancelButton.addEventListener('click', () => {
-            closeModalAndReset();
-        });
-
-        function closeModalAndReset() {
-            overlay.style.display = 'none';
-            modal.style.display = 'none';
-            modal.style.transform = 'translate(-50%, -50%) scale(1)';
-            gameContentWrapper.style.filter = '';
-            selectedImageContainer.innerHTML = ''; // 清除模態框中選擇的圖片
-            selectedArtifactData = null;
-            originalSelectedArtifactElement = null;
-            if (hintsWrapperEl) hintsWrapperEl.style.pointerEvents = 'auto';
+            ripples = []; lastRippleTime = Date.now(); currentArtifactIndex = -1;
+            artifactDisplayState = 'idle'; artifactStateTime = 0; currentlyMappedArtifactCircles = [];
+            if (!animationFrameId) animate();
         }
 
-        correctNextButton.addEventListener('click', goToNextQuestion);
-        wrongNextButton.addEventListener('click', goToNextQuestion);
-
-        function goToNextQuestion() {
-            closeModalAndReset();
-            currentQuestionIndex++;
-
-            if (currentQuestionIndex < currentQuestionList.length) {
-                loadQuestion(currentQuestionIndex);
-            } else {
-                // 當前列表的題目已全部回答完畢
-                if (wrongQuestions.length > 0) {
-                    // 如果有錯題，則進入錯題重練環節
-                    currentQuestionList = [...wrongQuestions]; // 將本輪錯題設為新的待答列表
-                    wrongQuestions = []; // 清空錯題記錄，為下一輪重練做準備
-                    currentQuestionIndex = 0; // 重置題目索引
-                    isAnsweringInitialQuestions = false; // 標記為非初始答題階段（即錯題重練）
-
-                    loadQuestion(currentQuestionIndex);
-                    if (againIndicator) againIndicator.style.display = 'block'; // 顯示重練提示
-                } else {
-                    // 如果沒有錯題了（wrongQuestions 為空），則表示所有題目已掌握
-                    if (againIndicator) againIndicator.style.display = 'none';
-                    overlay.style.display = 'block';
-                    modal.style.display = 'block';
-                    requestAnimationFrame(() => {
-                        modal.style.transform = 'translate(-50%, -50%) scale(1.7)';
+        function manageArtifactDisplay(deltaTime) {
+            artifactStateTime += deltaTime;
+            if (artifactDisplayState === 'idle') {
+                currentArtifactIndex = (currentArtifactIndex + 1) % ARTIFACTS_DATA.length;
+                const artifactData = ARTIFACTS_DATA[currentArtifactIndex];
+                currentArtifactPixelMap = ARTIFACT_PIXEL_DATA_CACHE[artifactData.name] || processArtifactImageToPixelMap(artifactData.name);
+                currentlyMappedArtifactCircles = [];
+                if (currentArtifactPixelMap && currentArtifactPixelMap.points.length > 0) {
+                    const artifactCenterX = canvas.width / 2; const artifactCenterY = canvas.height / 2;
+                    let tempArtifactPointGrid = {};
+                    const gridKey = (gx, gy) => `${Math.floor(gx / CONFIG.GRID_SPACING)},${Math.floor(gy / CONFIG.GRID_SPACING)}`;
+                    currentArtifactPixelMap.points.forEach(p => {
+                        const worldX = artifactCenterX + p.x; const worldY = artifactCenterY + p.y;
+                        const k = gridKey(worldX, worldY);
+                        if (!tempArtifactPointGrid[k]) tempArtifactPointGrid[k] = [];
+                        tempArtifactPointGrid[k].push({ pointData: p, worldX, worldY });
                     });
-                    gameContentWrapper.style.filter = 'blur(6px)';
-                    updateModalState('finish'); // 顯示完成界面
+                    gridCircles.forEach(circle => {
+                        circle.isGlitchingForArtifact = false; circle.isArtifactPixel = false; circle.artifactColor = null;
+                        const k = gridKey(circle.x, circle.y);
+                        if (tempArtifactPointGrid[k]) {
+                            let closestDist = Infinity; let bestPointData = null;
+                            tempArtifactPointGrid[k].forEach(p_entry => {
+                                const d = getDistance(circle.x, circle.y, p_entry.worldX, p_entry.worldY);
+                                if (d < closestDist && d < CONFIG.GRID_SPACING) { closestDist = d; bestPointData = p_entry.pointData; }
+                            });
+                            if (bestPointData) {
+                                currentlyMappedArtifactCircles.push({ circle, artifactPointData: bestPointData });
+                                circle.isGlitchingForArtifact = true;
+                            }
+                        }
+                    });
+                    if (currentlyMappedArtifactCircles.length > 0) { artifactDisplayState = 'glitching-in'; }
+                    else { artifactDisplayState = 'paused'; }
+                } else { artifactDisplayState = 'paused'; }
+                artifactStateTime = 0;
+            } else if (artifactDisplayState === 'glitching-in') {
+                if (artifactStateTime >= CONFIG.ARTIFACT_GLITCH_IN_DURATION) {
+                    artifactDisplayState = 'displaying'; artifactStateTime = 0;
+                    currentlyMappedArtifactCircles.forEach(entry => {
+                        entry.circle.isGlitchingForArtifact = false; entry.circle.isArtifactPixel = true;
+                        entry.circle.artifactColor = [...entry.artifactPointData.color];
+                    });
+                    gridCircles.forEach(c => { if (!currentlyMappedArtifactCircles.find(e => e.circle === c)) { c.isGlitchingForArtifact = false; } });
+                }
+            } else if (artifactDisplayState === 'displaying') {
+                if (artifactStateTime >= CONFIG.ARTIFACT_DISPLAY_DURATION) {
+                    artifactDisplayState = 'glitching-out'; artifactStateTime = 0;
+                    currentlyMappedArtifactCircles.forEach(entry => {
+                        entry.circle.isGlitchingForArtifact = true; entry.circle.isArtifactPixel = false; entry.circle.artifactColor = null;
+                    });
+                }
+            } else if (artifactDisplayState === 'glitching-out') {
+                if (artifactStateTime >= CONFIG.ARTIFACT_GLITCH_OUT_DURATION) {
+                    artifactDisplayState = 'paused'; artifactStateTime = 0;
+                    gridCircles.forEach(circle => { circle.isGlitchingForArtifact = false; circle.isArtifactPixel = false; circle.artifactColor = null; });
+                    currentArtifactPixelMap = null; currentlyMappedArtifactCircles = [];
+                }
+            } else if (artifactDisplayState === 'paused') {
+                if (artifactStateTime >= CONFIG.ARTIFACT_PAUSE_DURATION) {
+                    artifactDisplayState = 'idle'; artifactStateTime = 0;
                 }
             }
         }
 
-        finishNextButton.addEventListener('click', () => {
-            // alert("Congratulations! You've completed the game!"); // 你可以保留或修改這個提示
-            currentQuestionIndex = 0;
-            currentQuestionList = [...initialQuestions];
-            wrongQuestions = [];
-            isAnsweringInitialQuestions = true;
-            if (againIndicator) againIndicator.style.display = 'none';
-            closeModalAndReset();
-            beginOutScreen.style.display = 'flex'; // 顯示開始界面以重新開始
-            if (hintsWrapperEl) hintsWrapperEl.style.pointerEvents = 'none'; // 開始界面時提示區不可點
-            if (questionCounterEl) questionCounterEl.style.display = 'none';
-        });
+        window.addEventListener('resize', () => { if (animationFrameId) cancelAnimationFrame(animationFrameId); animationFrameId = null; setup(); });
+        canvas.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
+        canvas.addEventListener('mousedown', () => mouse.down = true);
+        canvas.addEventListener('mouseup', () => mouse.down = false);
+        canvas.addEventListener('click', (e) => { if (ripples.length < CONFIG.RIPPLE_MAX_WAVES) { ripples.push(new Ripple(e.clientX, e.clientY)); } });
 
-        window.addEventListener('resize', resizeGame);
-        resizeGame();
+        let animationFrameId;
+        let lastTimestamp = 0;
 
-        // 初始狀態設置
-        if (questionCounterEl) {
-            questionCounterEl.style.display = 'none'; // 初始不顯示題號，直到遊戲開始
+        function animate(timestamp) {
+            animationFrameId = requestAnimationFrame(animate);
+            const deltaTime = timestamp - lastTimestamp || 16.67;
+            lastTimestamp = timestamp;
+            ctx.fillStyle = CONFIG.BACKGROUND_COLOR;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            manageArtifactDisplay(deltaTime);
+            if (Date.now() > lastRippleTime + CONFIG.RIPPLE_TRIGGER_INTERVAL && ripples.length < CONFIG.RIPPLE_MAX_WAVES) {
+                ripples.push(new Ripple(Math.random() * canvas.width, Math.random() * canvas.height));
+                lastRippleTime = Date.now();
+            }
+            ripples.forEach(r => r.update());
+            ripples = ripples.filter(r => !r.isDone);
+            gridCircles.forEach(circle => { circle.update(deltaTime); circle.draw(); });
         }
-        if (hintsWrapperEl) {
-            hintsWrapperEl.style.pointerEvents = 'none'; // 初始提示區不可點，直到遊戲開始
-        }
+
+        document.addEventListener('DOMContentLoaded', async () => { await preloadArtifacts(); setup(); });
+        const enterButton = document.getElementById('enter-button');
+        if (enterButton) { enterButton.addEventListener('click', () => { window.location.href = "https://wallace909080.wixstudio.com/my-site"; }); }
     </script>
 </body>
 
