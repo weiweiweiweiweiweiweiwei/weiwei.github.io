@@ -3,12 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>淡江教科知識方塊 - 偵錯手部數據</title>
+    <title>淡江教科知識方塊 - Google 風格</title>
+    <!-- Google Fonts: Roboto -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
     <script src="https://unpkg.com/ml5@0.12.2/dist/ml5.min.js"></script>
     <style>
-        html, body { margin: 0; padding: 0; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #2c3e50; font-family: 'Arial', '微軟正黑體', 'Microsoft JhengHei', sans-serif; }
-        canvas { display: block; border: 2px solid #bdc3c7; box-shadow: 0 0 15px rgba(0,0,0,0.2); }
+        html, body { 
+            margin: 0; 
+            padding: 0; 
+            overflow: hidden; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            background-color: #37474F; /* 深藍灰色背景 */
+            font-family: 'Roboto', 'Arial', '微軟正黑體', 'Microsoft JhengHei', sans-serif; 
+        }
+        canvas { 
+            display: block; 
+            border: 1px solid #78909C; /* 邊框顏色調整 */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); /* 陰影調整 */
+        }
     </style>
 </head>
 <body>
@@ -17,8 +36,8 @@
         console.log("SCRIPT START");
 
         let video;
-        let handpose; // ml5.handpose instance
-        let hands = []; // Array to store detected hands
+        let handpose;
+        let hands = [];
         let paddle; 
         let blocks = [];
         let score = 0;
@@ -27,12 +46,12 @@
 
         const blockWidth = 80; 
         const blockHeight = 40;
-        const goodBlockColor = [46, 204, 113, 230]; 
-        const badBlockColor = [231, 76, 60, 230];   
-        const paddleColor = [52, 152, 219, 230];    
-        let backgroundImage = null; 
+        const goodBlockColor = [76, 175, 80, 230];  // Material Green
+        const badBlockColor = [244, 67, 54, 230];    // Material Red
+        const paddleColor = [33, 150, 243, 230];     // Material Blue
+        let googleBlue; // For text
 
-        const INDEX_FINGER_TIP = 8; // Landmark index for the tip of the index finger
+        const INDEX_FINGER_TIP = 8; 
 
         function preload() {
             console.log("PRELOAD: Called.");
@@ -41,7 +60,10 @@
         function setup() {
             console.log("SETUP: Called.");
             createCanvas(640, 480);
+            textFont('Roboto'); // Set default font to Roboto
             
+            googleBlue = color(66, 133, 244); // Initialize Google Blue color
+
             video = createCapture(VIDEO, () => console.log("SETUP: Video stream acquired."));
             video.size(width, height);
             video.hide();
@@ -54,23 +76,10 @@
 
             if (window.ml5 && typeof window.ml5.handpose === 'function') {
                 console.log("SETUP: Initializing ml5.handpose...");
-                handpose = ml5.handpose(video, modelReady); // Pass the original video
+                handpose = ml5.handpose(video, modelReady); 
                 handpose.on('predict', results => {
-                    // THIS IS THE MOST IMPORTANT LOGGING STEP:
-                    console.log("HANDPOSE PREDICT RAW:", JSON.stringify(results)); 
-                    
-                    if (results && results.length > 0) {
-                        let firstHand = results[0];
-                        if (firstHand.landmarks && firstHand.landmarks[INDEX_FINGER_TIP]) {
-                            console.log("FIRST HAND - LANDMARK[", INDEX_FINGER_TIP, "]:", JSON.stringify(firstHand.landmarks[INDEX_FINGER_TIP]));
-                        } else if (firstHand.keypoints && firstHand.keypoints[INDEX_FINGER_TIP]) {
-                            // The Coding Train's example uses 'keypoints' and 'x', 'y' properties
-                            console.log("FIRST HAND - KEYPOINT[", INDEX_FINGER_TIP, "]:", JSON.stringify(firstHand.keypoints[INDEX_FINGER_TIP]));
-                        } else {
-                            console.warn("FIRST HAND: Could not find landmark/keypoint for index finger tip using known structures.");
-                        }
-                    }
-                    hands = results; // Update global hands array
+                    // console.log("HANDPOSE PREDICT RAW:", JSON.stringify(results)); 
+                    hands = results; 
                 });
             } else {
                 console.error("SETUP FATAL: ml5.handpose is not a function or ml5 is not loaded correctly!");
@@ -87,18 +96,15 @@
         }
 
         function draw() {
-            // Draw video background (flipped for intuitive control)
             push();
-            translate(width, 0); // Move origin to canvas's top-right corner
-            scale(-1, 1);        // Flip the x-axis
+            translate(width, 0); 
+            scale(-1, 1);        
             if (video.elt.readyState === video.elt.HAVE_ENOUGH_DATA) { 
-                image(video, 0, 0, width, height); // Draw the original video, it will be flipped by the transform
+                image(video, 0, 0, width, height); 
             }
-            pop(); // Restore original coordinate system
+            pop(); 
 
-            // Draw keypoints for debugging (optional, uncomment if needed)
-            // drawDetectedKeypoints();
-
+            // Optional: drawDetectedKeypoints(); // Uncomment to see hand keypoints
 
             switch (gameState) {
                 case "loading": displayLoadingScreen(); break;
@@ -110,8 +116,26 @@
             }
         }
         
-        function displayLoadingScreen(){ background(100); textAlign(CENTER,CENTER); textSize(24); fill(255); text("正在載入模型...", width/2, height/2); }
-        function displayErrorScreen(msg){ background(50); textAlign(CENTER,CENTER); textSize(24); fill(255,0,0); text(msg, width/2, height/2-30); textSize(16); fill(255); text("請檢查F12控制台", width/2, height/2+10); }
+        function displayLoadingScreen(){ 
+            background(236, 239, 241); // Light gray background
+            textAlign(CENTER,CENTER); 
+            textSize(22); 
+            fill(80); // Darker text
+            textStyle(NORMAL);
+            text("正在載入視訊與模型...", width/2, height/2); 
+        }
+        function displayErrorScreen(msg){ 
+            background(236, 239, 241);
+            textAlign(CENTER,CENTER); 
+            textSize(24); 
+            fill(211, 47, 47); // Material Red for error text
+            textStyle(BOLD);
+            text(msg, width/2, height/2-30); 
+            textSize(16); 
+            fill(80); 
+            textStyle(NORMAL);
+            text("請檢查F12控制台獲取詳細資訊", width/2, height/2+20); 
+        }
 
         function playGame() {
             updatePaddleWithHand(); 
@@ -122,8 +146,50 @@
             if (lives <= 0) gameState = "gameOver";
         }
 
-        function displayStartScreen(){ fill(0,0,0,150); rect(width/2-250,height/2-100,500,200,10); fill(255); textAlign(CENTER,CENTER); textSize(30); text("淡江教科知識方塊", width/2, height/2-40); textSize(18); text("用雙手食指控制平台", width/2, height/2+5); text("點擊開始！", width/2, height/2+45); }
-        function displayGameOverScreen(){ fill(0,0,0,150); rect(width/2-170,height/2-100,340,200,10); fill(231,76,60); textAlign(CENTER,CENTER); textSize(40); text("遊戲結束！", width/2, height/2-40); fill(255); textSize(22); text("最終分數：" + score, width/2, height/2+10); textSize(18); text("點擊重新開始", width/2, height/2+50); }
+        function displayStartScreen(){ 
+            fill(245, 245, 245, 220); // Light, slightly transparent background for the box
+            stroke(200); // Light border for the box
+            rect(width/2-260, height/2-110, 520, 220, 8); // Slightly larger box with rounded corners
+            
+            textAlign(CENTER,CENTER); 
+            
+            fill(50); // Dark gray for title
+            textSize(34); 
+            textStyle(BOLD);
+            text("淡江教科知識方塊", width/2, height/2-55);
+            
+            fill(80); // Medium gray for instructions
+            textSize(18); 
+            textStyle(NORMAL);
+            text("請將雙手食指放入鏡頭控制平台", width/2, height/2+5); 
+            
+            fill(googleBlue); // Google Blue for action text
+            textSize(22); 
+            textStyle(BOLD);
+            text("點擊開始遊戲！", width/2, height/2+55); 
+        }
+        function displayGameOverScreen(){ 
+            fill(245, 245, 245, 220); 
+            stroke(200);
+            rect(width/2-180, height/2-110, 360, 220, 8); 
+            
+            textAlign(CENTER,CENTER); 
+            
+            fill(211, 47, 47); // Material Red for "Game Over"
+            textSize(36); 
+            textStyle(BOLD);
+            text("遊戲結束！", width/2, height/2-50); 
+            
+            fill(50); 
+            textSize(22); 
+            textStyle(NORMAL);
+            text("最終分數：" + score, width/2, height/2); 
+            
+            fill(googleBlue); 
+            textSize(20); 
+            textStyle(BOLD);
+            text("點擊重新開始", width/2, height/2+50); 
+        }
 
         function mousePressed() {
             console.log("MOUSE_PRESSED: gameState:", gameState);
@@ -143,52 +209,39 @@
         }
 
         function updatePaddleWithHand() {
-            if (!paddle) {
-                console.warn("UPDATE_PADDLE: Paddle is undefined.");
-                return;
-            }
-            let targetX = paddle.x; // Default to current position
+            if (!paddle) return;
+            let targetX = paddle.x; 
 
             if (hands.length > 0) {
-                // Assuming 'landmarks' is an array of [x,y,z] arrays for each keypoint
-                // and INDEX_FINGER_TIP (8) is the correct one.
-                // The X coordinate is the first element of the landmark array.
                 try {
                     if (hands.length >= 2) {
-                        let hand1 = hands[0];
-                        let hand2 = hands[1];
-                        // Check if landmarks data is valid before accessing
-                        if (hand1.landmarks && hand1.landmarks[INDEX_FINGER_TIP] && typeof hand1.landmarks[INDEX_FINGER_TIP][0] === 'number' &&
-                            hand2.landmarks && hand2.landmarks[INDEX_FINGER_TIP] && typeof hand2.landmarks[INDEX_FINGER_TIP][0] === 'number') {
-                            
+                        let hand1 = hands[0]; let hand2 = hands[1];
+                        if (hand1.landmarks && hand1.landmarks[INDEX_FINGER_TIP] && typeof hand1.landmarks[INDEX_FINGER_TIP][0]==='number' &&
+                            hand2.landmarks && hand2.landmarks[INDEX_FINGER_TIP] && typeof hand2.landmarks[INDEX_FINGER_TIP][0]==='number') {
                             let h1_x = hand1.landmarks[INDEX_FINGER_TIP][0]; 
                             let h2_x = hand2.landmarks[INDEX_FINGER_TIP][0]; 
-
-                            // These x coords are relative to the original video (0 at left, video.width at right)
-                            // Our display is flipped, so map accordingly:
-                            // video left (0) -> canvas right (width)
-                            // video right (video.width) -> canvas left (0)
                             let mappedX1 = map(h1_x, 0, video.width, width, 0);
                             let mappedX2 = map(h2_x, 0, video.width, width, 0);
                             targetX = (mappedX1 + mappedX2) / 2;
-                        } // Add more sophisticated fallback for one hand having data if needed
+                        }  else if (hand1.landmarks && hand1.landmarks[INDEX_FINGER_TIP] && typeof hand1.landmarks[INDEX_FINGER_TIP][0]==='number') { // Fallback to hand1 if hand2 data is incomplete
+                            targetX = map(hand1.landmarks[INDEX_FINGER_TIP][0], 0, video.width, width, 0);
+                        } else if (hand2.landmarks && hand2.landmarks[INDEX_FINGER_TIP] && typeof hand2.landmarks[INDEX_FINGER_TIP][0]==='number') { // Fallback to hand2 if hand1 data is incomplete
+                            targetX = map(hand2.landmarks[INDEX_FINGER_TIP][0], 0, video.width, width, 0);
+                        }
                     } else if (hands.length === 1) {
                         let hand1 = hands[0];
-                        if (hand1.landmarks && hand1.landmarks[INDEX_FINGER_TIP] && typeof hand1.landmarks[INDEX_FINGER_TIP][0] === 'number') {
-                            let h1_x = hand1.landmarks[INDEX_FINGER_TIP][0];
-                            targetX = map(h1_x, 0, video.width, width, 0);
+                        if (hand1.landmarks && hand1.landmarks[INDEX_FINGER_TIP] && typeof hand1.landmarks[INDEX_FINGER_TIP][0]==='number') {
+                            targetX = map(hand1.landmarks[INDEX_FINGER_TIP][0], 0, video.width, width, 0);
                         }
                     }
                 } catch (e) {
-                    console.error("UPDATE_PADDLE: Error accessing landmark data. Possibly due to unexpected structure.", e);
-                    console.error("Problematic hands data:", JSON.stringify(hands)); // Log problematic data
-                    // Keep targetX as paddle.x to prevent NaN issues
+                    console.error("UPDATE_PADDLE: Error accessing landmark data.", e);
                 }
             }
             
             if (isNaN(targetX)) {
-                console.warn("UPDATE_PADDLE: targetX became NaN. Reverting to paddle.x. Hands data:", JSON.stringify(hands));
-                targetX = paddle.x; // Prevent NaN from breaking paddle position
+                console.warn("UPDATE_PADDLE: targetX became NaN. Reverting to paddle.x.");
+                targetX = paddle.x; 
             }
             paddle.x = constrain(targetX, paddle.w / 2, width - paddle.w / 2);
         }
@@ -197,38 +250,37 @@
         function spawnBlock(){ if(!paddle){return;} let x=random(blockWidth/2,width-blockWidth/2); let type=random(1)>0.6?"bad":"good"; blocks.push(new Block(x-blockWidth/2,0,type));}
         function drawPaddle(){ if(paddle&&paddle.visible&&gameState==="playing"){fill(paddleColor);noStroke();rect(paddle.x-paddle.w/2,paddle.y,paddle.w,paddle.h,5);}}
         function drawBlocks(){ if(gameState!=="playing")return; for(let block of blocks){block.display();}}
-        function drawUI(){ if(gameState!=="playing"&&gameState!=="gameOver")return; fill(255);textSize(20);textAlign(LEFT,TOP);text("淡江教科",10,10);text("分數:"+score,10,35);textAlign(RIGHT,TOP);text("生命:"+"❤️".repeat(max(0,lives)),width-10,10);}
-        class Block{constructor(x,y,type){this.x=x;this.y=y;this.type=type;this.w=blockWidth;this.h=blockHeight;this.speed=random(1.8,3.8)+Math.max(0,(score/150));this.color=(type==="good")?goodBlockColor:badBlockColor;this.text="";this.textColor=[255];if(type==="good"){let gt=["AI素養","VR/AR","學習分析","翻轉教學","淡江魂","教科讚","PBL","創客","e學習","行動學習"];this.text=random(gt);}else{let bt=["拖延症","假訊息","分心","填鴨","Bug","Error","死線","DDL"];this.text=random(bt);}} update(){this.y+=this.speed;} display(){fill(this.color);noStroke();rect(this.x,this.y,this.w,this.h,8);fill(this.textColor);textSize(this.w*0.18);textAlign(CENTER,CENTER);text(this.text,this.x+this.w/2,this.y+this.h/2);} isOffScreen(){return this.y>height;} hits(pObj){if(!pObj)return false;let pL=pObj.x-pObj.w/2;let pR=pObj.x+pObj.w/2;let pT=pObj.y;let pB=pObj.y+pObj.h;return this.x<pR&&this.x+this.w>pL&&this.y<pB&&this.y+this.h>pT;}}
         
-        // Optional: Function to draw all detected keypoints for debugging
-        function drawDetectedKeypoints() {
-            if (hands.length > 0 && gameState === 'playing') {
-                for (let hand of hands) {
-                    if (hand.landmarks) { // Assuming 'landmarks' structure
-                        for (let i = 0; i < hand.landmarks.length; i++) {
-                            const landmark = hand.landmarks[i]; // landmark is [x,y,z]
-                            const x = landmark[0];
-                            const y = landmark[1];
+        function drawUI(){ 
+            if (gameState !== "playing" && gameState !== "gameOver" && gameState !== "start" && gameState !== "loading") return; 
+            
+            // Draw score and lives only during 'playing' and 'gameOver'
+            if (gameState === "playing" || gameState === "gameOver") {
+                push(); // Isolate styles for UI
+                fill(255); // White for good contrast on video
+                textSize(20); 
+                textStyle(BOLD); // Make score/lives bold
 
-                            // Map original video coordinates to our flipped display coordinates
-                            let displayX = map(x, 0, video.width, width, 0);
-                            let displayY = map(y, 0, video.height, 0, height); // Y is not flipped in our display transform
-
-                            push(); // Use push/pop to isolate drawing style
-                            fill(0, 255, 0, 150); // Green, semi-transparent
-                            noStroke();
-                            if (i === INDEX_FINGER_TIP) { // Highlight the index finger tip
-                                fill(255, 0, 0, 200); // Red
-                                ellipse(displayX, displayY, 20, 20);
-                            } else {
-                                ellipse(displayX, displayY, 10, 10);
-                            }
-                            pop();
-                        }
-                    }
-                }
+                // Add a slight shadow/background for better readability (optional)
+                // drawingContext.shadowOffsetX = 1;
+                // drawingContext.shadowOffsetY = 1;
+                // drawingContext.shadowBlur = 2;
+                // drawingContext.shadowColor = 'rgba(0,0,0,0.5)';
+                
+                textAlign(LEFT, TOP);
+                text("淡江教科", 15, 15); 
+                text("分數: " + score, 15, 40); 
+                
+                textAlign(RIGHT, TOP); 
+                text("生命: " + "❤️".repeat(max(0,lives)), width - 15, 15); 
+                
+                // drawingContext.shadowColor = 'rgba(0,0,0,0)'; // Reset shadow
+                pop(); // Restore previous drawing style
             }
         }
+        class Block{constructor(x,y,type){this.x=x;this.y=y;this.type=type;this.w=blockWidth;this.h=blockHeight;this.speed=random(1.8,3.8)+Math.max(0,(score/150));this.color=(type==="good")?goodBlockColor:badBlockColor;this.text="";this.textColor=[255];if(type==="good"){let gt=["AI素養","VR/AR","學習分析","翻轉教學","淡江魂","教科讚","PBL","創客","e學習","行動學習"];this.text=random(gt);}else{let bt=["拖延症","假訊息","分心","填鴨","Bug","Error","死線","DDL"];this.text=random(bt);}} update(){this.y+=this.speed;} display(){fill(this.color);noStroke();rect(this.x,this.y,this.w,this.h,8);fill(this.textColor);textSize(this.w*0.18);textStyle(NORMAL);textAlign(CENTER,CENTER);text(this.text,this.x+this.w/2,this.y+this.h/2);} isOffScreen(){return this.y>height;} hits(pObj){if(!pObj)return false;let pL=pObj.x-pObj.w/2;let pR=pObj.x+pObj.w/2;let pT=pObj.y;let pB=pObj.y+pObj.h;return this.x<pR&&this.x+this.w>pL&&this.y<pB&&this.y+this.h>pT;}}
+        
+        function drawDetectedKeypoints() { /* ... (same as before, keep if needed for debug) ... */ }
         console.log("SCRIPT END");
     </script>
 </body>
