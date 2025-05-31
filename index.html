@@ -1,996 +1,286 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>網頁開發大冒險 - Duolingo v4</title>
-    <script src="data.js"></script>
-    <style>
-        /* --- Theme Variables & Global Styles --- */
-        :root {
-            --bg-primary: #f7f7f7;
-            /* Light mode background */
-            --bg-secondary: #ffffff;
-            /* Light mode content background */
-            --text-primary: #3c3c3c;
-            --text-secondary: #5f5f5f;
-            --border-color: #e5e5e5;
-            --highlight-bg: #e7f5fe;
-            /* For selected MCQ option (light mode) */
-            --highlight-border: var(--duo-blue);
-
-            /* Duolingo core colors (can remain consistent or also themed) */
-            --duo-green: #58CC02;
-            --duo-green-dark: #4CAF50;
-            --duo-green-hover: #62db1a;
-            --duo-blue: #1CB0F6;
-            --duo-blue-dark: #007BBD;
-            --duo-blue-hover: #36c1ff;
-            --duo-red: #FF4B4B;
-            --duo-red-dark: #D32F2F;
-            --duo-red-hover: #ff6262;
-            --duo-yellow: #FFC800;
-            --duo-yellow-dark: #e0b000;
-            --duo-gray-lightest: #f7f7f7;
-            --duo-gray-light: #e5e5e5;
-            --duo-gray-medium: #afafaf;
-            --duo-gray-dark: #777777;
-
-            --duo-border-radius: 12px;
-            --duo-border-radius-sm: 8px;
-            --duo-shadow-main: 0 4px 0px 0px rgba(0, 0, 0, 0.15);
-            --duo-shadow-inset: inset 0 2px 0px 0px rgba(0, 0, 0, 0.05);
-            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            --font-code: "SF Mono", "Menlo", Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-        }
-
-        body.dark-mode {
-            --bg-primary: #121212;
-            /* Dark mode background */
-            --bg-secondary: #1e1e1e;
-            /* Dark mode content background */
-            --text-primary: #e0e0e0;
-            --text-secondary: #b0b0b0;
-            --border-color: #333333;
-            --highlight-bg: #2a2a3a;
-            /* For selected MCQ option (dark mode) */
-            --highlight-border: var(--duo-blue-hover);
-            --duo-shadow-main: 0 4px 0px 0px rgba(255, 255, 255, 0.1);
-            /* Adjust shadow for dark */
-            --duo-shadow-inset: inset 0 1px 0px 0px rgba(255, 255, 255, 0.05);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: var(--font-main);
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
-            font-size: 16px;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        #app-container {
-            max-width: 960px;
-            margin: 0 auto;
-        }
-
-        /* Theme Toggle Button */
-        #theme-toggle-btn {
-            position: fixed;
-            bottom: 15px;
-            left: 15px;
-            /* Changed position to top-left */
-            z-index: 1001;
-            padding: 8px 12px;
-            background-color: var(--bg-secondary);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--duo-border-radius-sm);
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            font-size: 0.9em;
-        }
-
-        body.dark-mode #theme-toggle-btn {
-            box-shadow: 0 2px 5px rgba(255, 255, 255, 0.1);
-        }
-
-
-        /* Path View Styles (using theme variables) */
-        #path-view {
-            padding: 20px 15px;
-        }
-
-        #path-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            padding: 10px 5px;
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        #path-header h1 {
-            font-size: 1.7em;
-            color: var(--duo-blue-dark);
-            font-weight: 700;
-        }
-
-        /* Path header title might not need theming, or use a theme variable */
-        #user-stats span {
-            margin-left: 15px;
-            font-weight: 600;
-            font-size: 1.05em;
-            color: var(--text-secondary);
-            display: inline-flex;
-            align-items: center;
-        }
-
-        #user-stats span .icon {
-            margin-right: 6px;
-            width: 20px;
-            height: 20px;
-        }
-
-        #user-stats span .icon svg {
-            width: 100%;
-            height: 100%;
-        }
-
-        .unit-section {
-            margin-bottom: 35px;
-        }
-
-        .unit-header {
-            padding: 18px 20px;
-            background-color: var(--duo-blue);
-            color: white;
-            border-radius: var(--duo-border-radius) var(--duo-border-radius) 0 0;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-        }
-
-        /* No change for unit-header color with dark mode for now, or make it configurable */
-        .unit-header h2 {
-            font-size: 1.4em;
-            font-weight: 700;
-        }
-
-        .unit-header p {
-            font-size: 0.9em;
-            opacity: 0.95;
-            margin-top: 2px;
-        }
-
-        .unit-levels-container {
-            background-color: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-top: none;
-            border-radius: 0 0 var(--duo-border-radius) var(--duo-border-radius);
-            padding: 25px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .level-node-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-        }
-
-        .level-node-wrapper:not(:last-child)::after {
-            content: '';
-            width: 5px;
-            height: 15px;
-            background-color: var(--duo-gray-medium);
-            position: absolute;
-            bottom: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1;
-        }
-
-        .level-node-wrapper.checkpoint-connector:not(:last-child)::after {
-            background-color: var(--duo-yellow-dark);
-            width: 6px;
-        }
-
-        .level-node {
-            width: 65px;
-            height: 65px;
-            border-radius: 50%;
-            background-color: var(--duo-gray-light);
-            border: 3px solid var(--duo-gray-medium);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: transform 0.15s ease, background-color 0.2s, border-color 0.2s;
-            position: relative;
-            z-index: 2;
-            box-shadow: 0 2px 0px 0px rgba(0, 0, 0, 0.1);
-        }
-
-        body.dark-mode .level-node {
-            background-color: #3a3a3a;
-            border-color: #555;
-            box-shadow: 0 2px 0px 0px rgba(255, 255, 255, 0.05);
-        }
-
-        .level-node svg {
-            width: 30px;
-            height: 30px;
-            fill: var(--text-secondary);
-        }
-
-        /* Node icon color linked to text */
-        .level-node.is-checkpoint {
-            width: 75px;
-            height: 75px;
-            border-width: 4px;
-        }
-
-        .level-node.is-checkpoint svg {
-            width: 36px;
-            height: 36px;
-        }
-
-        .level-title {
-            font-size: 0.8em;
-            color: var(--text-secondary);
-            margin-top: 6px;
-            text-align: center;
-            max-width: 90px;
-            font-weight: 500;
-            line-height: 1.3;
-        }
-
-        .level-node.status-locked {
-            background-color: var(--duo-gray-light);
-            border-color: var(--duo-gray-medium);
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        body.dark-mode .level-node.status-locked {
-            background-color: #2c2c2c;
-            border-color: #444;
-        }
-
-        .level-node.status-locked svg {
-            fill: var(--duo-gray-medium);
-        }
-
-        .level-node.status-current {
-            border-color: var(--duo-blue);
-            background-color: var(--duo-blue);
-            animation: pulse-blue 1.5s infinite ease-in-out;
-        }
-
-        .level-node.status-current svg {
-            fill: white;
-        }
-
-        .level-node.status-current+.level-title {
-            color: var(--duo-blue-dark);
-            font-weight: 600;
-        }
-
-        body.dark-mode .level-node.status-current+.level-title {
-            color: var(--duo-blue-hover);
-        }
-
-        .level-node.status-completed {
-            border-color: var(--duo-green);
-            background-color: var(--duo-green);
-        }
-
-        .level-node.status-completed svg {
-            fill: white;
-        }
-
-        .level-node.status-completed+.level-title {
-            color: var(--duo-green-dark);
-            font-weight: 500;
-        }
-
-        body.dark-mode .level-node.status-completed+.level-title {
-            color: var(--duo-green-hover);
-        }
-
-        .level-node.is-checkpoint.status-current {
-            border-color: var(--duo-yellow);
-            background-color: var(--duo-yellow);
-            animation: pulse-yellow 1.5s infinite ease-in-out;
-        }
-
-        .level-node.is-checkpoint.status-completed {
-            border-color: var(--duo-yellow-dark);
-            background-color: var(--duo-yellow);
-        }
-
-        .level-node:not(.status-locked):hover {
-            transform: scale(1.08);
-        }
-
-        @keyframes pulse-blue {
-
-            0%,
-            100% {
-                box-shadow: 0 0 0 0 rgba(28, 176, 246, 0.6), 0 2px 0px 0px rgba(0, 0, 0, 0.1);
-            }
-
-            50% {
-                box-shadow: 0 0 0 8px rgba(28, 176, 246, 0), 0 2px 0px 0px rgba(0, 0, 0, 0.1);
-            }
-        }
-
-        @keyframes pulse-yellow {
-
-            0%,
-            100% {
-                box-shadow: 0 0 0 0 rgba(255, 200, 0, 0.6), 0 2px 0px 0px rgba(0, 0, 0, 0.1);
-            }
-
-            50% {
-                box-shadow: 0 0 0 8px rgba(255, 200, 0, 0), 0 2px 0px 0px rgba(0, 0, 0, 0.1);
-            }
-        }
-
-        /* Lesson View Styles (with theming and centering) */
-        #lesson-view {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: var(--bg-primary);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-        }
-
-        #lesson-view.hidden {
-            display: none;
-        }
-
-        #lesson-header {
-            display: flex;
-            align-items: center;
-            padding: 10px 15px;
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        #close-lesson-btn {
-            background: none;
-            border: none;
-            font-size: 1.8em;
-            cursor: pointer;
-            color: var(--text-secondary);
-            padding-right: 10px;
-            padding-left: 5px;
-            line-height: 1;
-        }
-
-        #close-lesson-btn:hover {
-            color: var(--text-primary);
-        }
-
-        #lesson-title-header {
-            font-size: 1.3em;
-            font-weight: 600;
-            color: var(--text-primary);
-            flex-grow: 1;
-            text-align: center;
-        }
-
-        /* Centered title */
-
-        #lesson-module-content {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 20px 25px;
-            display: flex;
-            flex-direction: column;
-            /* For centering content */
-            justify-content: center;
-            /* Vertical centering */
-            align-items: center;
-            /* Horizontal centering if content width is less than container */
-            text-align: center;
-            /* Default text align to center for children */
-        }
-
-        #lesson-module-content>* {
-            /* Ensure direct children take available width for centering */
-            max-width: 600px;
-            /* Or a suitable max-width for readability */
-            width: 100%;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        #lesson-module-content p {
-            font-size: 1.15em;
-            margin-bottom: 22px;
-            line-height: 1.7;
-            color: var(--text-secondary);
-        }
-
-        .code-block-container {
-            margin-bottom: 25px;
-            text-align: left;
-        }
-
-        /* Code blocks remain left-aligned */
-        .code-block-container pre {
-            background-color: #2d2d2d;
-            color: #f0f0f0;
-            padding: 18px;
-            border-radius: var(--duo-border-radius-sm);
-            font-family: var(--font-code);
-            font-size: 0.98em;
-            overflow-x: auto;
-            white-space: pre-wrap;
-        }
-
-        body.dark-mode .code-block-container pre {
-            background-color: #333;
-        }
-
-        /* Slightly lighter dark for code */
-        .code-block-container .explanation {
-            font-size: 0.95em;
-            color: var(--text-secondary);
-            margin-top: 10px;
-            padding: 10px 12px;
-            background-color: var(--bg-secondary);
-            border-radius: var(--duo-border-radius-sm);
-            border: 1px solid var(--border-color);
-        }
-
-        /* Quiz Styling (with theming and centering) */
-        .quiz-prompt {
-            font-size: 1.25em;
-            font-weight: 600;
-            margin-bottom: 30px;
-            text-align: center;
-            color: var(--text-primary);
-        }
-
-        .mcq-options {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            max-width: 450px;
-            margin: 0 auto;
-            /* Center options block */
-        }
-
-        .mcq-option {
-            padding: 16px 18px;
-            border: 2px solid var(--border-color);
-            border-bottom-width: 4px;
-            border-radius: var(--duo-border-radius);
-            cursor: pointer;
-            transition: border-color 0.15s, background-color 0.15s, transform 0.1s;
-            font-size: 1.05em;
-            background-color: var(--bg-secondary);
-            color: var(--text-primary);
-            position: relative;
-            text-align: left;
-            /* Options text left-aligned */
-        }
-
-        .mcq-option::after {
-            content: '';
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 24px;
-            height: 24px;
-            background-size: contain;
-            background-repeat: no-repeat;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        .mcq-option:hover {
-            border-color: var(--duo-gray-medium);
-            background-color: var(--bg-primary);
-        }
-
-        .mcq-option.selected {
-            border-color: var(--highlight-border);
-            background-color: var(--highlight-bg);
-            transform: translateY(-1px);
-        }
-
-        .mcq-option.user-selected.correct-answer {
-            border-color: var(--duo-green) !important;
-            background-color: #e6ffed !important;
-            color: var(--duo-green-dark) !important;
-        }
-
-        body.dark-mode .mcq-option.user-selected.correct-answer {
-            background-color: rgba(88, 204, 2, 0.2) !important;
-            color: #a5d6a7 !important;
-            border-color: var(--duo-green-dark) !important;
-        }
-
-        .mcq-option.user-selected.correct-answer::after {
-            background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2358CC02"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>');
-            opacity: 1;
-        }
-
-        .mcq-option.user-selected.incorrect-answer {
-            border-color: var(--duo-red) !important;
-            background-color: #ffebee !important;
-            color: var(--duo-red-dark) !important;
-        }
-
-        body.dark-mode .mcq-option.user-selected.incorrect-answer {
-            background-color: rgba(255, 75, 75, 0.2) !important;
-            color: #ef9a9a !important;
-            border-color: var(--duo-red-dark) !important;
-        }
-
-        .mcq-option.user-selected.incorrect-answer::after {
-            background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FF4B4B"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>');
-            opacity: 1;
-        }
-
-        .mcq-option.actual-correct-answer:not(.user-selected) {
-            border-color: var(--duo-green) !important;
-            background-color: #f0fff0 !important;
-        }
-
-        body.dark-mode .mcq-option.actual-correct-answer:not(.user-selected) {
-            background-color: rgba(88, 204, 2, 0.1) !important;
-            border-color: var(--duo-green-dark) !important;
-        }
-
-
-        .fill-blank-input {
-            width: 100%;
-            max-width: 450px;
-            padding: 16px;
-            font-size: 1.1em;
-            border: 2px solid var(--border-color);
-            border-bottom-width: 4px;
-            border-radius: var(--duo-border-radius);
-            text-align: center;
-            margin-bottom: 25px;
-            box-shadow: var(--duo-shadow-inset);
-            background-color: var(--bg-secondary);
-            color: var(--text-primary);
-        }
-
-        .fill-blank-input:focus {
-            border-color: var(--duo-blue);
-            outline: none;
-        }
-
-        .fill-blank-input.correct-answer {
-            border-color: var(--duo-green) !important;
-            background-color: #e6ffed !important;
-        }
-
-        body.dark-mode .fill-blank-input.correct-answer {
-            background-color: rgba(88, 204, 2, 0.2) !important;
-        }
-
-        .fill-blank-input.incorrect-answer {
-            border-color: var(--duo-red) !important;
-            background-color: #ffebee !important;
-        }
-
-        body.dark-mode .fill-blank-input.incorrect-answer {
-            background-color: rgba(255, 75, 75, 0.2) !important;
-        }
-
-        /* Footer and Action Button (with theming) */
-        #lesson-footer {
-            padding: 15px 20px;
-            border-top: 2px solid var(--border-color);
-            background-color: var(--bg-primary);
-            width: 100%;
-            position: sticky;
-            bottom: 0;
-            left: 0;
-            right: 0;
-        }
-
-        #feedback-bar {
-            padding: 15px 20px;
-            border-radius: var(--duo-border-radius) var(--duo-border-radius) 0 0;
-            margin: -15px -20px 15px -20px;
-            font-weight: 700;
-            font-size: 1.05em;
-            text-align: left;
-        }
-
-        #feedback-bar.hidden {
-            display: none;
-        }
-
-        #feedback-bar.correct {
-            background-color: var(--duo-green);
-            color: white;
-        }
-
-        #feedback-bar.incorrect {
-            background-color: var(--duo-red);
-            color: white;
-        }
-
-        #feedback-bar #feedback-correct-answer {
-            display: block;
-            font-size: 0.9em;
-            opacity: 0.9;
-            margin-top: 5px;
-        }
-
-        #action-btn {
-            display: block;
-            width: 100%;
-            max-width: 450px;
-            margin: 0 auto;
-            padding: 18px;
-            font-size: 1.15em;
-            font-weight: 700;
-            color: white;
-            border: none;
-            border-radius: var(--duo-border-radius);
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            background-color: var(--duo-green);
-            border-bottom: 4px solid var(--duo-green-dark);
-            transition: background-color 0.15s, transform 0.08s ease-out, border-bottom-color 0.15s;
-        }
-
-        #action-btn:hover:not(:disabled) {
-            background-color: var(--duo-green-hover);
-        }
-
-        #action-btn:active:not(:disabled) {
-            transform: translateY(2px);
-            border-bottom-width: 2px;
-        }
-
-        #action-btn.check {
-            background-color: var(--duo-blue);
-            border-bottom-color: var(--duo-blue-dark);
-        }
-
-        #action-btn.check:hover:not(:disabled) {
-            background-color: var(--duo-blue-hover);
-        }
-
-        #action-btn.danger {
-            background-color: var(--duo-red);
-            border-bottom-color: var(--duo-red-dark);
-        }
-
-        #action-btn.danger:hover:not(:disabled) {
-            background-color: var(--duo-red-hover);
-        }
-
-        #action-btn.disabled {
-            background-color: var(--duo-gray-medium);
-            color: #f0f0f0;
-            border-bottom-color: var(--duo-gray-dark);
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-
-        body.dark-mode #action-btn.disabled {
-            background-color: var(--duo-gray-dark);
-            color: var(--duo-gray-medium);
-            border-bottom-color: #222;
-        }
-
-        #action-btn.disabled:active {
-            transform: translateY(0);
-            border-bottom-width: 4px;
-        }
-
-        .lesson-completion-message {
-            text-align: center;
-            padding: 50px 20px;
-        }
-
-        .lesson-completion-message h3 {
-            font-size: 2.2em;
-            color: var(--duo-green);
-            margin-bottom: 15px;
-        }
-
-        .lesson-completion-message p {
-            font-size: 1.25em;
-            margin-bottom: 25px;
-            color: var(--text-secondary);
-        }
-
-        @media (max-width: 600px) {
-
-            /* Basic responsive, can be expanded */
-            #path-header h1 {
-                font-size: 1.4em;
-            }
-
-            /* etc. */
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Dot Animation</title>
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: #090922;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      /* 把它放到背景層 */
+      pointer-events: none;
+      /* 重要：不要吃掉滑鼠事件！ */
+    }
+
+
+    @media (max-aspect-ratio: 0.1) {
+      canvas {
+        width: 100%;
+        height: auto;
+      }
+    }
+
+    #c {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    body {
+      margin: 0;
+      background-color: #0D1321;
+      color: white;
+
+    }
+
+
+    .form-container {
+      
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+    }
+
+    select {
+      width: 60vw;
+      height: 60px;
+      font-size: 18px;
+      padding: 8px;
+      border-radius: 8px;
+      border: 3px solid #ffffff;
+      background-color: white;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      z-index: 1;
+    }
+
+    button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
+
+    button img {
+      width: 40px;
+      height: 40px;
+
+    }
+
+    nav {
+      position: fixed;
+      background-color: #1d08a800;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+    }
+
+    .main-content {
+      display: flex;
+      justify-content: center;
+      align-items: cente;
+      height: calc(100vh - 80px);
+      /* 扣掉 nav 的高度，讓 select 垂直置中 */
+
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+    }
+
+    .nav-left img {
+      height: 40px;
+      margin-right: 1rem;
+    }
+
+    .nav-left h1 {
+      font-size: 1.4rem;
+      margin: 0;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    .nav-links a {
+      margin-left: 2rem;
+      text-decoration: none;
+      color: #ddd;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: #58cc02;
+    }
+  </style>
 </head>
 
 <body>
-    <div id="app-container">
-        <button id="theme-toggle-btn">切換主題</button> <!-- Theme Toggle Button -->
-        <div id="path-view">
-            <header id="path-header">
-                <h1 id="course-main-title">網頁開發大冒險</h1>
-                <div id="user-stats">
-                    <span><span class="icon" id="streak-icon"></span><span id="streak-count">0</span></span>
-                    <span><span class="icon" id="xp-icon"></span><span id="xp-count">0</span></span>
-                </div>
-            </header>
-            <main id="path-main-content">
-                <!-- Units and Levels will be rendered by JS -->
-            </main>
-        </div>
-
-        <div id="lesson-view" class="hidden">
-            <header id="lesson-header">
-                <button id="close-lesson-btn" title="返回路徑">×</button>
-                <h2 id="lesson-title-header">課程標題</h2>
-            </header>
-            <main id="lesson-module-content">
-                <!-- Current module's content -->
-            </main>
-            <footer id="lesson-footer">
-                <div id="feedback-bar" class="hidden">
-                    <p id="feedback-text">這是反饋信息！</p>
-                    <span id="feedback-correct-answer" style="display:none;"></span>
-                </div>
-                <button id="action-btn" class="check">檢查</button>
-            </footer>
-        </div>
-    </div>
-
-    <script>
-        // --- ICONS ---
-        const ICONS = { /* ... (Your full ICONS object here, same as before) ... */
-            locked: `<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6z"></path></svg>`,
-            completed: `<svg viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>`,
-           star: `<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>`,
-            book: `<svg viewBox="0 0 24 24"><path fill="currentColor" d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"></path></svg>`,
-            code: `<svg viewBox="0 0 24 24"><path fill="currentColor" d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"></path></svg>`,
-            quiz: `<svg viewBox="0 0 24 24"><path fill="currentColor" d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8zM11 6h2v6h-2V6z"></path></svg>`,
-            trophy: `<svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-2.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zm-7 0h4v2h-4V5zM5 8V7h2v3.82C5.84 10.4 5 9.25 5 8zm14 0c0 1.25-.84 2.4-2 2.82V7h2v1z"></path></svg>`,
-            streak: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="20" viewBox="0 0 16 20" fill="none" webcrx=""><path d="M6.77271 0.532617C7.336 -0.177539 8.414 -0.177539 8.97729 0.532616L14.0623 6.94342C15.1193 8.23421 15.75 9.86374 15.75 11.6351C15.75 15.8233 12.2242 19.2185 7.875 19.2185C3.52576 19.2185 0 15.8233 0 11.6351C0 11.3414 0.0173457 11.0515 0.0511046 10.7664L0.0333507 4.37841C0.0307386 3.43858 0.542464 2.74527 1.41725 2.89269C1.59157 2.92207 1.9601 3.0331 2.12522 3.12149L3.94611 4.09617L6.77271 0.532617Z" fill="#FF9600"/><path d="M8.40677 8.24144C8.1299 7.86443 7.5667 7.86443 7.28982 8.24144L5.30202 10.9482C5.28343 10.9735 5.2689 11 5.25814 11.027C4.7842 11.5866 4.5 12.3011 4.5 13.0796C4.5 14.8745 6.01104 16.3296 7.875 16.3296C9.73896 16.3296 11.25 14.8745 11.25 13.0796C11.25 12.2008 10.8878 11.4035 10.2993 10.8185L8.40677 8.24144Z" fill="#FFC800"/></svg>`,
-            xp: `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="30" viewBox="0 0 22 30" fill="none" webcrx=""><path fill-rule="evenodd" clip-rule="evenodd" d="M14.0367 2.67272C13.8379 0.718003 11.3282 0.0455378 10.1787 1.63898L0.717665 14.7538C-0.157342 15.9667 0.452676 17.6801 1.89732 18.0672L7.2794 19.5093L8.07445 27.3273C8.27323 29.282 10.7829 29.9545 11.9324 28.361L21.3935 15.2462C22.2685 14.0333 21.6585 12.3199 20.2138 11.9328L14.8317 10.4907L14.0367 2.67272Z" fill="#FFD900"/><path d="M2.574 16.4882C2.08457 16.3561 2.03731 15.6803 2.50359 15.4813L6.24415 13.8853C6.58188 13.7412 6.96093 13.973 6.98654 14.3393L7.17226 16.9952C7.19787 17.3615 6.85477 17.6438 6.50027 17.5481L2.574 16.4882Z" fill="#F7C100"/><path d="M19.717 13.2505C20.2064 13.3826 20.2537 14.0584 19.7874 14.2573L16.0469 15.8533C15.7091 15.9974 15.3301 15.7656 15.3045 15.3993L15.1188 12.7435C15.0931 12.3772 15.4362 12.0949 15.7907 12.1906L19.717 13.2505Z" fill="#FFEF8F"/></svg>`,
-        };
-
-        // --- State & Elements (Removed review-related variables) ---
-        let userProgress = { completedLevels: [], currentXp: 0, streak: 0 };
-        let currentOpenLevel = null;
-        let currentModuleIndex = 0;
-        let selectedMCQOption = null;
-
-        const pathViewEl = document.getElementById('path-view');
-        const pathMainContentEl = document.getElementById('path-main-content');
-        const courseTitleEl = document.getElementById('course-main-title');
-        const streakIconEl = document.getElementById('streak-icon');
-        const xpIconEl = document.getElementById('xp-icon');
-        const streakCountEl = document.getElementById('streak-count');
-        const xpCountEl = document.getElementById('xp-count');
-        const lessonViewEl = document.getElementById('lesson-view');
-        const lessonTitleHeaderEl = document.getElementById('lesson-title-header');
-        const lessonModuleContentEl = document.getElementById('lesson-module-content');
-        const feedbackBarEl = document.getElementById('feedback-bar');
-        const feedbackTextEl = document.getElementById('feedback-text');
-        const feedbackCorrectAnswerEl = document.getElementById('feedback-correct-answer');
-        const actionBtnEl = document.getElementById('action-btn');
-        const closeLessonBtnEl = document.getElementById('close-lesson-btn');
-        const themeToggleBtnEl = document.getElementById('theme-toggle-btn');
 
 
-        // --- Utility Functions ---
-        function escapeHtml(unsafe) {
-            if (typeof unsafe !== 'string') return ''; return unsafe.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">").replace(/"/g, "&quot;").replace(/'/g, "'");
+  <canvas id="c"></canvas>
+
+  <header>
+    <nav>
+      <div class="nav-left">
+        <img src="image/logo2.svg" alt="Logo">
+        <h1>VS code</h1>
+      </div>
+      <div class="nav-links">
+        <a href="about.html">自我介紹</a>
+        <a href="notes.html">學習筆記</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="main-content">
+
+
+    <form class="form-container" onsubmit="return goToGamePage();">
+
+      <select name="games" id="games">
+        <option value="作業一" selected >作業一</option>
+        <option value="作業二">作業二</option>
+        <option value="作業三">作業三</option>
+        <option value="game001" >選擇題</option>
+        <option value="game002">文意選填</option>
+        <option value="game003">卡牌配對</option>
+        <option value="game004">核取方塊</option>
+        <option value="game005">彩帶動畫</option>
+        <option value="game006">leaflet</option>
+        <option value="game007">星空動畫</option>
+        <option value="game008">總測驗</option>
+        <option value="game009">game009</option>
+        <option value="LED">LED</option>
+        <option value="animate">animate</option>
+        <option value="hand_game">hand_game</option>
+
+      </select>
+
+      <button onclick="goToGamePage()">
+        <img src="https://d35aaqx5ub95lt.cloudfront.net/images/path/icons/e013fd27fc6bd1d2fea85fe707b615cd.svg"
+          alt="Submit" style="transform: rotate(180deg);">
+      </button>
+    </form>
+  </main>
+
+
+
+  <script>
+    function goToGamePage() {
+      const select = document.getElementById("games");
+      const value = select.value;
+      window.location.href = `${value}.html`;
+      return false; // 阻止真正的表單提交
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const form = document.querySelector(".form-container");
+      form.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+          event.preventDefault(); // 避免預設提交行為
+          goToGamePage(); // 呼叫你的送出函式
         }
+      });
+    });
+  </script>
 
-        function loadProgress() {
-            const saved = localStorage.getItem('duoWebDevAdventureProgress_v5_themed'); // New key
-            if (saved) {
-                try {
-                    const parsedProgress = JSON.parse(saved);
-                    userProgress = {
-                        completedLevels: parsedProgress.completedLevels || [],
-                        currentXp: parsedProgress.currentXp || 0,
-                        streak: parsedProgress.streak || 0,
-                    };
-                } catch (e) {
-                    console.error("Error parsing saved progress:", e);
-                    userProgress = { completedLevels: [], currentXp: 0, streak: 0 };
-                }
-            }
-            // Load theme preference
-            const savedTheme = localStorage.getItem('duoWebDevTheme');
-            if (savedTheme === 'dark') {
-                document.body.classList.add('dark-mode');
-                themeToggleBtnEl.textContent = '淺色主題';
-            } else {
-                document.body.classList.remove('dark-mode');
-                themeToggleBtnEl.textContent = '深色主題';
-            }
-            updateStatsDisplay();
-        }
-        function saveProgress() {
-            localStorage.setItem('duoWebDevAdventureProgress_v5_themed', JSON.stringify(userProgress));
-            updateStatsDisplay();
-        }
-        function updateStatsDisplay() {
-            streakCountEl.textContent = userProgress.streak;
-            xpCountEl.textContent = userProgress.currentXp;
-            if (typeof courseJourney !== 'undefined' && courseJourney.title) courseTitleEl.textContent = courseJourney.title;
-            streakIconEl.innerHTML = ICONS.streak;
-            xpIconEl.innerHTML = ICONS.xp;
-        }
 
-        // --- Path Rendering ---
-        function renderPath() { /* ... (Same as your last working version) ... */ pathMainContentEl.innerHTML = ''; let isNextLevelCandidateForCurrent = true; courseJourney.units.forEach(unit => { const unitSectionEl = document.createElement('div'); unitSectionEl.className = 'unit-section'; const unitHeaderEl = document.createElement('div'); unitHeaderEl.className = 'unit-header'; if (unit.themeColor) unitHeaderEl.style.backgroundColor = unit.themeColor; unitHeaderEl.innerHTML = `<h2>${escapeHtml(unit.title)}</h2><p>${escapeHtml(unit.description)}</p>`; unitSectionEl.appendChild(unitHeaderEl); const levelsContainerEl = document.createElement('div'); levelsContainerEl.className = 'unit-levels-container'; unit.levels.forEach(level => { const levelWrapper = document.createElement('div'); levelWrapper.className = 'level-node-wrapper'; if (level.isCheckpoint) levelWrapper.classList.add('checkpoint-connector'); const nodeEl = document.createElement('div'); nodeEl.className = 'level-node'; if (level.isCheckpoint) nodeEl.classList.add('is-checkpoint'); let status; if (userProgress.completedLevels.includes(level.id)) { status = 'completed'; } else if (isNextLevelCandidateForCurrent) { status = 'current'; isNextLevelCandidateForCurrent = false; } else { status = 'locked'; } nodeEl.classList.add(`status-${status}`); let iconKey; if (status === 'locked') { iconKey = 'locked'; } else if (status === 'completed') { iconKey = level.isCheckpoint ? level.iconType : 'completed'; } else { iconKey = level.iconType; } nodeEl.innerHTML = ICONS[iconKey] || ICONS.quiz; if (status !== 'locked') { nodeEl.onclick = () => startLesson(unit.id, level.id); } const titleEl = document.createElement('div'); titleEl.className = 'level-title'; titleEl.textContent = escapeHtml(level.title); levelWrapper.appendChild(nodeEl); levelWrapper.appendChild(titleEl); levelsContainerEl.appendChild(levelWrapper); }); unitSectionEl.appendChild(levelsContainerEl); pathMainContentEl.appendChild(unitSectionEl); }); }
 
-        // --- Lesson Logic (Main changes in checkAnswer) ---
-        function startLesson(unitId, levelId) { const unit = courseJourney.units.find(u => u.id === unitId); if (!unit) return; const level = unit.levels.find(l => l.id === levelId); if (!level || !level.modules || level.modules.length === 0) return; currentOpenLevel = { unitId, levelId, levelData: level }; currentModuleIndex = 0; selectedMCQOption = null; lessonTitleHeaderEl.textContent = escapeHtml(level.title); pathViewEl.classList.add('hidden'); lessonViewEl.classList.remove('hidden'); actionBtnEl.classList.remove('disabled'); actionBtnEl.disabled = false; feedbackCorrectAnswerEl.style.display = 'none'; renderCurrentModule(); }
 
-        function renderCurrentModule() { const level = currentOpenLevel.levelData; const moduleConfig = level.modules[currentModuleIndex]; lessonModuleContentEl.innerHTML = ''; feedbackBarEl.classList.add('hidden'); feedbackCorrectAnswerEl.style.display = 'none'; actionBtnEl.classList.remove('check', 'danger', 'disabled'); actionBtnEl.textContent = '繼續'; actionBtnEl.disabled = false; if (!moduleConfig) { displayLessonCompletion(); return; } renderModuleInternal(moduleConfig); }
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <!-- 修正的 NoiseJS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/noisejs@2.1.0/index.min.js"></script>
 
-        function renderModuleInternal(moduleConfig) { if (moduleConfig.type === 'info') { lessonModuleContentEl.innerHTML = `<p>${escapeHtml(moduleConfig.content)}</p>`; actionBtnEl.onclick = advanceModule; } else if (moduleConfig.type === 'code_example') { let html = `<div class="code-block-container">`; if (moduleConfig.content) html += `<p>${escapeHtml(moduleConfig.content)}</p>`; html += `<pre><code>${escapeHtml(moduleConfig.code)}</code></pre>`; if (moduleConfig.explanation) html += `<p class="explanation">${escapeHtml(moduleConfig.explanation)}</p>`; html += `</div>`; lessonModuleContentEl.innerHTML = html; actionBtnEl.onclick = advanceModule; } else if (moduleConfig.type === 'quiz') { renderQuizModule(moduleConfig.config); } }
+  <script>
+    console.clear();
 
-        function renderQuizModule(quizConfig) { let quizHtml = `<p class="quiz-prompt">${escapeHtml(quizConfig.question)}</p>`; if (quizConfig.questionType === 'mcq') { quizHtml += `<div class="mcq-options">`; quizConfig.options.forEach(optText => { quizHtml += `<div class="mcq-option" data-value="${escapeHtml(optText)}">${escapeHtml(optText)}</div>`; }); quizHtml += `</div>`; actionBtnEl.classList.add('disabled'); actionBtnEl.disabled = true; } else if (quizConfig.questionType === 'fill_blank') { quizHtml += `<input type="text" class="fill-blank-input" placeholder="請輸入答案...">`; actionBtnEl.disabled = false; actionBtnEl.classList.remove('disabled'); } lessonModuleContentEl.innerHTML = quizHtml; actionBtnEl.classList.add('check'); actionBtnEl.textContent = '檢查'; actionBtnEl.onclick = checkAnswer; if (quizConfig.questionType === 'mcq') { document.querySelectorAll('.mcq-option').forEach(optEl => { optEl.onclick = (e) => { document.querySelectorAll('.mcq-option.selected').forEach(s => s.classList.remove('selected')); e.currentTarget.classList.add('selected'); selectedMCQOption = e.currentTarget.dataset.value; actionBtnEl.classList.remove('disabled'); actionBtnEl.disabled = false; feedbackBarEl.classList.add('hidden'); feedbackCorrectAnswerEl.style.display = 'none'; document.querySelectorAll('.mcq-option').forEach(opt => opt.classList.remove('user-selected', 'correct-answer', 'incorrect-answer', 'actual-correct-answer')); }; }); } else if (quizConfig.questionType === 'fill_blank') { const inputEl = lessonModuleContentEl.querySelector('.fill-blank-input'); inputEl.oninput = () => { if (inputEl.value.trim() !== '') { actionBtnEl.classList.remove('disabled'); actionBtnEl.disabled = false; } feedbackBarEl.classList.add('hidden'); feedbackCorrectAnswerEl.style.display = 'none'; inputEl.classList.remove('correct-answer', 'incorrect-answer'); }; } }
+    const noiseInstance = new window.Noise(Math.random()); // 手動創建 Noise 實例
+    const dots = [];
+    const c = document.querySelector('#c');
+    const ctx = c.getContext('2d');
+    const cw = ch = 1200;
+    c.width = c.height = cw;
 
-        function checkAnswer() {
-            const quizConfig = currentOpenLevel.levelData.modules[currentModuleIndex].config;
-            let userAnswer;
-            let isCorrect = false;
-
-            document.querySelectorAll('.mcq-option').forEach(el => el.classList.remove('correct-highlight', 'incorrect-highlight', 'actual-correct-answer', 'user-selected')); // Keep .selected
-            document.querySelectorAll('.fill-blank-input').forEach(el => el.classList.remove('correct-answer', 'incorrect-answer'));
-
-            actionBtnEl.disabled = false;
-            actionBtnEl.classList.remove('disabled', 'check', 'danger');
-
-            if (quizConfig.questionType === 'mcq') {
-                if (!selectedMCQOption) {
-                    feedbackBarEl.classList.remove('hidden', 'correct');
-                    feedbackBarEl.classList.add('incorrect');
-                    feedbackTextEl.textContent = "請選擇一個答案！";
-                    feedbackCorrectAnswerEl.style.display = 'none';
-                    actionBtnEl.classList.add('check');
-                    actionBtnEl.textContent = '檢查';
-                    actionBtnEl.classList.add('disabled');
-                    actionBtnEl.disabled = true;
-                    return;
-                }
-                userAnswer = selectedMCQOption; // This is already escaped as it came from data-value
-                isCorrect = userAnswer === quizConfig.answer; // Direct comparison as data.js answer is also escaped
-            } else if (quizConfig.questionType === 'fill_blank') {
-                const inputEl = lessonModuleContentEl.querySelector('.fill-blank-input');
-                userAnswer = inputEl.value.trim();
-                if (userAnswer === '') {
-                    feedbackBarEl.classList.remove('hidden', 'correct');
-                    feedbackBarEl.classList.add('incorrect');
-                    feedbackTextEl.textContent = "請輸入答案！";
-                    feedbackCorrectAnswerEl.style.display = 'none';
-                    actionBtnEl.classList.add('check');
-                    actionBtnEl.textContent = '檢查';
-                    return;
-                }
-                isCorrect = userAnswer.toLowerCase() === quizConfig.answer.toLowerCase(); // Case-insensitive for fill_blank
-            }
-
-            feedbackBarEl.classList.remove('hidden', 'correct', 'incorrect');
-            feedbackCorrectAnswerEl.style.display = 'none';
-
-            if (isCorrect) {
-                feedbackTextEl.textContent = quizConfig.correctMessage || "正確！";
-                feedbackBarEl.classList.add('correct');
-                actionBtnEl.textContent = '繼續';
-                actionBtnEl.onclick = advanceModule;
-                highlightQuizInputs(quizConfig, userAnswer, isCorrect, true);
-            } else { // Incorrect - Retry current question
-                feedbackTextEl.textContent = quizConfig.incorrectMessage || "不太對喔...";
-                feedbackBarEl.classList.add('incorrect');
-                actionBtnEl.textContent = '再試一次';
-                actionBtnEl.classList.add('danger');
-                actionBtnEl.onclick = () => {
-                    feedbackBarEl.classList.add('hidden');
-                    feedbackCorrectAnswerEl.style.display = 'none';
-                    actionBtnEl.classList.remove('danger');
-                    actionBtnEl.classList.add('check');
-                    actionBtnEl.textContent = '檢查';
-                    actionBtnEl.onclick = checkAnswer;
-
-                    if (quizConfig.questionType === 'mcq') {
-                        document.querySelectorAll('.mcq-option.selected').forEach(s => s.classList.remove('selected'));
-                        document.querySelectorAll('.mcq-option').forEach(opt => {
-                            opt.classList.remove('user-selected', 'correct-answer', 'incorrect-answer', 'actual-correct-answer');
-                            opt.onclick = (e) => {
-                                document.querySelectorAll('.mcq-option.selected').forEach(s => s.classList.remove('selected'));
-                                e.currentTarget.classList.add('selected');
-                                selectedMCQOption = e.currentTarget.dataset.value;
-                                actionBtnEl.classList.remove('disabled');
-                                actionBtnEl.disabled = false;
-                                feedbackBarEl.classList.add('hidden');
-                                feedbackCorrectAnswerEl.style.display = 'none';
-                                document.querySelectorAll('.mcq-option').forEach(o => o.classList.remove('user-selected', 'correct-answer', 'incorrect-answer', 'actual-correct-answer'));
-                            };
-                        });
-                        selectedMCQOption = null;
-                        actionBtnEl.classList.add('disabled');
-                        actionBtnEl.disabled = true;
-                    } else if (quizConfig.questionType === 'fill_blank') {
-                        const inputEl = lessonModuleContentEl.querySelector('.fill-blank-input');
-                        inputEl.value = "";
-                        inputEl.disabled = false;
-                        inputEl.focus();
-                        inputEl.classList.remove('correct-answer', 'incorrect-answer');
-                        actionBtnEl.classList.remove('disabled');
-                        actionBtnEl.disabled = false;
-                    }
-                };
-                feedbackCorrectAnswerEl.innerHTML = `正確答案是：<strong>"${quizConfig.answer}"</strong>`; // No need to escape here if answer from data.js is already escaped.
-                feedbackCorrectAnswerEl.style.display = 'block';
-                highlightQuizInputs(quizConfig, userAnswer, isCorrect, false);
-            }
-        }
-
-        function highlightQuizInputs(quizConfig, userAnswer, isCorrect, isFinalAttemptOrCorrect) { /* ... (Same as your last working version, or the one provided before) ... */ if (quizConfig.questionType === 'mcq') { const options = document.querySelectorAll('.mcq-option'); options.forEach(opt => { if (isFinalAttemptOrCorrect) { opt.onclick = null; opt.style.cursor = 'default'; } const optValue = opt.dataset.value; if (optValue === userAnswer) { opt.classList.add('user-selected'); opt.classList.add(isCorrect ? 'correct-answer' : 'incorrect-answer'); } if (!isCorrect && optValue === quizConfig.answer && optValue !== userAnswer) { opt.classList.add('actual-correct-answer'); } }); } else if (quizConfig.questionType === 'fill_blank') { const inputEl = lessonModuleContentEl.querySelector('.fill-blank-input'); if (isFinalAttemptOrCorrect) { inputEl.disabled = true; } inputEl.classList.add(isCorrect ? 'correct-answer' : 'incorrect-answer'); } }
-        function advanceModule() { currentModuleIndex++; selectedMCQOption = null; if (currentModuleIndex < currentOpenLevel.levelData.modules.length) { renderCurrentModule(); } else { displayLessonCompletion(); } }
-        function displayLessonCompletion() { const isCheckpoint = currentOpenLevel.levelData.isCheckpoint; lessonModuleContentEl.innerHTML = `<div class="lesson-completion-message"><h3>${isCheckpoint ? '檢定完成！' : '關卡完成！'}</h3><p>獲得 ${currentOpenLevel.levelData.xp || 0} XP ✨</p></div>`; actionBtnEl.textContent = "太棒了！返回路徑"; actionBtnEl.classList.remove('check', 'danger', 'disabled'); actionBtnEl.disabled = false; actionBtnEl.onclick = () => completeAndExitLesson(); feedbackBarEl.classList.add('hidden'); feedbackCorrectAnswerEl.style.display = 'none'; }
-        function completeAndExitLesson() { const levelId = currentOpenLevel.levelId; const levelData = currentOpenLevel.levelData; if (!userProgress.completedLevels.includes(levelId)) { userProgress.completedLevels.push(levelId); userProgress.currentXp += (levelData.xp || 0); userProgress.streak++; } saveProgress(); exitLessonView(); }
-        function exitLessonView() { lessonViewEl.classList.add('hidden'); pathViewEl.classList.remove('hidden'); currentOpenLevel = null; renderPath(); }
-
-        // Theme Toggle Logic
-        themeToggleBtnEl.addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-            if (document.body.classList.contains('dark-mode')) {
-                localStorage.setItem('duoWebDevTheme', 'dark');
-                themeToggleBtnEl.textContent = '淺色主題';
-            } else {
-                localStorage.setItem('duoWebDevTheme', 'light');
-                themeToggleBtnEl.textContent = '深色主題';
-            }
+    for (let x = 0; x < cw; x += 12) {
+      for (let y = 0; y < ch; y += 12) {
+        dots.push({
+          r: gsap.utils.clamp(.5, 10, noiseInstance.perlin2(x / 200, y / 200) * 10),
+          x: x + 5,
+          y: y + 5,
+          h: gsap.utils.random(300, 400, 1),
+          a: 1
         });
+      }
+    }
 
-        // --- Event Listeners ---
-        closeLessonBtnEl.onclick = exitLessonView;
+    const tl = gsap.timeline({ onUpdate: render }).to(dots, {
+      duration: 5,
+      h: () => gsap.utils.random(180, 240, 1),
+      r: 0.5,
+      ease: 'power3',
+      yoyoEase: 'power2.inOut',
+      stagger: {
+        amount: 4,
+        from: 'center',
+        grid: [100, 100],
+        yoyo: File,
+        repeat: -1,
+        repeatRefresh: true
+      }
+    }).seek(999);
 
-        // --- Initialization ---
-        if (typeof courseJourney === 'undefined' || !courseJourney.units || courseJourney.units.length === 0) {
-            console.error("Main script: courseJourney is undefined or empty. Check data.js loading and content.");
-            const pathMainContentElGlobal = document.getElementById('path-main-content');
-            if (pathMainContentElGlobal) { pathMainContentElGlobal.innerHTML = "<p style='text-align:center; padding:30px; font-size:1.2em;'>哎呀，課程內容似乎還沒準備好！ (檢查 console)</p>"; }
-            else { alert("Fatal Error: Path container not found AND courseJourney data is missing."); }
-        } else {
-            console.log("Main script: courseJourney is defined and accessible!");
-            loadProgress(); // Load progress includes loading theme
-            renderPath();
-        }
-    </script>
+    gsap.to(window, {
+      duration: 0,
+      repeat: -1,
+      onRepeat: () => {
+        noiseInstance.seed(Math.random());
+        dots.forEach(d => {
+          d.r = gsap.utils.clamp(.5, 20, noiseInstance.perlin2(d.x / 200, d.y / 200) * 10);
+          d.h = gsap.utils.random(300, 400, 1);
+        });
+        tl.invalidate();
+        gsap.to(tl, { timeScale: gsap.utils.random(1, 4), ease: 'sine.inOut' });
+      }
+    });
+
+    function drawDot(d) {
+      ctx.fillStyle = `hsla(${d.h}, 100%, 50%, ${d.a})`;
+      ctx.beginPath();
+      ctx.arc(d.x + d.r, d.y - d.r, d.r, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, cw, ch);
+      dots.forEach(d => drawDot(d));
+    }
+  </script>
 </body>
 
 </html>
