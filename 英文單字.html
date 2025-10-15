@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英文拼字練習</title>
+    <style>
+        :root {
+            --primary-color: #52c9f7;
+            --success-color: #96e072;
+            --fail-color: #f76e6e;
+            --hint-color: #f7b76e;
+            --dark-bg: #252a2e;
+            --medium-bg: #3c444a;
+            --light-text: #FAFAFA;
+            --dark-text: #252a2e;
+            --border-color: #707b81;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--dark-bg);
+            margin: 0;
+            padding: 20px;
+            color: var(--light-text);
+        }
+
+        /* --- 遊戲主容器 --- */
+        #main-container {
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        #setup-game-btn {
+            font-size: 22px;
+            font-weight: bold;
+            padding: 16px 32px;
+            border-radius: 10px;
+            border: none;
+            background-color: var(--primary-color);
+            color: var(--dark-text);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        #setup-game-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* --- 拼字遊戲介面 --- */
+        #spelling-game-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2em;
+        }
+
+        #prompt-card {
+            background-color: var(--medium-bg);
+            border-radius: 15px;
+            padding: 40px 20px;
+            font-size: 3em;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        #answer-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        #answer-input {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.8em;
+            text-align: center;
+            border: 2px solid var(--border-color);
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+            border-radius: 10px;
+            outline: none;
+            /* 移除預設的藍色外框 */
+            transition: all 0.3s ease;
+        }
+
+        #answer-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(82, 201, 247, 0.5);
+        }
+
+        /* 答題回饋動畫 */
+        #answer-input.correct {
+            border-color: var(--success-color);
+            animation: pulse 0.5s ease;
+        }
+
+        #answer-input.incorrect {
+            border-color: var(--fail-color);
+            animation: shake 0.4s ease;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-buttons button {
+            flex: 1;
+            padding: 12px;
+            font-size: 1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #submit-btn {
+            background-color: var(--primary-color);
+            color: var(--dark-text);
+            font-weight: bold;
+        }
+
+        #give-up-btn {
+            background-color: var(--hint-color);
+            color: var(--dark-text);
+        }
+
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25%,
+            75% {
+                transform: translateX(-8px);
+            }
+
+            50% {
+                transform: translateX(8px);
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.03);
+            }
+        }
+
+        /* --- 彈出視窗 (Modal) --- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.visible {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--medium-bg);
+            padding: 25px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 700px;
+            animation: slide-down 0.3s ease-out;
+        }
+
+        @keyframes slide-down {
+            from {
+                transform: translateY(-30px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+        }
+
+        .dual-textarea {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .modal-content textarea {
+            flex: 1;
+            height: 300px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+            font-size: 16px;
+            padding: 10px;
+            resize: vertical;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .modal-buttons button {
+            font-size: 18px;
+            font-weight: bold;
+            padding: 12px 25px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .modal-button-primary {
+            background-color: var(--primary-color);
+            color: var(--dark-text);
+        }
+
+        .modal-button-secondary {
+            background-color: var(--border-color);
+            color: var(--light-text);
+        }
+
+        #game-over-content {
+            text-align: center;
+        }
+
+        #game-over-content h2 {
+            font-size: 2.5em;
+            color: var(--success-color);
+        }
+
+        #game-stats {
+            font-size: 1.2em;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        /* 通知 */
+        #notification {
+            position: fixed;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--fail-color);
+            color: var(--light-text);
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: top 0.4s ease-in-out;
+            z-index: 2000;
+        }
+
+        #notification.show {
+            top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 音效元素 -->
+    <audio id="success-sound"
+        src="data:audio/wav;base64,UklGRlVvT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YVFrU3x+f35+fn9/f3x8e3t6e3x8fX5+fn9/f39+fn17eXt4d3VzcnFwbm1saWZlZWNkYmFgX15dXFpZWVhXV1NRSUNDQD89Ojk4NzY1NDMyMTAvLi0rKCcmJSQjIiEgHh0cHBvbW5ram5qbWtrbGxra2xra2xsbWxscHBwb29vb3BwcG9vb29wcHBwcHBwcHBwcHBwcHBvbW5ram5qbWtrbGxra2xra2xsbWxscHBwb29vb3BwcG9vb29wcHBwcHBwcHBwcHBwcHBvb29vb3BwcHBvb29wcG9wcHBwcG9vb29wcHBwcHBwcHBwcHBwcHBwcHBvb29vb3BwcHBvb29wcHBwcHBwcHBwcHBwcHBwcG9vb3BwcHBwcG9wcHBwcHBwcG9wcHBwcHBvb29wcHBwcHBwcHBwcG9wcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBacHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHB-"></audio>
+    <audio id="fail-sound"
+        src="data:audio/wav;base64,UklGRqJvT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YWSFb1R1bmtrZmZkYmJhYF9eXV1dXFpZWVhXV1RUU1JSVFVWV1hZWltdXV5fYGBiY2RlZmdoaWpra2xub3Bxc3V2d3l6e3x9fn+AgYKDhIWEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tbW3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜ¢£¥PƒáíóúñÑªº¿⌐¬½¼¡«»¦¦¦ÁÂÀ©¦¦++Á+¦+¦+¦-¦-ÁÀÁ+¦++¦-++-ÁÂÀ©¦¦+ÁÂÀ+¦+Á-+-ÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"></audio>
+
+    <div id="notification"></div>
+    <div id="main-container">
+        <button id="setup-game-btn">設定單字並開始練習</button>
+
+        <div id="spelling-game-container" class="hidden">
+            <div class="game-header">
+                <div id="game-progress">0 / 0</div>
+                <div id="timer">00:00</div>
+            </div>
+
+            <div id="prompt-card">中文</div>
+
+            <form id="answer-form">
+                <input type="text" id="answer-input" placeholder="在這裡輸入英文" autocomplete="off" autocorrect="off"
+                    autocapitalize="off" spellcheck="false">
+                <div class="action-buttons">
+                    <button type="button" id="give-up-btn">放棄看答案</button>
+                    <button type="submit" id="submit-btn">送出 (Enter)</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modals (Settings & Game Over) -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <h2>自訂單字</h2>
+            <div class="dual-textarea">
+                <textarea id="english-input" placeholder="English words..."></textarea>
+                <textarea id="chinese-input" placeholder="中文翻譯..."></textarea>
+            </div>
+            <div class="modal-buttons">
+                <button id="start-game-btn" class="modal-button-primary">開始練習</button>
+            </div>
+        </div>
+    </div>
+    <div id="game-over-modal" class="modal">
+        <div id="game-over-content" class="modal-content">
+            <h2>練習完成！</h2>
+            <div id="game-stats"></div>
+            <div class="modal-buttons">
+                <button id="play-again-btn" class="modal-button-primary">再練一次</button>
+                <button id="new-words-btn" class="modal-button-secondary">更換單字</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // --- DOM Elements ---
+            const elements = {
+                mainContainer: document.getElementById('main-container'),
+                setupGameBtn: document.getElementById('setup-game-btn'),
+                gameContainer: document.getElementById('spelling-game-container'),
+                progressDisplay: document.getElementById('game-progress'),
+                timerDisplay: document.getElementById('timer'),
+                promptCard: document.getElementById('prompt-card'),
+                answerForm: document.getElementById('answer-form'),
+                answerInput: document.getElementById('answer-input'),
+                giveUpBtn: document.getElementById('give-up-btn'),
+                settingsModal: document.getElementById('settings-modal'),
+                gameOverModal: document.getElementById('game-over-modal'),
+                startGameBtn: document.getElementById('start-game-btn'),
+                playAgainBtn: document.getElementById('play-again-btn'),
+                newWordsBtn: document.getElementById('new-words-btn'),
+                englishInput: document.getElementById('english-input'),
+                chineseInput: document.getElementById('chinese-input'),
+                gameStats: document.getElementById('game-stats'),
+                notification: document.getElementById('notification'),
+            };
+
+            const sounds = {
+                success: document.getElementById('success-sound'),
+                fail: document.getElementById('fail-sound')
+            };
+
+            // --- Game State ---
+            let state = {
+                words: [],
+                currentIndex: 0,
+                correctCount: 0,
+                incorrectCount: 0,
+                seconds: 0,
+                timerInterval: null
+            };
+
+            // --- Utility Functions ---
+            const playSound = (sound) => { sound.currentTime = 0; sound.play(); };
+            const showNotification = (message) => {
+                elements.notification.textContent = message;
+                elements.notification.classList.add('show');
+                setTimeout(() => elements.notification.classList.remove('show'), 3000);
+            };
+            const formatTime = (s) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
+            const shuffle = (arr) => arr.sort(() => Math.random() - 0.5);
+
+            // --- Modal Logic ---
+            const openModal = (modal) => modal.classList.add('visible');
+            const closeModal = (modal) => modal.classList.remove('visible');
+
+            // --- Game Core Logic ---
+            const displayCurrentWord = () => {
+                if (state.currentIndex >= state.words.length) {
+                    endGame();
+                    return;
+                }
+                const currentPair = state.words[state.currentIndex];
+                elements.promptCard.textContent = currentPair.chinese;
+                elements.progressDisplay.textContent = `${state.currentIndex + 1} / ${state.words.length}`;
+                elements.answerInput.value = '';
+                elements.answerInput.focus();
+                elements.answerInput.classList.remove('correct', 'incorrect');
+            };
+
+            const checkAnswer = () => {
+                const userAnswer = elements.answerInput.value.trim().toLowerCase();
+                const correctAnswer = state.words[state.currentIndex].english.trim().toLowerCase();
+
+                if (!userAnswer) return;
+
+                if (userAnswer === correctAnswer) {
+                    playSound(sounds.success);
+                    elements.answerInput.classList.add('correct');
+                    state.correctCount++;
+                    state.currentIndex++;
+                    setTimeout(displayCurrentWord, 400); // Wait for animation
+                } else {
+                    playSound(sounds.fail);
+                    elements.answerInput.classList.add('incorrect');
+                    state.incorrectCount++;
+                    setTimeout(() => {
+                        elements.answerInput.classList.remove('incorrect');
+                        elements.answerInput.value = ''; // Clear for retry
+                    }, 600);
+                }
+            };
+
+            const giveUp = () => {
+                const correctAnswer = state.words[state.currentIndex].english;
+                elements.answerInput.value = correctAnswer;
+                elements.answerInput.classList.add('incorrect'); // Mark as incorrect
+                state.incorrectCount++;
+                state.currentIndex++;
+                setTimeout(displayCurrentWord, 1200); // Give user time to see the answer
+            }
+
+            const startGame = () => {
+                const englishLines = elements.englishInput.value.trim().split('\n').filter(Boolean);
+                const chineseLines = elements.chineseInput.value.trim().split('\n').filter(Boolean);
+
+                if (!englishLines.length || englishLines.length !== chineseLines.length) {
+                    showNotification("錯誤：請檢查單字列表，確保左右數量一致且不為空！"); return;
+                }
+
+                state.words = shuffle(englishLines.map((eng, i) => ({ english: eng, chinese: chineseLines[i] })));
+
+                resetGame();
+
+                closeModal(elements.settingsModal);
+                elements.setupGameBtn.classList.add('hidden');
+                elements.gameContainer.classList.remove('hidden');
+
+                displayCurrentWord();
+
+                state.timerInterval = setInterval(() => {
+                    state.seconds++;
+                    elements.timerDisplay.textContent = formatTime(state.seconds);
+                }, 1000);
+            };
+
+            const resetGame = () => {
+                state.currentIndex = 0;
+                state.correctCount = 0;
+                state.incorrectCount = 0;
+                state.seconds = 0;
+                clearInterval(state.timerInterval);
+                elements.timerDisplay.textContent = "00:00";
+            };
+
+            const endGame = () => {
+                clearInterval(state.timerInterval);
+                const totalAttempts = state.correctCount + state.incorrectCount;
+                const accuracy = totalAttempts > 0 ? (state.correctCount / totalAttempts * 100).toFixed(1) : 0;
+                elements.gameStats.innerHTML = `
+                    時間: ${formatTime(state.seconds)}<br>
+                    總題數: ${state.words.length}<br>
+                    答對: ${state.correctCount} | 答錯: ${state.incorrectCount}<br>
+                    準確率: ${accuracy}%
+                `;
+                openModal(elements.gameOverModal);
+            };
+
+            // --- Event Listeners ---
+            elements.setupGameBtn.addEventListener('click', () => openModal(elements.settingsModal));
+            elements.startGameBtn.addEventListener('click', startGame);
+            elements.answerForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                checkAnswer();
+            });
+            elements.giveUpBtn.addEventListener('click', giveUp);
+            elements.playAgainBtn.addEventListener('click', () => {
+                closeModal(elements.gameOverModal);
+                resetGame();
+                state.words = shuffle(state.words);
+                displayCurrentWord();
+                state.timerInterval = setInterval(() => {
+                    state.seconds++;
+                    elements.timerDisplay.textContent = formatTime(state.seconds);
+                }, 1000);
+            });
+            elements.newWordsBtn.addEventListener('click', () => {
+                closeModal(elements.gameOverModal);
+                elements.gameContainer.classList.add('hidden');
+                elements.setupGameBtn.classList.remove('hidden');
+            });
+
+            // Pre-fill some data for convenience
+            elements.englishInput.value = "adapt\ncease\ncliche\nconsciously\ndeceptive\ndeviate\nfunction\nimage\nintelligent\ninstinctively\njudgment\npsychologist\nsubsequently\nself-preservation\nshame\nachievement\ndefinitive\nexcessive\nfall prey to\ninconceivable\nindividuality\ninsight\nintegrity\nliberate\nmindlessly\nnonetheless\nnorm\nriot\nsincerely\nsurvive";
+            elements.chineseInput.value = "適應\n停止\n陳腔濫調\n有意識地\n欺騙性的\n偏離\n功能\n想像\n聰明的\n本能地\n判斷\n心理學家\n隨後\n自我保護\n羞恥\n成就\n明確的\n過度的\n成為\n不可思議的\n個性\n洞察力\n正直\n解放\n盲目地\n儘管如此\n規範\n暴亂\n真誠地\n生存";
+        });
+    </script>
+</body>
+
+</html>
